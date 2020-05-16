@@ -79,15 +79,4 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "IsMagicAbility"))
 	bool bIsMagicAbility;
 
-	/*Non UI Related Data*/
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | Data", meta = (DisplayName = "CoolDown Time"))
-	float Cooldown;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | Data", meta = (DisplayName = "IsDamageAbility"))
-	bool bIsDamageAbility;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | Data", meta = (DisplayName = "Damage Amount"))
-	float Damage;
-
 };
