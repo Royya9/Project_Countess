@@ -5,7 +5,6 @@
 #include "GameplayTagContainer.h"
 #include "AbilitySystemComponent.h"
 #include "Characters/Project_CountessCharacter.h"
-#include "Player/Countess_PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
 #include "Particles/ParticleSystem.h"
@@ -63,15 +62,14 @@ void UCountess_GameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecH
 			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		}
 		CommitAbility(Handle, ActorInfo, ActivationInfo);
-		//AProject_CountessCharacter* MyCharacter = CastChecked<AProject_CountessCharacter>(ActorInfo->AvatarActor.Get());
 
-		ACountess_PlayerState* PlayerState = Cast<ACountess_PlayerState>(ActorInfo->AvatarActor.Get());
-		if (!PlayerState)
-			return;
+		AProject_CountessCharacter* MyCharacter = Cast<AProject_CountessCharacter>(ActorInfo->AvatarActor.Get());
 
-		AProject_CountessCharacter* MyCharacter = Cast<AProject_CountessCharacter>(PlayerState->GetPawn());
 		if (!MyCharacter)
+		{
+			UE_LOG(Countess_Log, Error, TEXT("CountessPlayerCharacter ie Avatar Actor not found in %s"), TEXT(__FUNCTION__));
 			return;
+		}
 
 		MyCharacter->Jump();
 		if (SoundToPlay)
@@ -98,13 +96,13 @@ void UCountess_GameplayAbility_Jump::CancelAbility(const FGameplayAbilitySpecHan
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 
 	//AProject_CountessCharacter* MyCharacter = CastChecked<AProject_CountessCharacter>(ActorInfo->AvatarActor.Get());
-	ACountess_PlayerState* PlayerState = Cast<ACountess_PlayerState>(ActorInfo->AvatarActor.Get());
-	if (!PlayerState)
-		return;
+	AProject_CountessCharacter* MyCharacter = Cast<AProject_CountessCharacter>(ActorInfo->AvatarActor.Get());
 
-	AProject_CountessCharacter* MyCharacter = Cast<AProject_CountessCharacter>(PlayerState->GetPawn());
 	if (!MyCharacter)
+	{
+		UE_LOG(Countess_Log, Error, TEXT("CountessPlayerCharacter ie Avatar Actor not found in %s"), TEXT(__FUNCTION__));
 		return;
+	}
 	MyCharacter->StopJumping();
 }
 

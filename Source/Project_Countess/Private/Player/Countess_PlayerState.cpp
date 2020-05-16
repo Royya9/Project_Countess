@@ -5,6 +5,8 @@
 #include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 #include "Characters/GameplayAbilities/AttributeSets/Countess_AttributeSet_Base.h"
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
+#include "Characters/GameplayAbilities/Effects/Countess_GameplayEffect_Base.h"
+
 
 
 
@@ -13,6 +15,7 @@ ACountess_PlayerState::ACountess_PlayerState()
 	AbilitySystemComponent = CreateDefaultSubobject<UCountess_AbilitySystemComponent>(FName("AbilitySystemComponent"));
 
 	AttributeSet = CreateDefaultSubobject<UCountess_AttributeSet_Base>(FName("AttributeSet"));
+	
 }
 
 void ACountess_PlayerState::PostInitializeComponents()
@@ -36,13 +39,33 @@ bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbilit
 			return false;
 	}
 
-	AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityToAcquire, 1, INDEX_NONE, this));
+	//We are giving ability to our ASC
+	FGameplayAbilitySpecHandle AbilitySpecHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityToAcquire, 1, INDEX_NONE, this));
+	//stating that the ownerActor of this ability is the this (PlayerState) and AvatarActor which physically acquires the ability is our PlayerCharacter (GetPawn())
+	AbilitySystemComponent->InitAbilityActorInfo(this, GetPawn());
+	
+	//Adding Acquired ability to our list
 	AcquiredAbilities.Add(AbilityToAcquire);
 	
 	UCountess_GameplayAbility_Base* AbilityToAcquireCDO = Cast<UCountess_GameplayAbility_Base>(AbilityToAcquire->GetDefaultObject(false));
+	//FGameplayAbilityActorInfo* myinfo = AbilitySystemComponent->AbilityActorInfo.Get();
+
+	//Process of getting the duration of the cooldown duration
+	float Duration = -1.f;
+	UCountess_GameplayEffect_Base* GameplayEffectCDO = Cast<UCountess_GameplayEffect_Base>(AbilityToAcquireCDO->GetCooldownGameplayEffect());
+	if (GameplayEffectCDO)
+		GameplayEffectCDO->DurationMagnitude.GetStaticMagnitudeIfPossible(1, Duration);
+	
+	//Below comment is how to get cooldown duration remaining when this ability is active 	
+ 	//AbilityToAcquireCDO->GetCooldownTimeRemainingAndDuration(AbilitySpecHandle, myinfo, Cd, Duration);
+
+
+	UE_LOG(Countess_Log, Warning, TEXT("Cooldown duration read on PS in %s is %f "), TEXT(__FUNCTION__), Duration);
 	if(AbilityToAcquireCDO->AbilityData->IsValidLowLevel())
 	{
-		Countess_Ability_Acquired_Delegate.Broadcast(AbilityToAcquireCDO->AbilityData->AbilityIcon);
+		//Broadcasting our acquired ability details to listeners.
+		// #TODO Combine all these details to decrease the number of params getting broadcasted. Turn them to a global struct maybe? 
+		Countess_Ability_Acquired_Delegate.Broadcast(AbilityToAcquireCDO->AbilityData->AbilityIcon, Duration);
 		UE_LOG(Countess_Log, Warning, TEXT("Acquired Ability is %s and Description is %s"), *AbilityToAcquire->GetName(), *AbilityToAcquireCDO->AbilityData->Description.ToString());
 	}
 	else
@@ -84,7 +107,6 @@ bool ACountess_PlayerState::CanJump(TSubclassOf<UGameplayAbility>& JumpAbility) 
 	{
 		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.Jump"))))
 		{
-			//JumpAbility = Ability.GetDefaultObject();
 			JumpAbility = Ability;
 			return true;
 		}

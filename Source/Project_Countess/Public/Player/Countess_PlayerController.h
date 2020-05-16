@@ -45,7 +45,7 @@ public:
 	void OnHealthChanged(float NewHealthValue);
 
 	UFUNCTION()
-	void OnAbilityAcquired(FSlateBrush AbilityIcon);
+	void OnAbilityAcquired(FSlateBrush AbilityIcon, float Cooldown);
 
 // Inputs
 public:

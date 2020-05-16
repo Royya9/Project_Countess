@@ -14,4 +14,7 @@ class PROJECT_COUNTESS_API UCountess_AbilitySystemComponent : public UAbilitySys
 {
 	GENERATED_BODY()
 	
+public:
+
+	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
 };

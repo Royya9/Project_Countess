@@ -115,8 +115,8 @@ void ACountess_PlayerController::OnHealthChanged(float NewHealthValue)
 	
 }
 
-void ACountess_PlayerController::OnAbilityAcquired(FSlateBrush AbilityIcon)
+void ACountess_PlayerController::OnAbilityAcquired(FSlateBrush AbilityIcon, float Cooldown)
 {
-	UE_LOG(Countess_Log, Warning, TEXT("Success! Handling UI Ability Icons now. From %s"), TEXT(__FUNCTION__));
+	UE_LOG(Countess_Log, Warning, TEXT("Success! Handling UI Ability Icons now. From %s. Coolddown for this abillity is %f"), TEXT(__FUNCTION__), Cooldown);
 	Countess_HUD_Widget->SetWMagicAbilityIcon(AbilityIcon);
 }

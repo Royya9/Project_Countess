@@ -10,7 +10,7 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAttributeChangedDelegate, float, NewValue);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAbilityAcquiredDelegate, FSlateBrush, AbilityIcon); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCountessAbilityAcquiredDelegate, FSlateBrush, AbilityIcon, float, Cooldown); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
 
 /*Forward Declarations*/
 class UCountess_AbilitySystemComponent;
