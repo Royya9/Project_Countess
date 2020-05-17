@@ -94,6 +94,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	float GetManaRegenRate() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	float GetCurrentStamina() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	float GetMaxStamina() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	float GetStaminaRegenRate() const;
+
 
 	/*Delegates to inform attribute changes to whoever is listening to*/
 	FCountessAttributeChangedDelegate Countess_Health_Changed_Delegate;

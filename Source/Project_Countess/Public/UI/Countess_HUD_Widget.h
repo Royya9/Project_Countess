@@ -43,6 +43,18 @@ public:
 	void SetManaRegenRate(float ManaRegenRate);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetCurrentStamina(float CurrentStamina);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetMaxStamina(float MaxStamina);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetStaminaPercentage(float StaminaPercentage);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetStaminaRegenRate(float StaminaRegenRate);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetArmor(float Armor);
 
 	/*Events to handle Player Abilities' UI */

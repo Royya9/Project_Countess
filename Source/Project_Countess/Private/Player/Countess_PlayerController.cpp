@@ -93,7 +93,10 @@ void ACountess_PlayerController::BeginPlay()
 	Countess_HUD_Widget->SetManaPercentage(PlayerState->GetCurrentMana()/ PlayerState->GetMaxMana());
 	Countess_HUD_Widget->SetManaRegenRate(PlayerState->GetManaRegenRate());
 	Countess_HUD_Widget->SetArmor(PlayerState->GetArmor());
-
+	Countess_HUD_Widget->SetCurrentStamina(PlayerState->GetCurrentStamina());
+	Countess_HUD_Widget->SetMaxStamina(PlayerState->GetMaxStamina());
+	Countess_HUD_Widget->SetStaminaPercentage(PlayerState->GetCurrentStamina() / PlayerState->GetMaxStamina());
+	Countess_HUD_Widget->SetStaminaRegenRate(PlayerState->GetStaminaRegenRate());
 
 	/*Delegates to handle Player attribute changes from PlayerState which inturn receives changes from ASC*/
 

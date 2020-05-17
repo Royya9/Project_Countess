@@ -12,6 +12,9 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 	Mana(40.f),
 	MaxMana(40.f),
 	ManaRegenRate(2.f),
+	Stamina(10.f),
+	MaxStamina(10.f),
+	StaminaRegenRate(1.f),
 	Armor(5.f)
 {
 	static ConstructorHelpers::FObjectFinder<UDataTable> AttributeData(TEXT("/Game/MyProjectMain/Data/StartupData"));

@@ -150,6 +150,21 @@ float ACountess_PlayerState::GetManaRegenRate() const
 	return AttributeSet->GetManaRegenRate();
 }
 
+float ACountess_PlayerState::GetCurrentStamina() const
+{
+	return AttributeSet->GetStamina();
+}
+
+float ACountess_PlayerState::GetMaxStamina() const
+{
+	return AttributeSet->GetMaxStamina();
+}
+
+float ACountess_PlayerState::GetStaminaRegenRate() const
+{
+	return AttributeSet->GetStaminaRegenRate();
+}
+
 void ACountess_PlayerState::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	Countess_Health_Changed_Delegate.Broadcast(Data.NewValue);

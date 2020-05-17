@@ -57,6 +57,18 @@ public:
 	FGameplayAttributeData ManaRegenRate;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, ManaRegenRate)
 
+	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
+	FGameplayAttributeData Stamina;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, Stamina)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
+	FGameplayAttributeData MaxStamina;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, MaxStamina)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
+	FGameplayAttributeData StaminaRegenRate;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, StaminaRegenRate)
+
 	UPROPERTY(BlueprintReadOnly, Category = "Armor")
 	FGameplayAttributeData Armor;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, Armor)
