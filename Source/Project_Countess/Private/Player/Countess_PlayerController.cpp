@@ -101,7 +101,7 @@ void ACountess_PlayerController::BeginPlay()
 	/*Delegates to handle Player attribute changes from PlayerState which inturn receives changes from ASC*/
 
 	PlayerState->Countess_Health_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnHealthChanged);
-
+	PlayerState->Countess_Stamina_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnStaminaChanged);
 	// #TODO: handle UI after Player loses Abilities too..
 	/*Delegates to handle UI after Player acquires Abilities */
 	PlayerState->Countess_Ability_Acquired_Delegate.AddDynamic(this, &ACountess_PlayerController::OnAbilityAcquired);
@@ -115,7 +115,13 @@ void ACountess_PlayerController::OnHealthChanged(float NewHealthValue)
 {
 	UE_LOG(Countess_Log, Warning, TEXT("Here from %s"), TEXT(__FUNCTION__));
 	Countess_HUD_Widget->SetCurrentHealth(NewHealthValue);
-	
+	Countess_HUD_Widget->SetHealthPercentage(NewHealthValue / PlayerState->GetMaxHealth());
+}
+
+void ACountess_PlayerController::OnStaminaChanged(float NewStaminavalue)
+{
+	Countess_HUD_Widget->SetCurrentStamina(NewStaminavalue);
+	Countess_HUD_Widget->SetStaminaPercentage(NewStaminavalue / PlayerState->GetMaxStamina());
 }
 
 void ACountess_PlayerController::OnAbilityAcquired(FSlateBrush AbilityIcon, float Cooldown)

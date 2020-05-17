@@ -7,7 +7,7 @@
 #include "Countess_GE_Jump_CoolDown.generated.h"
 
 /**
- * 
+ *  Gameplay Effect that handles Cooldown for Jump Ability
  */
 UCLASS()
 class PROJECT_COUNTESS_API UCountess_GE_Jump_CoolDown : public UCountess_GameplayEffect_Base

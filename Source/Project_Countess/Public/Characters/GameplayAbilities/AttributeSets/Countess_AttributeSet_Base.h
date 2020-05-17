@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Globals/Project_Countess.h"
 #include "AttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "Countess_AttributeSet_Base.generated.h"
@@ -12,7 +12,6 @@
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
-
 
 /**
  * 
@@ -78,6 +77,9 @@ public:
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, Damage)
 
+
+		/*Delegates to broadcast that our attributes' value changed*/
+	//FCountessAttributeChangedDel CountessAttributeChangedDelegate;
 
 protected:
 	

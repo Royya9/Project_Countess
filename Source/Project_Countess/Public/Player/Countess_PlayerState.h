@@ -106,14 +106,17 @@ public:
 
 	/*Delegates to inform attribute changes to whoever is listening to*/
 	FCountessAttributeChangedDelegate Countess_Health_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_Stamina_Changed_Delegate;
 
 	/*Delegate to inform Acquired Ability Details to whoever is listening to*/
 	FCountessAbilityAcquiredDelegate Countess_Ability_Acquired_Delegate;
 
 	/*Delegates that listen to attribute changes from AbilitySystemComponent*/
 	FDelegateHandle HealthChangedDelegateHandle;
+	FDelegateHandle StaminaChangedDelegatehandle;
 	
 	/*Corresponding functions where necessary logic takes place*/
 	//UFUNCTION(BlueprintCallable)
 	virtual void OnHealthChanged(const FOnAttributeChangeData& Data);
+	virtual void OnStaminaChanged(const FOnAttributeChangeData& Data);
 };

@@ -22,6 +22,7 @@ void ACountess_PlayerState::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	HealthChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).AddUObject(this, &ACountess_PlayerState::OnHealthChanged);
+	StaminaChangedDelegatehandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaAttribute()).AddUObject(this, &ACountess_PlayerState::OnStaminaChanged);
 }
 
 bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire)
@@ -168,4 +169,9 @@ float ACountess_PlayerState::GetStaminaRegenRate() const
 void ACountess_PlayerState::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	Countess_Health_Changed_Delegate.Broadcast(Data.NewValue);
+}
+
+void ACountess_PlayerState::OnStaminaChanged(const FOnAttributeChangeData& Data)
+{
+	Countess_Stamina_Changed_Delegate.Broadcast(Data.NewValue);
 }

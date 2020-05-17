@@ -11,6 +11,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_Jump_CoolDown.h"
+#include "Characters/GameplayAbilities/Effects/Countess_GE_Jump_Cost.h"
 
 UCountess_GameplayAbility_Jump::UCountess_GameplayAbility_Jump()
 {
@@ -49,6 +50,7 @@ UCountess_GameplayAbility_Jump::UCountess_GameplayAbility_Jump()
 	/*Our Jump Ability CoolDown Class*/
 	
 	CooldownGameplayEffectClass = UCountess_GE_Jump_CoolDown::StaticClass();
+	CostGameplayEffectClass = UCountess_GE_Jump_Cost::StaticClass();
 	//CooldownGameplayEffectClass-> = AbilityData->Cooldown;
 
 }

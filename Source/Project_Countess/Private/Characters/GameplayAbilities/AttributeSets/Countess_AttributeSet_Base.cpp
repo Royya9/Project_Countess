@@ -3,6 +3,8 @@
 
 #include "Characters/GameplayAbilities/AttributeSets/Countess_AttributeSet_Base.h"
 #include "Engine/DataTable.h"
+#include "GameplayEffect.h"
+#include "GameplayEffectExtension.h"
 
 
 UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
@@ -53,11 +55,27 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 void UCountess_AttributeSet_Base::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute,NewValue);
+	//UE_LOG(Countess_Log, Warning, TEXT("Attribute %s going to be changed. From %s\n Attribute value is %f"), *Attribute.GetName(), TEXT(__FUNCTION__), NewValue);
 }
 
 void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+
+	//Handle Stamina Change
+	/*
+	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	{
+		//FGameplayEffectSpec Countess_Spec = Data.;
+		FGameplayEffectContextHandle Countess_Context = Data.EffectSpec.GetContext();
+		//Countess_Context.
+		FGameplayAttribute Attribute = Data.EvaluatedData.Attribute;
+		float NewValue = Data.EvaluatedData.Attribute.GetNumericValue(this);
+		UE_LOG(Countess_Log, Warning, TEXT("Attribute %s going to be changed. From %s\n Attribute value is %f"), *Attribute.GetName(), TEXT(__FUNCTION__), NewValue);
+		CountessAttributeChangedDelegate.Broadcast(Attribute);
+	}
+	*/
+
 }
 
 void UCountess_AttributeSet_Base::AdjustAttributeForMaxChange(FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty)
