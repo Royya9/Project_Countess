@@ -54,14 +54,59 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 
 void UCountess_AttributeSet_Base::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
-	Super::PreAttributeChange(Attribute,NewValue);
+	Super::PreAttributeChange(Attribute, NewValue);
+
+	
 	//UE_LOG(Countess_Log, Warning, TEXT("Attribute %s going to be changed. From %s\n Attribute value is %f"), *Attribute.GetName(), TEXT(__FUNCTION__), NewValue);
+	
+
+	
 }
 
 void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
 
+	FGameplayEffectContextHandle Countess_Context = Data.EffectSpec.GetContext();
+	
+	UAbilitySystemComponent* AbilitySystemComponent = Countess_Context.GetOriginalInstigatorAbilitySystemComponent();
+
+	
+
+	
+	// Apply FullStamina Tag to our AbilitySystemComponent to prevent Regen Effect being applied. Remove the tag if not so.
+	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	{
+// 		float val = Data.EvaluatedData.Magnitude;
+// 		FGameplayModifierEvaluatedData Countess_Data = Data.EvaluatedData;
+// 		UE_LOG(Countess_Log, Warning, TEXT("%f"), Countess_Data.Magnitude);
+
+		
+
+		
+		//UE_LOG(Countess_Log, Warning, TEXT("stamina value is %f. From %s"), GetStamina(), TEXT(__FUNCTION__));
+		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
+		if ( GetStamina() > GetMaxStamina() ||  FMath::IsNearlyEqual(GetStamina(), GetMaxStamina()))
+		{
+			AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+// 			if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Buff.FullStamina"))))
+// 			{
+// 				AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Buff.FullStamina")));
+// 				UE_LOG(Countess_Log, Warning, TEXT("Add Full Stamina Tag in %s"), TEXT(__FUNCTION__));
+// 			}
+		}
+		else
+		{
+			AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+// 			if (AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Buff.FullStamina"))))
+// 			{
+// 				AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Buff.FullStamina")));
+// 				UE_LOG(Countess_Log, Warning, TEXT("Removed Full Stamina Tag in %s"), TEXT(__FUNCTION__));
+// 			}
+		}
+		
+	}
+	
 	//Handle Stamina Change
 	/*
 	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())

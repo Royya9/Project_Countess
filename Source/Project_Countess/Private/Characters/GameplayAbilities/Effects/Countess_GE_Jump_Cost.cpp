@@ -11,15 +11,6 @@ UCountess_GE_Jump_Cost::UCountess_GE_Jump_Cost()
 
 	if (AbilityDetailsTable)
 	{
-		UCountess_AttributeSet_Base* AttributeSet = nullptr;
-		static ConstructorHelpers::FClassFinder<UCountess_AttributeSet_Base> AttributeSetClass(TEXT("'/Script/Project_Countess.Countess_AttributeSet_Base'"));
-		if (AttributeSetClass.Succeeded())
-		{
-			AttributeSet = Cast<UCountess_AttributeSet_Base>(AttributeSetClass.Class->GetDefaultObject(false));
-			if(AttributeSet)
-				UE_LOG(Countess_Log, Warning, TEXT("Found AttributeSet CDO in %s"), TEXT(__FUNCTION__));
-		}
-
 		FScalableFloat ScalableFloat = FScalableFloat(-1.f);
 		FCurveTableRowHandle AbilityDetailsTableRowHandle;
 
@@ -27,15 +18,14 @@ UCountess_GE_Jump_Cost::UCountess_GE_Jump_Cost()
 		AbilityDetailsTableRowHandle.RowName = FName("JumpAbilityStaminaCost");
 
 		ScalableFloat.Curve = AbilityDetailsTableRowHandle;
-		if (AttributeSet)
+		if (Countess_AttributeSet)
 		{
 			FGameplayModifierInfo ModifierInfo;
-			ModifierInfo.Attribute = AttributeSet->GetStaminaAttribute();
+			ModifierInfo.Attribute = Countess_AttributeSet->GetStaminaAttribute();
 			ModifierInfo.ModifierOp = EGameplayModOp::Additive;
 			ModifierInfo.ModifierMagnitude = FGameplayEffectModifierMagnitude(ScalableFloat);
 			Modifiers.Add(ModifierInfo);
 		}
-
 
 	}
 	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Jump.Cost")));

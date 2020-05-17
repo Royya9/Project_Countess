@@ -35,12 +35,17 @@ private:
 	/*Array containing all our acquired abilities*/
 	TArray<TSubclassOf<UCountess_GameplayAbility_Base>> AcquiredAbilities;
 
+	/*Array containing all the abilities that are given on game start like health/mana/stamina regen etc..*/
+	TArray<TSubclassOf<UCountess_GameplayAbility_Base>> StartupAbilities;
+
 public:
 
 	ACountess_PlayerState();
 
 	/*Overrides*/
 	virtual void PostInitializeComponents() override;
+
+	virtual void BeginPlay() override;
 
 	/*Setters*/
 
@@ -50,6 +55,10 @@ public:
 	bool Countess_TryActivateAbilityByClass(TSubclassOf<UGameplayAbility>& AbilityToActivate);
 
 	void Countess_CancelAbility(TSubclassOf<UGameplayAbility>& AbilityToCancel);
+
+	void SetStartupAbilities(TSubclassOf<UCountess_GameplayAbility_Base>& StartupAbility);
+
+	void GiveStartupAbilitiesToASC(TArray<TSubclassOf<UCountess_GameplayAbility_Base>>& _StartupAbilities);
 
 	/*Getters*/
 

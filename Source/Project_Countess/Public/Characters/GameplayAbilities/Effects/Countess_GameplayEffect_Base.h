@@ -7,6 +7,7 @@
 #include "Countess_GameplayEffect_Base.generated.h"
 
 class UCurveTable;
+class UCountess_AttributeSet_Base;
 
 /**
  *  Base class that loads our AbilityDetails Curve Table for child classes' use
@@ -22,6 +23,9 @@ public:
 
 protected:
 
+	//CurveTable that contains all Ability/Effect Details. 
 	UCurveTable* AbilityDetailsTable;
 
+	//AttributeSet needed by subclasses to find the attribute the corresponding Effect to be applied to.
+	UCountess_AttributeSet_Base* Countess_AttributeSet;
 };

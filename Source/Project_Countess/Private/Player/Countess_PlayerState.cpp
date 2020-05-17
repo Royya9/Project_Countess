@@ -6,7 +6,7 @@
 #include "Characters/GameplayAbilities/AttributeSets/Countess_AttributeSet_Base.h"
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GameplayEffect_Base.h"
-
+#include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Regen.h"
 
 
 
@@ -15,14 +15,21 @@ ACountess_PlayerState::ACountess_PlayerState()
 	AbilitySystemComponent = CreateDefaultSubobject<UCountess_AbilitySystemComponent>(FName("AbilitySystemComponent"));
 
 	AttributeSet = CreateDefaultSubobject<UCountess_AttributeSet_Base>(FName("AttributeSet"));
-	
+	StartupAbilities.Add(UCountess_GameplayAbility_Regen::StaticClass());
 }
 
 void ACountess_PlayerState::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+	
 	HealthChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).AddUObject(this, &ACountess_PlayerState::OnHealthChanged);
 	StaminaChangedDelegatehandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaAttribute()).AddUObject(this, &ACountess_PlayerState::OnStaminaChanged);
+}
+
+void ACountess_PlayerState::BeginPlay()
+{
+	Super::BeginPlay();
+	GiveStartupAbilitiesToASC(StartupAbilities);
 }
 
 bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire)
@@ -61,13 +68,13 @@ bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbilit
  	//AbilityToAcquireCDO->GetCooldownTimeRemainingAndDuration(AbilitySpecHandle, myinfo, Cd, Duration);
 
 
-	UE_LOG(Countess_Log, Warning, TEXT("Cooldown duration read on PS in %s is %f "), TEXT(__FUNCTION__), Duration);
+	//UE_LOG(Countess_Log, Warning, TEXT("Cooldown duration read on PS in %s is %f "), TEXT(__FUNCTION__), Duration);
 	if(AbilityToAcquireCDO->AbilityData->IsValidLowLevel())
 	{
 		//Broadcasting our acquired ability details to listeners.
 		// #TODO Combine all these details to decrease the number of params getting broadcasted. Turn them to a global struct maybe? 
 		Countess_Ability_Acquired_Delegate.Broadcast(AbilityToAcquireCDO->AbilityData->AbilityIcon, Duration);
-		UE_LOG(Countess_Log, Warning, TEXT("Acquired Ability is %s and Description is %s"), *AbilityToAcquire->GetName(), *AbilityToAcquireCDO->AbilityData->Description.ToString());
+		//UE_LOG(Countess_Log, Warning, TEXT("Acquired Ability is %s and Description is %s"), *AbilityToAcquire->GetName(), *AbilityToAcquireCDO->AbilityData->Description.ToString());
 	}
 	else
 	{
@@ -85,6 +92,25 @@ bool ACountess_PlayerState::Countess_TryActivateAbilityByClass(TSubclassOf<UGame
 void ACountess_PlayerState::Countess_CancelAbility(TSubclassOf<UGameplayAbility>& AbilityToCancel)
 {
 	AbilitySystemComponent->CancelAbility(GetAbilityObjectFromClass(AbilityToCancel));
+}
+
+void ACountess_PlayerState::SetStartupAbilities(TSubclassOf<UCountess_GameplayAbility_Base>& StartupAbility)
+{
+	StartupAbilities.Add(StartupAbility);
+}
+
+void ACountess_PlayerState::GiveStartupAbilitiesToASC(TArray<TSubclassOf<UCountess_GameplayAbility_Base>>& _StartupAbilities)
+{
+	for (auto& StartupAbility : _StartupAbilities)
+	{
+		if (AcquireAbilitiy(StartupAbility))
+		{
+			
+			UE_LOG(Countess_Log, Warning, TEXT("Activating Startup Ability From %s"),  TEXT(__FUNCTION__));
+			AbilitySystemComponent->TryActivateAbilityByClass(StartupAbility);
+			//AbilitySystemComponent->effec
+		}
+	}
 }
 
 UAbilitySystemComponent* ACountess_PlayerState::GetAbilitySystemComponent() const

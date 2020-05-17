@@ -61,7 +61,7 @@ void UCountess_GameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecH
 	{
 		if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 		{
-			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		}
 		CommitAbility(Handle, ActorInfo, ActivationInfo);
 

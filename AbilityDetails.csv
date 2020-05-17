@@ -2,5 +2,6 @@
 JumpAbilityCooldown,2.25,7,0
 JumpAbilityManaCost,0,0,0
 JumpAbilityStaminaCost,1,0,0
+StaminaRegenRate,0.5,0.75,1
 
 
