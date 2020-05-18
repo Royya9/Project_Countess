@@ -21,10 +21,8 @@ class PROJECT_COUNTESS_API UCountess_AttributeSet_Base : public UAttributeSet
 {
 	GENERATED_BODY()
 	
+	UCurveTable* AbiiltyDetailsTable;
 public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UDataTable* StartupData;
 
 	UCountess_AttributeSet_Base();
 

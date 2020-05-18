@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GameplayEffect_Base.h"
-#include "Countess_GE_Regen.generated.h"
+#include "Countess_GE_Health_Regen.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECT_COUNTESS_API UCountess_GE_Regen : public UCountess_GameplayEffect_Base
+class PROJECT_COUNTESS_API UCountess_GE_Health_Regen : public UCountess_GameplayEffect_Base
 {
 	GENERATED_BODY()
 
 public:
 
-	UCountess_GE_Regen();
+	UCountess_GE_Health_Regen();
 	
 };

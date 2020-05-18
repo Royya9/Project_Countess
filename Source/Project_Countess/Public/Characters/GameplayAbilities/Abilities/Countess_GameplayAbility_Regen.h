@@ -18,7 +18,8 @@ class PROJECT_COUNTESS_API UCountess_GameplayAbility_Regen : public UCountess_Ga
 	
 private:
 
-	UGameplayEffect* Countess_Regen_Effect;
+	UGameplayEffect* Countess_Stamina_Regen_Effect;
+	UGameplayEffect* Countess_Health_Regen_Effect;
 
 public:
 

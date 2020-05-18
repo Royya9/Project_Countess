@@ -113,7 +113,7 @@ void ACountess_PlayerController::BeginPlay()
 
 void ACountess_PlayerController::OnHealthChanged(float NewHealthValue)
 {
-	UE_LOG(Countess_Log, Warning, TEXT("Here from %s"), TEXT(__FUNCTION__));
+	//UE_LOG(Countess_Log, Warning, TEXT("Here from %s"), TEXT(__FUNCTION__));
 	Countess_HUD_Widget->SetCurrentHealth(NewHealthValue);
 	Countess_HUD_Widget->SetHealthPercentage(NewHealthValue / PlayerState->GetMaxHealth());
 }
