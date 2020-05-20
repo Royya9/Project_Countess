@@ -17,7 +17,9 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 	Stamina(10.f),
 	MaxStamina(10.f),
 	StaminaRegenRate(1.f),
-	Armor(5.f)
+	Armor(5.f),
+	Exp(0.f),
+	MaxExp(100.f)
 {
 	
 	static ConstructorHelpers::FObjectFinder<UCurveTable> _AbilityDetailsObject(TEXT("'/Game/MyProjectMain/Blueprints/Characters/Abilities/AbilityDetails'"));
@@ -31,6 +33,16 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 	}
 	if (AbiiltyDetailsTable)
 	{
+		//Create Attributes at Level 1 from our AbilityDetails Table
+		SetAttributes();
+	}
+}
+
+
+void UCountess_AttributeSet_Base::SetAttributes()
+{
+	if (AbiiltyDetailsTable)
+	{
 		//UE_LOG(LogTemp, Warning, TEXT("Found Data Table %s"), *StartupData->GetName());
 		FString ContextString;
 		FSimpleCurve* HealthHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Health"), ContextString);
@@ -42,27 +54,28 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 		FSimpleCurve* HealthRegenHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("HealthRegenRate"), ContextString);
 		FSimpleCurve* StaminaRegenHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("StaminaRegenRate"), ContextString);
 		FSimpleCurve* ManaRegenHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("ManaRegenRate"), ContextString);
+		FSimpleCurve* ArmorHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Armor"), ContextString);
 
-
-		if(HealthHandle)
-			Health = HealthHandle->Eval(0.f);
+		if (HealthHandle)
+			Health = HealthHandle->Eval(1.f);
 		if (MaxHealthHandle)
-			MaxHealth = MaxHealthHandle->Eval(0.f);
+			MaxHealth = MaxHealthHandle->Eval(1.f);
 		if (ManaHandle)
-			Mana = ManaHandle->Eval(0.f);
+			Mana = ManaHandle->Eval(1.f);
 		if (MaxManaHandle)
-			MaxMana = MaxManaHandle->Eval(0.f);
+			MaxMana = MaxManaHandle->Eval(1.f);
 		if (StaminaHandle)
-			Stamina = StaminaHandle->Eval(0.f);
+			Stamina = StaminaHandle->Eval(1.f);
 		if (MaxStaminaHandle)
-			MaxStamina = MaxStaminaHandle->Eval(0.f);
+			MaxStamina = MaxStaminaHandle->Eval(1.f);
 		if (HealthRegenHandle)
-			HealthRegenRate = HealthRegenHandle->Eval(0.f);
+			HealthRegenRate = HealthRegenHandle->Eval(1.f);
 		if (StaminaRegenHandle)
-			StaminaRegenRate = StaminaRegenHandle->Eval(0.f);
+			StaminaRegenRate = StaminaRegenHandle->Eval(1.f);
 		if (ManaRegenHandle)
-			ManaRegenRate = ManaRegenHandle->Eval(0.f);
-
+			ManaRegenRate = ManaRegenHandle->Eval(1.f);
+		if (ArmorHandle)
+			Armor = ArmorHandle->Eval(1.f);
 	}
 }
 
@@ -72,9 +85,26 @@ void UCountess_AttributeSet_Base::PreAttributeChange(const FGameplayAttribute& A
 
 	
 	//UE_LOG(Countess_Log, Warning, TEXT("Attribute %s going to be changed. From %s\n Attribute value is %f"), *Attribute.GetName(), TEXT(__FUNCTION__), NewValue);
-	
-
-	
+	if (Attribute == GetMaxHealthAttribute())
+	{
+		AdjustAttributeForMaxChange(Health, MaxHealth, NewValue, GetHealthAttribute());
+	}
+	else if (Attribute == GetMaxManaAttribute())
+	{
+		AdjustAttributeForMaxChange(Mana, MaxMana, NewValue, GetManaAttribute());
+	}
+	else if (Attribute == GetMaxStaminaAttribute())
+	{
+		AdjustAttributeForMaxChange(Stamina, MaxStamina, NewValue, GetStaminaAttribute());
+	}
+	else if (Attribute == GetExpAttribute() && NewValue >= MaxExp.GetCurrentValue())
+	{
+		NewValue -= MaxExp.GetCurrentValue();
+	}
+	else if (Attribute == GetStaminaAttribute())
+	{
+		UE_LOG(Countess_Log, Warning, TEXT("Stamina value is %f and Regen Rate is %f. From %s"), NewValue, GetStaminaRegenRate(), TEXT(__FUNCTION__));
+	}
 }
 
 void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
@@ -98,7 +128,7 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 		
 
 		
-		//UE_LOG(Countess_Log, Warning, TEXT("stamina value is %f. From %s"), GetStamina(), TEXT(__FUNCTION__));
+		UE_LOG(Countess_Log, Warning, TEXT("stamina value is %f and Stamina_Regen_Rate is %f. From %s"), GetStamina(), GetStaminaRegenRate(), TEXT(__FUNCTION__));
 		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
 		if ( GetStamina() > GetMaxStamina() ||  FMath::IsNearlyEqual(GetStamina(), GetMaxStamina()))
 		{
@@ -152,5 +182,14 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 
 void UCountess_AttributeSet_Base::AdjustAttributeForMaxChange(FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty)
 {
+	UAbilitySystemComponent* AbilityComp = GetOwningAbilitySystemComponent();
+	const float CurrentMaxValue = MaxAttribute.GetCurrentValue();
+	if (!FMath::IsNearlyEqual(CurrentMaxValue, NewMaxValue) && AbilityComp)
+	{
+		// Change current value to maintain the current Val / Max percent
+		const float CurrentValue = AffectedAttribute.GetCurrentValue();
+		float NewDelta = (CurrentMaxValue > 0.f) ? (CurrentValue * NewMaxValue / CurrentMaxValue) - CurrentValue : NewMaxValue;
 
+		AbilityComp->ApplyModToAttributeUnsafe(AffectedAttributeProperty, EGameplayModOp::Additive, NewDelta);
+	}
 }

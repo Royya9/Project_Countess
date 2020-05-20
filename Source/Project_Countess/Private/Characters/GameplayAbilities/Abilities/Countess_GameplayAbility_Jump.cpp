@@ -74,14 +74,14 @@ void UCountess_GameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecH
 		}
 
 		MyCharacter->Jump();
-		if (SoundToPlay)
+		if (SoundToPlay.IsValid(false))
 		{
-			UGameplayStatics::PlaySound2D(this, SoundToPlay, 3.f);
+			UGameplayStatics::PlaySound2D(this, SoundToPlay.Get(false), 3.f);
 		}
-		if (EmitterToSpawn)
+		if (EmitterToSpawn.IsValid(false))
 		{
 			UArrowComponent* ArrowComp = Cast<UArrowComponent>(MyCharacter->GetFeetLocationArrowComponent());
-			UGameplayStatics::SpawnEmitterAttached(EmitterToSpawn, ArrowComp, FName(NAME_None), FVector(0), FRotator(0), FVector(0.5f));
+			UGameplayStatics::SpawnEmitterAttached(EmitterToSpawn.Get(false), ArrowComp, FName(NAME_None), FVector(0), FRotator(0), FVector(0.5f));
 		}
 
 	}

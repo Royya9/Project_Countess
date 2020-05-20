@@ -36,11 +36,11 @@ public:
 
 	/*sound to play when ability is activated*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = VFX, meta = (AllowPrivateAccess = "true"))
-	USoundWave* SoundToPlay;
+	TWeakObjectPtr<USoundWave> SoundToPlay;
 
 	/*particle emitter to spawn when ability is activated*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = VFX, meta = (AllowPrivateAccess = "true"))
-	UParticleSystem* EmitterToSpawn;
+	TWeakObjectPtr<UParticleSystem> EmitterToSpawn;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AbilityDetails, meta = (DisplayName = "Ability Data"))
 	TWeakObjectPtr<UAbilityData> AbilityData;

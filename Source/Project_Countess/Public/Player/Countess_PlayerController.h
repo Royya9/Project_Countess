@@ -45,7 +45,31 @@ public:
 	void OnHealthChanged(float NewHealthValue);
 
 	UFUNCTION()
-	void OnStaminaChanged(float NewStaminavalue);
+	void OnStaminaChanged(float NewStaminaValue);
+
+	UFUNCTION()
+	void OnManaChanged(float NewManaValue);
+
+	UFUNCTION()
+	void OnMaxHealthChanged(float NewMaxHealthValue);
+
+	UFUNCTION()
+	void OnMaxStaminaChanged(float NewMaxStaminaValue);
+
+	UFUNCTION()
+	void OnMaxManaChanged(float NewMaxManaValue);
+
+	UFUNCTION()
+	void OnHealthRegenRateChanged(float NewHealthRegenValue);
+
+	UFUNCTION()
+	void OnManaRegenRateChanged(float NewManaRegenValue);
+
+	UFUNCTION()
+	void OnStaminaRegenRateChanged(float NewStaminaRegenValue);
+
+	UFUNCTION()
+	void OnArmorChanged(float NewArmorValue);
 
 	UFUNCTION()
 	void OnAbilityAcquired(FSlateBrush AbilityIcon, float Cooldown);

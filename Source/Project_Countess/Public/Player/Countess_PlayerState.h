@@ -38,6 +38,15 @@ private:
 	/*Array containing all the abilities that are given on game start like health/mana/stamina regen etc..*/
 	TArray<TSubclassOf<UCountess_GameplayAbility_Base>> StartupAbilities;
 
+protected:
+
+	/*Spawns at level 1. Only gaining experience increases the level*/
+	UPROPERTY(EditAnywhere, Category = "PlayerLevel")
+	uint32 PlayerLevel;
+
+
+	bool bAbilitiesInitialized;
+
 public:
 
 	ACountess_PlayerState();
@@ -58,7 +67,14 @@ public:
 
 	void SetStartupAbilities(TSubclassOf<UCountess_GameplayAbility_Base>& StartupAbility);
 
-	void GiveStartupAbilitiesToASC(TArray<TSubclassOf<UCountess_GameplayAbility_Base>>& _StartupAbilities);
+	void GiveStartupAbilities();
+
+	void RemoveStartupAbilities();
+
+	void RefreshStartupAbilities();
+
+	UFUNCTION(BlueprintCallable, Category = "Countess | Test")
+	void SetPlayerLevel(int32 NewLevel);
 
 	/*Getters*/
 
@@ -77,6 +93,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	bool IsAlive() const;
+
+	//UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	uint32 GetPlayerLevel() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Countess | Test")
+	FORCEINLINE int32 GetPlayerLevel_FOR_TESTING() const { return PlayerLevel; }
 
 	/*Checks our list of acquired abilities whether we have the ability to Jump and if yes, populates the JumpAbility class with corresponding Countess_Ability_Jump*/
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
@@ -116,16 +138,40 @@ public:
 	/*Delegates to inform attribute changes to whoever is listening to*/
 	FCountessAttributeChangedDelegate Countess_Health_Changed_Delegate;
 	FCountessAttributeChangedDelegate Countess_Stamina_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_Mana_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_MaxHealth_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_MaxStamina_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_MaxMana_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_HealthRegenRate_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_ManaRegenRate_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_StaminaRegenRate_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_Armor_Changed_Delegate;
 
 	/*Delegate to inform Acquired Ability Details to whoever is listening to*/
 	FCountessAbilityAcquiredDelegate Countess_Ability_Acquired_Delegate;
 
 	/*Delegates that listen to attribute changes from AbilitySystemComponent*/
 	FDelegateHandle HealthChangedDelegateHandle;
-	FDelegateHandle StaminaChangedDelegatehandle;
+	FDelegateHandle StaminaChangedDelegateHandle;
+	FDelegateHandle ManaChangedDelegateHandle;
+	FDelegateHandle MaxHealthChangedDelegateHandle;
+	FDelegateHandle MaxStaminaChangedDelegateHandle;
+	FDelegateHandle MaxManaChangedDelegateHandle;
+	FDelegateHandle HealthRegenRateChangedDelegateHandle;
+	FDelegateHandle ManaRegenRateChangedDelegateHandle;
+	FDelegateHandle StaminaRegenRateChangedDelegateHandle;
+	FDelegateHandle ArmorChangedDelegateHandle;
 	
 	/*Corresponding functions where necessary logic takes place*/
 	//UFUNCTION(BlueprintCallable)
 	virtual void OnHealthChanged(const FOnAttributeChangeData& Data);
 	virtual void OnStaminaChanged(const FOnAttributeChangeData& Data);
+	virtual void OnManaChanged(const FOnAttributeChangeData& Data);
+	virtual void OnMaxHealthChanged(const FOnAttributeChangeData& Data);
+	virtual void OnMaxStaminaChanged(const FOnAttributeChangeData& Data);
+	virtual void OnMaxManaChanged(const FOnAttributeChangeData& Data);
+	virtual void OnHealthRegenRateChanged(const FOnAttributeChangeData& Data);
+	virtual void OnManaRegenRateChanged(const FOnAttributeChangeData& Data);
+	virtual void OnStaminaRegenRateChanged(const FOnAttributeChangeData& Data);
+	virtual void OnArmorChanged(const FOnAttributeChangeData& Data);
 };

@@ -8,10 +8,10 @@ UCountess_GE_Stamina_Regen::UCountess_GE_Stamina_Regen()
 {
 	DurationPolicy = EGameplayEffectDurationType::Infinite;
 	
-	//Stamina Regen Modifier
-	if (AbilityDetailsTable)
+	//Stamina Regen Modifier 
+	if (AbilityDetailsTable) // Curve Table(.csv file) which holds the regen_rate per level 
 	{
-		/*
+		
 		FScalableFloat ScalableFloat = FScalableFloat(1.f);
 
 		FCurveTableRowHandle AbilityDetailsRowHandle;
@@ -19,18 +19,15 @@ UCountess_GE_Stamina_Regen::UCountess_GE_Stamina_Regen()
 		AbilityDetailsRowHandle.RowName = FName("StaminaRegenRate");
 
 		ScalableFloat.Curve = AbilityDetailsRowHandle;
-		*/
+		
 
-		//No need for above because we are getting Regen Rate from Attribute Set directly as below
-		FScalableFloat ScalableFloat = FScalableFloat(Countess_AttributeSet->GetStaminaRegenRate());
-
+		//FScalableFloat ScalableFloat = FScalableFloat(Countess_AttributeSet->GetStaminaRegenRate()); not working
 		if (Countess_AttributeSet)
 		{
 			FGameplayModifierInfo ModifierInfo;
 			ModifierInfo.Attribute = Countess_AttributeSet->GetStaminaAttribute();
 			ModifierInfo.ModifierOp = EGameplayModOp::Additive;
 			ModifierInfo.ModifierMagnitude = FGameplayEffectModifierMagnitude(ScalableFloat);
-			//ModifierInfo.SourceTags.IgnoreTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull")));
 			Modifiers.Add(ModifierInfo);
 		}
 		
@@ -42,13 +39,11 @@ UCountess_GE_Stamina_Regen::UCountess_GE_Stamina_Regen()
 
 		ScalableFloat_Period.Curve = AbilityDetailsRowHandle_Period;
 		Period = ScalableFloat_Period;
-	}
-	
 
-	
+		//Period = FScalableFloat(1.f);
+	}
+
 	InheritableGameplayEffectTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Effect.Stamina.Regen")));
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Regen")));
 	OngoingTagRequirements.RequireTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
-	
-	
+
 }

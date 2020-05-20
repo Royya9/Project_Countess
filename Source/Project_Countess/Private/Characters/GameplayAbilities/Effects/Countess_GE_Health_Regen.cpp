@@ -10,7 +10,7 @@ UCountess_GE_Health_Regen::UCountess_GE_Health_Regen()
 
 	if (AbilityDetailsTable)
 	{
-		/*
+		
 		FScalableFloat ScalableFloat = FScalableFloat(1.f);
 
 		FCurveTableRowHandle AbilityDetailsRowHandle;
@@ -18,9 +18,9 @@ UCountess_GE_Health_Regen::UCountess_GE_Health_Regen()
 		AbilityDetailsRowHandle.RowName = FName("HealthRegenRate");
 
 		ScalableFloat.Curve = AbilityDetailsRowHandle;
-		*/
+		
 
-		FScalableFloat ScalableFloat = FScalableFloat(Countess_AttributeSet->GetHealthRegenRate());
+		//FScalableFloat ScalableFloat = FScalableFloat(Countess_AttributeSet->GetHealthRegenRate());
 		if (Countess_AttributeSet)
 		{
 			FGameplayModifierInfo ModifierInfo;
@@ -35,7 +35,7 @@ UCountess_GE_Health_Regen::UCountess_GE_Health_Regen()
 
 		FCurveTableRowHandle AbilityDetailsRowHandle_Period;
 		AbilityDetailsRowHandle_Period.CurveTable = AbilityDetailsTable;
-		AbilityDetailsRowHandle_Period.RowName = FName("StaminaRegenTickInterval");
+		AbilityDetailsRowHandle_Period.RowName = FName("HealthRegenTickInterval");
 
 		ScalableFloat_Period.Curve = AbilityDetailsRowHandle_Period;
 		Period = ScalableFloat_Period;

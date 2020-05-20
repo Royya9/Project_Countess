@@ -26,6 +26,8 @@ public:
 
 	UCountess_AttributeSet_Base();
 
+	virtual void SetAttributes();
+
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData &Data) override;
@@ -75,6 +77,13 @@ public:
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, Damage)
 
+	UPROPERTY(BlueprintReadOnly, Category = "Exp")
+	FGameplayAttributeData Exp;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, Exp)
+
+	UPROPERTY(BlueprintReadOnly, Category = "MaxExp")
+	FGameplayAttributeData MaxExp;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, MaxExp)
 
 		/*Delegates to broadcast that our attributes' value changed*/
 	//FCountessAttributeChangedDel CountessAttributeChangedDelegate;
