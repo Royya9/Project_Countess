@@ -97,6 +97,10 @@ void ACountess_PlayerController::BeginPlay()
 	Countess_HUD_Widget->SetMaxStamina(PlayerState->GetMaxStamina());
 	Countess_HUD_Widget->SetStaminaPercentage(PlayerState->GetCurrentStamina() / PlayerState->GetMaxStamina());
 	Countess_HUD_Widget->SetStaminaRegenRate(PlayerState->GetStaminaRegenRate());
+	Countess_HUD_Widget->SetExp(PlayerState->GetCurrentExp());
+	Countess_HUD_Widget->SetMaxExp(PlayerState->GetMaxExp());
+	Countess_HUD_Widget->SetExpPercentage(PlayerState->GetCurrentExp() / PlayerState->GetMaxExp());
+	Countess_HUD_Widget->SetPlayerLevel(PlayerState->GetPlayerLevel());
 
 	/*Delegates to handle Player attribute changes from PlayerState which inturn receives changes from ASC*/
 
@@ -110,6 +114,9 @@ void ACountess_PlayerController::BeginPlay()
 	PlayerState->Countess_ManaRegenRate_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnManaRegenRateChanged);
 	PlayerState->Countess_StaminaRegenRate_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnStaminaRegenRateChanged);
 	PlayerState->Countess_Armor_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnArmorChanged);
+	PlayerState->Countess_Exp_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnExpChanged);
+	PlayerState->Countess_MaxExp_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnMaxExpChanged);
+	PlayerState->Countess_Level_Changed_Delegate_TO_BE_REFACTORED_COZ_DECLARED_TWICE_IN_PLAYERSTATE_TOO.AddDynamic(this, &ACountess_PlayerController::OnPlayerLevelIncreased);
 	// #TODO: handle UI after Player loses Abilities too..
 	/*Delegates to handle UI after Player acquires Abilities */
 	PlayerState->Countess_Ability_Acquired_Delegate.AddDynamic(this, &ACountess_PlayerController::OnAbilityAcquired);
@@ -138,6 +145,12 @@ void ACountess_PlayerController::OnManaChanged(float NewManaValue)
 	Countess_HUD_Widget->SetManaPercentage(NewManaValue / PlayerState->GetMaxMana());
 }
 
+void ACountess_PlayerController::OnExpChanged(float NewExpValue)
+{
+	Countess_HUD_Widget->SetExp(NewExpValue);
+	Countess_HUD_Widget->SetExpPercentage(NewExpValue / PlayerState->GetMaxExp());
+}
+
 void ACountess_PlayerController::OnMaxHealthChanged(float NewMaxHealthValue)
 {
 	Countess_HUD_Widget->SetMaxHealth(NewMaxHealthValue);
@@ -151,6 +164,11 @@ void ACountess_PlayerController::OnMaxStaminaChanged(float NewMaxStaminaValue)
 void ACountess_PlayerController::OnMaxManaChanged(float NewMaxManaValue)
 {
 	Countess_HUD_Widget->SetMaxMana(NewMaxManaValue);
+}
+
+void ACountess_PlayerController::OnMaxExpChanged(float NewMaxExpValue)
+{
+	Countess_HUD_Widget->SetMaxExp(NewMaxExpValue);
 }
 
 void ACountess_PlayerController::OnHealthRegenRateChanged(float NewHealthRegenValue)
@@ -177,4 +195,9 @@ void ACountess_PlayerController::OnAbilityAcquired(FSlateBrush AbilityIcon, floa
 {
 	UE_LOG(Countess_Log, Warning, TEXT("Success! Handling UI Ability Icons now. From %s. Coolddown for this abillity is %f"), TEXT(__FUNCTION__), Cooldown);
 	Countess_HUD_Widget->SetWMagicAbilityIcon(AbilityIcon);
+}
+
+void ACountess_PlayerController::OnPlayerLevelIncreased(int32 NewPlayerLevel)
+{
+	Countess_HUD_Widget->SetPlayerLevel(NewPlayerLevel);
 }

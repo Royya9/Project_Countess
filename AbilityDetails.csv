@@ -15,3 +15,5 @@ MaxMana,36,50,60
 Stamina,9,15,20
 MaxStamina,9,15,20
 Armor,0,1,2
+Exp,0,0,0
+MaxExp,100,200,300

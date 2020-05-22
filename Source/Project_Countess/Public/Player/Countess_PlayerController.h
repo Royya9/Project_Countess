@@ -51,6 +51,9 @@ public:
 	void OnManaChanged(float NewManaValue);
 
 	UFUNCTION()
+	void OnExpChanged(float NewExpValue);
+
+	UFUNCTION()
 	void OnMaxHealthChanged(float NewMaxHealthValue);
 
 	UFUNCTION()
@@ -58,6 +61,9 @@ public:
 
 	UFUNCTION()
 	void OnMaxManaChanged(float NewMaxManaValue);
+
+	UFUNCTION()
+	void OnMaxExpChanged(float NewMaxExpValue);
 
 	UFUNCTION()
 	void OnHealthRegenRateChanged(float NewHealthRegenValue);
@@ -73,6 +79,9 @@ public:
 
 	UFUNCTION()
 	void OnAbilityAcquired(FSlateBrush AbilityIcon, float Cooldown);
+
+	UFUNCTION()
+	void OnPlayerLevelIncreased(int32 NewPlayerLevel);
 
 // Inputs
 public:

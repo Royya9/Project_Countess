@@ -8,7 +8,7 @@
 #include "GameplayEffectTypes.h"
 #include "Countess_PlayerState.generated.h"
 
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessLevelChangedDelegate_TO_BE_REFACTORED_COZ_DECLARED_TWICE_IN_PLAYERSTATE_TOO, int32, PlayerLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAttributeChangedDelegate, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCountessAbilityAcquiredDelegate, FSlateBrush, AbilityIcon, float, Cooldown); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
 
@@ -42,8 +42,9 @@ protected:
 
 	/*Spawns at level 1. Only gaining experience increases the level*/
 	UPROPERTY(EditAnywhere, Category = "PlayerLevel")
-	uint32 PlayerLevel;
+	int32 PlayerLevel;
 
+	const int32 MAX_PLAYER_LEVEL = 3;
 
 	bool bAbilitiesInitialized;
 
@@ -73,9 +74,11 @@ public:
 
 	void RefreshStartupAbilities();
 
-	UFUNCTION(BlueprintCallable, Category = "Countess | Test")
-	void SetPlayerLevel(int32 NewLevel);
+// 	UFUNCTION(BlueprintCallable, Category = "Countess | Test")
+// 	void SetPlayerLevel(int32 NewLevel);
 
+	UFUNCTION()
+	void PlayerLevelIncreased();
 	/*Getters*/
 
 	/*Override from Ability System Interface*/
@@ -94,15 +97,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	bool IsAlive() const;
 
-	//UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	uint32 GetPlayerLevel() const;
-
 	UFUNCTION(BlueprintCallable, Category = "Countess | Test")
 	FORCEINLINE int32 GetPlayerLevel_FOR_TESTING() const { return PlayerLevel; }
 
 	/*Checks our list of acquired abilities whether we have the ability to Jump and if yes, populates the JumpAbility class with corresponding Countess_Ability_Jump*/
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	bool CanJump(TSubclassOf<UGameplayAbility>& JumpAbility) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	int32 GetPlayerLevel() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	float GetCurrentHealth() const;
@@ -134,6 +137,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	float GetStaminaRegenRate() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	float GetCurrentExp() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	float GetMaxExp() const;
 
 	/*Delegates to inform attribute changes to whoever is listening to*/
 	FCountessAttributeChangedDelegate Countess_Health_Changed_Delegate;
@@ -146,6 +154,9 @@ public:
 	FCountessAttributeChangedDelegate Countess_ManaRegenRate_Changed_Delegate;
 	FCountessAttributeChangedDelegate Countess_StaminaRegenRate_Changed_Delegate;
 	FCountessAttributeChangedDelegate Countess_Armor_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_Exp_Changed_Delegate;
+	FCountessAttributeChangedDelegate Countess_MaxExp_Changed_Delegate;
+	FCountessLevelChangedDelegate_TO_BE_REFACTORED_COZ_DECLARED_TWICE_IN_PLAYERSTATE_TOO Countess_Level_Changed_Delegate_TO_BE_REFACTORED_COZ_DECLARED_TWICE_IN_PLAYERSTATE_TOO;
 
 	/*Delegate to inform Acquired Ability Details to whoever is listening to*/
 	FCountessAbilityAcquiredDelegate Countess_Ability_Acquired_Delegate;
@@ -161,6 +172,8 @@ public:
 	FDelegateHandle ManaRegenRateChangedDelegateHandle;
 	FDelegateHandle StaminaRegenRateChangedDelegateHandle;
 	FDelegateHandle ArmorChangedDelegateHandle;
+	FDelegateHandle ExpChangedDelegateHandle;
+	FDelegateHandle MaxExpChangedDelegateHandle;
 	
 	/*Corresponding functions where necessary logic takes place*/
 	//UFUNCTION(BlueprintCallable)
@@ -174,4 +187,6 @@ public:
 	virtual void OnManaRegenRateChanged(const FOnAttributeChangeData& Data);
 	virtual void OnStaminaRegenRateChanged(const FOnAttributeChangeData& Data);
 	virtual void OnArmorChanged(const FOnAttributeChangeData& Data);
+	virtual void OnExpChanged(const FOnAttributeChangeData& Data);
+	virtual void OnMaxExpChanged(const FOnAttributeChangeData& Data);
 };

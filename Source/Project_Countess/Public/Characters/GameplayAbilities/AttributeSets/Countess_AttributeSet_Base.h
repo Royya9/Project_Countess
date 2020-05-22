@@ -7,6 +7,8 @@
 #include "AbilitySystemComponent.h"
 #include "Countess_AttributeSet_Base.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCountessLevelChangedDelegate);
+
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
@@ -85,8 +87,8 @@ public:
 	FGameplayAttributeData MaxExp;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, MaxExp)
 
-		/*Delegates to broadcast that our attributes' value changed*/
-	//FCountessAttributeChangedDel CountessAttributeChangedDelegate;
+	/*Delegates to broadcast that our Player Experience Crossed Max Experience for that level ie., his level is increased.*/
+	FCountessLevelChangedDelegate Countess_Level_Changed_Delegate;
 
 protected:
 	
@@ -94,4 +96,9 @@ protected:
 	//Function to calculate proportional attribute value change due to its max value change
 	void AdjustAttributeForMaxChange(FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty);
 
+private:
+
+	int32 CurrentPlayerLevel;
+	int32 MAX_PLAYER_LEVEL;
+	bool bMaxPlayerLevelReached;
 };

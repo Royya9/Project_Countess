@@ -19,7 +19,10 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 	StaminaRegenRate(1.f),
 	Armor(5.f),
 	Exp(0.f),
-	MaxExp(100.f)
+	MaxExp(100.f),
+	CurrentPlayerLevel(1),
+	MAX_PLAYER_LEVEL(1),
+	bMaxPlayerLevelReached(false)
 {
 	
 	static ConstructorHelpers::FObjectFinder<UCurveTable> _AbilityDetailsObject(TEXT("'/Game/MyProjectMain/Blueprints/Characters/Abilities/AbilityDetails'"));
@@ -55,6 +58,8 @@ void UCountess_AttributeSet_Base::SetAttributes()
 		FSimpleCurve* StaminaRegenHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("StaminaRegenRate"), ContextString);
 		FSimpleCurve* ManaRegenHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("ManaRegenRate"), ContextString);
 		FSimpleCurve* ArmorHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Armor"), ContextString);
+		FSimpleCurve* ExpHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Exp"), ContextString);
+		FSimpleCurve* MaxExpHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("MaxExp"), ContextString);
 
 		if (HealthHandle)
 			Health = HealthHandle->Eval(1.f);
@@ -76,6 +81,13 @@ void UCountess_AttributeSet_Base::SetAttributes()
 			ManaRegenRate = ManaRegenHandle->Eval(1.f);
 		if (ArmorHandle)
 			Armor = ArmorHandle->Eval(1.f);
+		if (ExpHandle)
+		{
+			Exp = ExpHandle->Eval(1.f);
+			MAX_PLAYER_LEVEL = ExpHandle->GetNumKeys();
+		}
+		if (MaxExpHandle)
+			MaxExp = MaxExpHandle->Eval(1.f);
 	}
 }
 
@@ -97,14 +109,31 @@ void UCountess_AttributeSet_Base::PreAttributeChange(const FGameplayAttribute& A
 	{
 		AdjustAttributeForMaxChange(Stamina, MaxStamina, NewValue, GetStaminaAttribute());
 	}
-	else if (Attribute == GetExpAttribute() && NewValue >= MaxExp.GetCurrentValue())
+	else if (Attribute == GetExpAttribute() && !bMaxPlayerLevelReached)
 	{
-		NewValue -= MaxExp.GetCurrentValue();
+			
+		//UE_LOG(Countess_Log, Warning, TEXT("Gaining Exp: %f. From %s"), NewValue, TEXT(__FUNCTION__));
+		if(NewValue > (MaxExp.GetCurrentValue() ))
+		{
+			CurrentPlayerLevel++;
+			if (CurrentPlayerLevel == MAX_PLAYER_LEVEL+1)
+			{
+				//UE_LOG(Countess_Log, Warning, TEXT("Max Player Level reached. Max Exp value is %f. From %s"), GetMaxExp(), TEXT(__FUNCTION__));
+				bMaxPlayerLevelReached = true;
+
+			}
+			else
+			{
+				NewValue -= MaxExp.GetCurrentValue();
+				// We broadcast that player level changed first instead of SetExp(NewValue) to handle the cases where Player level increases by more than 1 when he gains too much exp.
+				Countess_Level_Changed_Delegate.Broadcast();
+
+				SetExp(NewValue);
+			}
+
+		}
 	}
-	else if (Attribute == GetStaminaAttribute())
-	{
-		UE_LOG(Countess_Log, Warning, TEXT("Stamina value is %f and Regen Rate is %f. From %s"), NewValue, GetStaminaRegenRate(), TEXT(__FUNCTION__));
-	}
+
 }
 
 void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
@@ -114,44 +143,23 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 	FGameplayEffectContextHandle Countess_Context = Data.EffectSpec.GetContext();
 	
 	UAbilitySystemComponent* AbilitySystemComponent = Countess_Context.GetOriginalInstigatorAbilitySystemComponent();
-
-	
-
 	
 	// Apply FullStamina Tag to our AbilitySystemComponent to prevent Regen Effect being applied. Remove the tag if not so.
 	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
-	{
-// 		float val = Data.EvaluatedData.Magnitude;
-// 		FGameplayModifierEvaluatedData Countess_Data = Data.EvaluatedData;
-// 		UE_LOG(Countess_Log, Warning, TEXT("%f"), Countess_Data.Magnitude);
-
-		
-
-		
+	{		
 		UE_LOG(Countess_Log, Warning, TEXT("stamina value is %f and Stamina_Regen_Rate is %f. From %s"), GetStamina(), GetStaminaRegenRate(), TEXT(__FUNCTION__));
 		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
 		if ( GetStamina() > GetMaxStamina() ||  FMath::IsNearlyEqual(GetStamina(), GetMaxStamina()))
 		{
 			AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
-// 			if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Buff.FullStamina"))))
-// 			{
-// 				AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Buff.FullStamina")));
-// 				UE_LOG(Countess_Log, Warning, TEXT("Add Full Stamina Tag in %s"), TEXT(__FUNCTION__));
-// 			}
 		}
 		else
 		{
 			AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
-// 			if (AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Buff.FullStamina"))))
-// 			{
-// 				AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Buff.FullStamina")));
-// 				UE_LOG(Countess_Log, Warning, TEXT("Removed Full Stamina Tag in %s"), TEXT(__FUNCTION__));
-// 			}
 		}
-		
 	}
 	
-	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	else if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 		if (FMath::IsNearlyEqual(GetHealth(), GetMaxHealth()))
@@ -164,19 +172,20 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 		}
 	}
 	
-	//Handle Stamina Change
-	/*
-	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	else if (Data.EvaluatedData.Attribute == GetMaxExpAttribute())
 	{
-		//FGameplayEffectSpec Countess_Spec = Data.;
-		FGameplayEffectContextHandle Countess_Context = Data.EffectSpec.GetContext();
-		//Countess_Context.
-		FGameplayAttribute Attribute = Data.EvaluatedData.Attribute;
-		float NewValue = Data.EvaluatedData.Attribute.GetNumericValue(this);
-		UE_LOG(Countess_Log, Warning, TEXT("Attribute %s going to be changed. From %s\n Attribute value is %f"), *Attribute.GetName(), TEXT(__FUNCTION__), NewValue);
-		CountessAttributeChangedDelegate.Broadcast(Attribute);
+		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull"))))
+		{
+			UE_LOG(Countess_Log, Warning, TEXT("Max Player Level Reached?? From %s"), TEXT(__FUNCTION__));
+		}
 	}
-	*/
+	else if (Data.EvaluatedData.Attribute == GetExpAttribute())
+	{
+		if (bMaxPlayerLevelReached)
+		{
+			SetExp(FMath::Clamp(GetExp(), 0.f, GetMaxExp()));
+		}
+	}
 
 }
 
@@ -193,3 +202,4 @@ void UCountess_AttributeSet_Base::AdjustAttributeForMaxChange(FGameplayAttribute
 		AbilityComp->ApplyModToAttributeUnsafe(AffectedAttributeProperty, EGameplayModOp::Additive, NewDelta);
 	}
 }
+

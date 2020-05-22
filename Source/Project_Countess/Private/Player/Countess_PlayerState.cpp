@@ -29,13 +29,17 @@ void ACountess_PlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 
+	AttributeSet->Countess_Level_Changed_Delegate.AddDynamic(this, &ACountess_PlayerState::PlayerLevelIncreased);
+
 	HealthChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).AddUObject(this, &ACountess_PlayerState::OnHealthChanged);
 	StaminaChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaAttribute()).AddUObject(this, &ACountess_PlayerState::OnStaminaChanged);
 	ManaChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetManaAttribute()).AddUObject(this, &ACountess_PlayerState::OnManaChanged);
+	ExpChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetExpAttribute()).AddUObject(this, &ACountess_PlayerState::OnExpChanged);
 
 	MaxHealthChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxHealthAttribute()).AddUObject(this, &ACountess_PlayerState::OnMaxHealthChanged);
 	MaxStaminaChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxStaminaAttribute()).AddUObject(this, &ACountess_PlayerState::OnMaxStaminaChanged);
 	MaxManaChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxManaAttribute()).AddUObject(this, &ACountess_PlayerState::OnMaxManaChanged);
+	MaxExpChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxExpAttribute()).AddUObject(this, &ACountess_PlayerState::OnMaxExpChanged);
 
 	HealthRegenRateChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthRegenRateAttribute()).AddUObject(this, &ACountess_PlayerState::OnHealthRegenRateChanged);
 	ManaRegenRateChangedDelegateHandle = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetManaRegenRateAttribute()).AddUObject(this, &ACountess_PlayerState::OnManaRegenRateChanged);
@@ -45,7 +49,7 @@ void ACountess_PlayerState::BeginPlay()
 	//PlayerLevel = 2; // #TODO This is for testing. Remove this and increase Player Level by Gaining experience.
 	GiveStartupAbilities();
 
-
+	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull")));
 }
 
 bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire)
@@ -187,11 +191,31 @@ void ACountess_PlayerState::RefreshStartupAbilities()
 	GiveStartupAbilities();
 }
 
+/*
 void ACountess_PlayerState::SetPlayerLevel(int32 NewLevel)
 {
+	if (PlayerLevel == MAX_PLAYER_LEVEL)
+		return;
+
 	RemoveStartupAbilities();
 	PlayerLevel = NewLevel;
 	GiveStartupAbilities();
+	Countess_Level_Changed_Delegate_TO_BE_REFACTORED_COZ_DECLARED_TWICE_IN_PLAYERSTATE_TOO.Broadcast(PlayerLevel);
+}*/
+
+void ACountess_PlayerState::PlayerLevelIncreased()
+{
+	if (PlayerLevel == MAX_PLAYER_LEVEL)
+	{
+		AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull")));
+	}
+	else
+	{
+		RemoveStartupAbilities();
+		PlayerLevel++;
+		GiveStartupAbilities();
+		Countess_Level_Changed_Delegate_TO_BE_REFACTORED_COZ_DECLARED_TWICE_IN_PLAYERSTATE_TOO.Broadcast(PlayerLevel);
+	}
 }
 
 UAbilitySystemComponent* ACountess_PlayerState::GetAbilitySystemComponent() const
@@ -209,11 +233,6 @@ bool ACountess_PlayerState::IsAlive() const
 	return AttributeSet->GetHealth() > 0.f;
 }
 
-uint32 ACountess_PlayerState::GetPlayerLevel() const
-{
-	return PlayerLevel;
-}
-
 bool ACountess_PlayerState::CanJump(TSubclassOf<UGameplayAbility>& JumpAbility) const
 {
 	for (auto Ability : AcquiredAbilities)
@@ -226,6 +245,11 @@ bool ACountess_PlayerState::CanJump(TSubclassOf<UGameplayAbility>& JumpAbility) 
 
 	}
 	return false;
+}
+
+int32 ACountess_PlayerState::GetPlayerLevel() const
+{
+	return PlayerLevel;
 }
 
 float ACountess_PlayerState::GetCurrentHealth() const
@@ -278,6 +302,16 @@ float ACountess_PlayerState::GetStaminaRegenRate() const
 	return AttributeSet->GetStaminaRegenRate();
 }
 
+float ACountess_PlayerState::GetCurrentExp() const
+{
+	return AttributeSet->GetExp();
+}
+
+float ACountess_PlayerState::GetMaxExp() const
+{
+	return AttributeSet->GetMaxExp();
+}
+
 void ACountess_PlayerState::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	Countess_Health_Changed_Delegate.Broadcast(Data.NewValue);
@@ -326,4 +360,14 @@ void ACountess_PlayerState::OnStaminaRegenRateChanged(const FOnAttributeChangeDa
 void ACountess_PlayerState::OnArmorChanged(const FOnAttributeChangeData& Data)
 {
 	Countess_Armor_Changed_Delegate.Broadcast(Data.NewValue);
+}
+
+void ACountess_PlayerState::OnExpChanged(const FOnAttributeChangeData& Data)
+{
+	Countess_Exp_Changed_Delegate.Broadcast(Data.NewValue);
+}
+
+void ACountess_PlayerState::OnMaxExpChanged(const FOnAttributeChangeData& Data)
+{
+	Countess_MaxExp_Changed_Delegate.Broadcast(Data.NewValue);
 }

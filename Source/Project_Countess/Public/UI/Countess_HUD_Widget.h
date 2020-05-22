@@ -55,6 +55,18 @@ public:
 	void SetStaminaRegenRate(float StaminaRegenRate);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetExp(float Exp);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetMaxExp(float MaxExp);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetExpPercentage(float ExpPercentage);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetPlayerLevel(int32 PlayerLevel);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetArmor(float Armor);
 
 	/*Events to handle Player Abilities' UI */
