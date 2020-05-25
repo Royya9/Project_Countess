@@ -25,6 +25,9 @@ public:
 
 	UFUNCTION()
 	virtual void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayAbility, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGrant;
@@ -32,16 +35,14 @@ public:
 	//UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
 	bool Execute_GiveAbilityOnOverlap(TSubclassOf<UCountess_GameplayAbility_Base> Ability);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Base, meta = (AllowPrivateAccess = "true"))
-	FText InteractiveMessage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true"))
-	TWeakObjectPtr<USoundBase> SoundToPlayOnInteract;
+	bool Execute_GiveAbilityEndOverlap();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 
+private:
 
+	bool bAcquired_Ability;
 };

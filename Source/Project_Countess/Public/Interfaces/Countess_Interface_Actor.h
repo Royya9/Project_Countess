@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "Countess_Interface_Actor.generated.h"
 
+class UCountess_GameplayAbility_Base;
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -25,5 +26,8 @@ class PROJECT_COUNTESS_API ICountess_Interface_Actor
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
-	bool GiveAbilityOnOverlap( TSubclassOf<class UCountess_GameplayAbility_Base> AbilityToGive);
+	bool GiveAbilityOnOverlap(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGive);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
+	bool GiveAbilityEndOverlap();
 };

@@ -61,6 +61,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Description"))
 	FText Description;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Interactive Message"))
+	FText InteractiveMessage;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Input Button"))
 	FSlateBrush InputButton;
 

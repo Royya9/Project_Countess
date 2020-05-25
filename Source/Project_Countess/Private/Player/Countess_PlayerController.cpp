@@ -7,6 +7,33 @@
 #include "Player/Countess_PlayerState.h"
 #include "UI/Countess_HUD.h"
 #include "UI/Countess_HUD_Widget.h"
+#include "UI/Countess_Notify_Widget.h"
+#include "UI/Countess_SkillAcquired_Widget.h"
+#include "TimerManager.h"
+#include "Sound/SoundBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
+
+ACountess_PlayerController::ACountess_PlayerController()
+{
+	static ConstructorHelpers::FObjectFinder<USoundBase> SkillAcquiredSoundObject(TEXT("SoundWave'/Game/MyProjectMain/Audio/SFX_SkillAcquired.SFX_SkillAcquired'"));
+	if (SkillAcquiredSoundObject.Succeeded())
+	{
+		SkillAcquiredSound = SkillAcquiredSoundObject.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> NotifyWidgetOpenSoundObject(TEXT("SoundWave'/Game/MyProjectMain/Audio/Floating_UI_Open-002.Floating_UI_Open-002'"));
+	if (NotifyWidgetOpenSoundObject.Succeeded())
+	{
+		NotifyWidgetOpenSound = NotifyWidgetOpenSoundObject.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> NotifyWidgetCloseSoundObject(TEXT("SoundWave'/Game/MyProjectMain/Audio/Floating_UI_Close.Floating_UI_Close'"));
+	if (NotifyWidgetCloseSoundObject.Succeeded())
+	{
+		NotifyWidgetCloseSound = NotifyWidgetCloseSoundObject.Object;
+	}
+}
 
 void ACountess_PlayerController::OnPossess(APawn* aPawn)
 {
@@ -22,6 +49,11 @@ void ACountess_PlayerController::OnPossess(APawn* aPawn)
 			InputComponent->BindAction("Jump", IE_Pressed, this, &ACountess_PlayerController::Ability_Jump);
 			InputComponent->BindAction("Jump", IE_Released, this, &ACountess_PlayerController::Ability_StopJumping);
 			InputComponent->BindAxis("MoveRight", this, &ACountess_PlayerController::MoveRight);
+			InputComponent->BindAction("Interact", IE_Pressed, this, &ACountess_PlayerController::Interact);
+			/*InputComponent->BindAction("EndInteract", IE_Pressed, this, &ACountess_PlayerController::EndInteract).bExecuteWhenPaused = true;*/
+			FInputActionBinding& EndInteractBinding = InputComponent->BindAction("EndInteract", IE_Pressed, this, &ACountess_PlayerController::EndInteract);
+			EndInteractBinding.bConsumeInput = false;
+			EndInteractBinding.bExecuteWhenPaused = true;
 		}
 	}
 }
@@ -124,6 +156,112 @@ void ACountess_PlayerController::BeginPlay()
 	BMagicSlotted = E_BMagic::None;
 	WMagicSlotted = E_WMagic::None;
 	SkillAcquired = E_Skills::None;
+
+	bHandlingAbilityAcquire = false;
+
+
+}
+
+void ACountess_PlayerController::Interact()
+{
+	if (!bHandlingAbilityAcquire)
+		return;
+	if (Countess_HUD->Get_Countess_Notify_Widget())
+	{
+		if (Countess_HUD->Get_Countess_Notify_Widget()->IsInViewport())
+		{
+			bAbilityAcquired = PlayerState->AcquireAbilitiy(m_AbilityToAcquire);
+			if (SkillAcquiredSound)
+				UGameplayStatics::PlaySound2D(this, SkillAcquiredSound, 3.f);
+			this->SetPause(true);
+			Countess_HUD->CreateSkillAcquiredWidget(this);
+			Populate_Skill_Acquired_Widget(m_AbilityToAcquire);
+			Countess_HUD->Get_Countess_Skill_Acquired_Widget()->AddToViewport();
+			//UE_LOG(Countess_Log, Warning, TEXT("Interacting!!!"));
+		}
+	}
+}
+
+void ACountess_PlayerController::EndInteract()
+{
+	if (this->IsPaused())
+		this->SetPause(false);
+	if (Countess_HUD->Get_Countess_Skill_Acquired_Widget())
+	{
+		if (Countess_HUD->Get_Countess_Skill_Acquired_Widget()->IsInViewport())
+		{
+			Countess_HUD->Get_Countess_Skill_Acquired_Widget()->RemoveFromParent();
+		}
+	}
+	Remove_Notify_Widget_From_Parent();
+}
+
+bool ACountess_PlayerController::Handle_Acquire_Ability_OnOverlap(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire)
+{
+	if (PlayerState->GetAcquiredAbilities().Contains(AbilityToAcquire))
+		return true;
+
+	bAbilityAcquired = false;
+	if (Countess_HUD->CreateNotifyWidget(this))
+	{
+		Countess_HUD->Get_Countess_Notify_Widget()->AddToViewport();
+		UGameplayStatics::PlaySound2D(this, NotifyWidgetOpenSound, 3.f);
+		m_AbilityToAcquire = AbilityToAcquire;
+		UCountess_GameplayAbility_Base* AbilityToAcquireCDO = Cast<UCountess_GameplayAbility_Base>(AbilityToAcquire->GetDefaultObject(false));
+		if (AbilityToAcquireCDO->AbilityData->IsValidLowLevel())
+			Countess_HUD->Get_Countess_Notify_Widget()->SetInteractiveTextMessage(AbilityToAcquireCDO->AbilityData->InteractiveMessage);
+
+		bHandlingAbilityAcquire = true;
+	}
+	//return PlayerState->AcquireAbilitiy(AbilityToAcquire);
+	return bAbilityAcquired;
+}
+
+bool ACountess_PlayerController::Handle_Acquire_Ability_EndOverlap()
+{
+	if (Countess_HUD->Get_Countess_Notify_Widget())
+	{
+		if(Countess_HUD->Get_Countess_Notify_Widget()->IsInViewport())
+		{
+			float Animation_Duration = Countess_HUD->Get_Countess_Notify_Widget()->Intro_Animation->GetEndTime() - Countess_HUD->Get_Countess_Notify_Widget()->Intro_Animation->GetStartTime();
+			//UE_LOG(Countess_Log, Warning, TEXT("Animation Duration is %f"), Animation_Duration);
+			if (NotifyWidgetCloseSound)
+				UGameplayStatics::PlaySound2D(this, NotifyWidgetCloseSound, 3.f);
+			Countess_HUD->Get_Countess_Notify_Widget()->PlayAnimationReverse(Countess_HUD->Get_Countess_Notify_Widget()->Intro_Animation);
+
+			//Remove Notify Widget after a delay of length = playing intro animation in reverse
+			GetWorld()->GetTimerManager().SetTimer(NotifyWidgetDelayHandle, this, &ACountess_PlayerController::Remove_Notify_Widget_From_Parent, Animation_Duration, false);
+			bHandlingAbilityAcquire = false;
+			return true;
+		}
+		return false;
+	}
+	return false;
+}
+
+void ACountess_PlayerController::Remove_Notify_Widget_From_Parent()
+{
+	Countess_HUD->Get_Countess_Notify_Widget()->RemoveFromParent();
+	GetWorld()->GetTimerManager().ClearTimer(NotifyWidgetDelayHandle);
+	//UE_LOG(Countess_Log, Warning, TEXT("Removed Notify Widget from Parent"));
+}
+
+void ACountess_PlayerController::Populate_Skill_Acquired_Widget(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire)
+{
+	if (Countess_HUD->Get_Countess_Skill_Acquired_Widget())
+	{
+		UCountess_GameplayAbility_Base* AbilityToAcquireCDO = Cast<UCountess_GameplayAbility_Base>(AbilityToAcquire->GetDefaultObject(false));
+		if (AbilityToAcquireCDO)
+		{
+			// #TODO Populate border, image, stamina/mana cost etc
+			if (AbilityToAcquireCDO->AbilityData.Get(false))
+			{
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetTitle(AbilityToAcquireCDO->AbilityData.Get(false)->Title);
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetDescription(AbilityToAcquireCDO->AbilityData.Get(false)->Description);
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetAbilityIcon(AbilityToAcquireCDO->AbilityData.Get(false)->AbilityIcon);
+			}
+		}
+	}
 }
 
 void ACountess_PlayerController::OnHealthChanged(float NewHealthValue)

@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Player/Countess_PlayerState.h"
+#include "Player/Countess_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
 #include "Particles/ParticleSystem.h"
@@ -19,7 +20,13 @@ UAbilitySystemComponent* AProject_CountessCharacter::GetAbilitySystemComponent()
 
 bool AProject_CountessCharacter::GiveAbilityOnOverlap_Implementation(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGive)
 {
-	return Countess_PlayerState->AcquireAbilitiy(AbilityToGive);
+	//return Countess_PlayerState->AcquireAbilitiy(AbilityToGive);
+	return Countess_PlayerController->Handle_Acquire_Ability_OnOverlap(AbilityToGive);
+}
+
+bool AProject_CountessCharacter::GiveAbilityEndOverlap_Implementation()
+{
+	return Countess_PlayerController->Handle_Acquire_Ability_EndOverlap();
 }
 
 void AProject_CountessCharacter::Landed(const FHitResult& Hit)
@@ -114,6 +121,8 @@ void AProject_CountessCharacter::PossessedBy(AController* NewController)
 		AbilitySystemComp = Countess_PlayerState->GetAbilitySystemComponent();
 		AttributeSet = Countess_PlayerState->GetAttributeSet();
 	}
+
+	Countess_PlayerController = Cast<ACountess_PlayerController>(NewController);
 }
 
 

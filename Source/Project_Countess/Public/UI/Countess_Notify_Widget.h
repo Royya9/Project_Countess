@@ -19,4 +19,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetInteractiveTextMessage(const FText& Text);
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	UWidgetAnimation* Intro_Animation;
+	
 };

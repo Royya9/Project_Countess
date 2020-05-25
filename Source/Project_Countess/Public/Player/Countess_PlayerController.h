@@ -11,6 +11,8 @@ class AProject_CountessCharacter;
 class ACountess_PlayerState;
 class ACountess_HUD;
 class UCountess_HUD_Widget;
+class UCountess_GameplayAbility_Base;
+class USoundBase;
 
 /**
  *  Player Controller Base Class for Project_Countess Player
@@ -21,6 +23,9 @@ class PROJECT_COUNTESS_API ACountess_PlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+
+	ACountess_PlayerController();
+
 	/*Override to setup input bindings*/
 	virtual void OnPossess(APawn* aPawn) override;
 
@@ -35,9 +40,30 @@ public:
 
 	virtual void BeginPlay() override;
 
+
+	void Interact();
+
+	UFUNCTION(BlueprintCallable)
+	void EndInteract();
+
+	bool Handle_Acquire_Ability_OnOverlap(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire);
+
+
+	bool Handle_Acquire_Ability_EndOverlap();
+
+	UFUNCTION()
+	void Remove_Notify_Widget_From_Parent();
+
+	void Populate_Skill_Acquired_Widget(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire);
+
 	//Delegates to handle attribute changes
 
 	FDelegateHandle OnHealthChangedDelegateHandle;
+
+
+	//Timers
+
+	FTimerHandle NotifyWidgetDelayHandle;
 
 	//Corresponding functions where necessary logic takes place
 	
@@ -97,6 +123,16 @@ private:
 	ACountess_HUD* Countess_HUD;
 	UCountess_HUD_Widget* Countess_HUD_Widget;
 	ACountess_PlayerState* PlayerState;
+
+
+	TSubclassOf<UCountess_GameplayAbility_Base> m_AbilityToAcquire;
+	bool bHandlingAbilityAcquire;
+	bool bAbilityAcquired;
+
+
+	USoundBase* SkillAcquiredSound;
+	USoundBase* NotifyWidgetOpenSound;
+	USoundBase* NotifyWidgetCloseSound;
 
 	/*Variables that hold which magic skills are slotted currently*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities, meta = (AllowPrivateAccess = "true"))

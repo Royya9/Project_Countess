@@ -15,6 +15,7 @@ class UArrowComponent;
 class USoundWave;
 class UParticleSystem;
 class ACountess_PlayerState;
+class ACountess_PlayerController;
 class UCountess_AbilitySystemComponent;
 class UCountess_AttributeSet_Base;
 class UCountess_GameplayAbility_Base;
@@ -53,6 +54,10 @@ class AProject_CountessCharacter : public ACharacter, public IAbilitySystemInter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PlayerState, meta = (AllowPrivateAccess = "true"))
 	ACountess_PlayerState* Countess_PlayerState;
 
+	/*Reference to our Countesss PlayerState*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PlayerState, meta = (AllowPrivateAccess = "true"))
+	ACountess_PlayerController* Countess_PlayerController;
+
 
 public:
 	/*Ability System*/
@@ -71,6 +76,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
 	bool GiveAbilityOnOverlap(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGive);
 	virtual bool GiveAbilityOnOverlap_Implementation(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGive) override;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
+	bool GiveAbilityEndOverlap();
+	virtual bool GiveAbilityEndOverlap_Implementation() override;
 
 private:
 	/**/

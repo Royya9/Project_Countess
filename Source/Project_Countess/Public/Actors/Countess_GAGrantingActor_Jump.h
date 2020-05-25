@@ -23,6 +23,4 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* BoxComponent_HardRef;
 
-	USoundBase* SoundToPlayOnInteract_HardRef;
-
 };
