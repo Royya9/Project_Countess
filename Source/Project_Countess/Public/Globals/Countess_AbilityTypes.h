@@ -2,7 +2,6 @@
 
 #pragma once
 
-//#include "UObject/Object.h"
 #include "Engine/CurveTable.h"
 #include "Countess_AbilityTypes.generated.h"
 
@@ -37,6 +36,15 @@ enum class E_Skills : uint8
 	LensOfTruth		UMETA(DisplayName = "LensOfTruth"),
 	Mist			UMETA(DisplayName = "Mist")
 };
+
+
+/*Delegates*/
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCountessAbilityAcquired_Interface_Delegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAttributeChangedDelegate, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessLevelChangedDelegate, int32, PlayerLevel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCountessAbilityAcquiredDelegate, FSlateBrush, AbilityIcon, float, Cooldown); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
+
 /*
 USTRUCT(BlueprintType)
 struct FAbilityDetails

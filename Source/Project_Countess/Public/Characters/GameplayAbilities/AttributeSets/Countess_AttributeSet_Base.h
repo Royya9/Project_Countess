@@ -7,8 +7,6 @@
 #include "AbilitySystemComponent.h"
 #include "Countess_AttributeSet_Base.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCountessLevelChangedDelegate);
-
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
@@ -33,6 +31,8 @@ public:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData &Data) override;
+
+	int32 GetPlayerMaxLevel() const { return MAX_PLAYER_LEVEL; }
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	FGameplayAttributeData Health;

@@ -6,11 +6,8 @@
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayEffectTypes.h"
+#include "Interfaces/Countess_Interface_AbilityDetail.h"
 #include "Countess_PlayerState.generated.h"
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessLevelChangedDelegate_TO_BE_REFACTORED_COZ_DECLARED_TWICE_IN_PLAYERSTATE_TOO, int32, PlayerLevel);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAttributeChangedDelegate, float, NewValue);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCountessAbilityAcquiredDelegate, FSlateBrush, AbilityIcon, float, Cooldown); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
 
 /*Forward Declarations*/
 class UCountess_AbilitySystemComponent;
@@ -19,10 +16,10 @@ class UCountess_GameplayAbility_Base;
 class UGameplayAbility;
 
 /**
- *	
+ *	Our PlayerState. Main class that implements ASI and has AttributeSet. 
  */
 UCLASS()
-class PROJECT_COUNTESS_API ACountess_PlayerState : public APlayerState, public IAbilitySystemInterface
+class PROJECT_COUNTESS_API ACountess_PlayerState : public APlayerState, public IAbilitySystemInterface, public ICountess_Interface_AbilityDetail
 {
 	GENERATED_BODY()
 
@@ -44,8 +41,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "PlayerLevel")
 	int32 PlayerLevel;
 
-	const int32 MAX_PLAYER_LEVEL = 3;
-
 	bool bAbilitiesInitialized;
 
 public:
@@ -60,11 +55,21 @@ public:
 	/*Setters*/
 
 	/*Give this Ability to our PlayerState*/
+	
 	bool AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire);
 
-	bool Countess_TryActivateAbilityByClass(TSubclassOf<UGameplayAbility>& AbilityToActivate);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
+	bool Countess_Interface_AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire);
+	virtual bool Countess_Interface_AcquireAbilitiy_Implementation(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire) override;
 
-	void Countess_CancelAbility(TSubclassOf<UGameplayAbility>& AbilityToCancel);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
+	bool Countess_Interface_TryActivateAbilityByClass(TSubclassOf<UGameplayAbility> AbilityToGive);
+	virtual bool Countess_Interface_TryActivateAbilityByClass_Implementation(TSubclassOf<UGameplayAbility> AbilityToGive) override;
+
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
+	void Countess_Interface_CancelAbility(TSubclassOf<UGameplayAbility>& AbilityToCancel);
+	virtual void Countess_Interface_CancelAbility_Implementation(TSubclassOf<UGameplayAbility>& AbilityToCancel) override;
 
 	void SetStartupAbilities(TSubclassOf<UCountess_GameplayAbility_Base>& StartupAbility);
 
@@ -78,7 +83,7 @@ public:
 // 	void SetPlayerLevel(int32 NewLevel);
 
 	UFUNCTION()
-	void PlayerLevelIncreased();
+	void PlayerLevelIncreased(int32 NewLevel);
 	/*Getters*/
 
 	/*Override from Ability System Interface*/
@@ -89,61 +94,62 @@ public:
 
 	FORCEINLINE UCountess_AttributeSet_Base* GetAttributeSet() const { return AttributeSet; }
 
-	FORCEINLINE TArray<TSubclassOf<UCountess_GameplayAbility_Base>> GetAcquiredAbilities() const { return AcquiredAbilities; }
+	virtual TArray<TSubclassOf<UCountess_GameplayAbility_Base>> GetAcquiredAbilities() const override { return AcquiredAbilities; }
 
 public:
-	/* Queries*/
+	/* Queries. All of these are implementations of Countess_Interface_AbilityDetail*/
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	bool IsAlive() const;
+	virtual bool IsAlive() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Test")
 	FORCEINLINE int32 GetPlayerLevel_FOR_TESTING() const { return PlayerLevel; }
 
 	/*Checks our list of acquired abilities whether we have the ability to Jump and if yes, populates the JumpAbility class with corresponding Countess_Ability_Jump*/
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	bool CanJump(TSubclassOf<UGameplayAbility>& JumpAbility) const;
+	virtual bool CanJump(TSubclassOf<UGameplayAbility>& JumpAbility) const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	int32 GetPlayerLevel() const;
+	virtual int32 GetPlayerLevel() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetCurrentHealth() const;
+	virtual float GetCurrentHealth() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetMaxHealth() const;
+	virtual float GetMaxHealth() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetHealthRegenRate() const;
+	virtual float GetHealthRegenRate() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetArmor() const;
+	virtual float GetArmor() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetCurrentMana() const;
+	virtual float GetCurrentMana() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetMaxMana() const;
+	virtual float GetMaxMana() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetManaRegenRate() const;
+	virtual float GetManaRegenRate() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetCurrentStamina() const;
+	virtual float GetCurrentStamina() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetMaxStamina() const;
+	virtual float GetMaxStamina() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetStaminaRegenRate() const;
+	virtual float GetStaminaRegenRate() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetCurrentExp() const;
+	virtual float GetCurrentExp() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	float GetMaxExp() const;
+	virtual float GetMaxExp() const override;
 
 	/*Delegates to inform attribute changes to whoever is listening to*/
+
 	FCountessAttributeChangedDelegate Countess_Health_Changed_Delegate;
 	FCountessAttributeChangedDelegate Countess_Stamina_Changed_Delegate;
 	FCountessAttributeChangedDelegate Countess_Mana_Changed_Delegate;
@@ -156,25 +162,31 @@ public:
 	FCountessAttributeChangedDelegate Countess_Armor_Changed_Delegate;
 	FCountessAttributeChangedDelegate Countess_Exp_Changed_Delegate;
 	FCountessAttributeChangedDelegate Countess_MaxExp_Changed_Delegate;
-	FCountessLevelChangedDelegate_TO_BE_REFACTORED_COZ_DECLARED_TWICE_IN_PLAYERSTATE_TOO Countess_Level_Changed_Delegate_TO_BE_REFACTORED_COZ_DECLARED_TWICE_IN_PLAYERSTATE_TOO;
-
+	
 	/*Delegate to inform Acquired Ability Details to whoever is listening to*/
 	FCountessAbilityAcquiredDelegate Countess_Ability_Acquired_Delegate;
 
-	/*Delegates that listen to attribute changes from AbilitySystemComponent*/
-	FDelegateHandle HealthChangedDelegateHandle;
-	FDelegateHandle StaminaChangedDelegateHandle;
-	FDelegateHandle ManaChangedDelegateHandle;
-	FDelegateHandle MaxHealthChangedDelegateHandle;
-	FDelegateHandle MaxStaminaChangedDelegateHandle;
-	FDelegateHandle MaxManaChangedDelegateHandle;
-	FDelegateHandle HealthRegenRateChangedDelegateHandle;
-	FDelegateHandle ManaRegenRateChangedDelegateHandle;
-	FDelegateHandle StaminaRegenRateChangedDelegateHandle;
-	FDelegateHandle ArmorChangedDelegateHandle;
-	FDelegateHandle ExpChangedDelegateHandle;
-	FDelegateHandle MaxExpChangedDelegateHandle;
-	
+	/*Overrides Countess_Interface_AbilityDetail*/
+
+	virtual FCountessAttributeChangedDelegate& GetCountessHealthChangedDelegate() override { return Countess_Health_Changed_Delegate; }
+	virtual FCountessAttributeChangedDelegate& GetCountessManaChangedDelegate() override { return Countess_Mana_Changed_Delegate; }
+	virtual FCountessAttributeChangedDelegate& GetCountessStaminaChangedDelegate()override { return Countess_Stamina_Changed_Delegate; }
+
+	virtual FCountessAttributeChangedDelegate& GetCountessMaxHealthChangedDelegate() override { return Countess_MaxHealth_Changed_Delegate; }
+	virtual FCountessAttributeChangedDelegate& GetCountessMaxManaChangedDelegate() override { return Countess_MaxMana_Changed_Delegate; }
+	virtual FCountessAttributeChangedDelegate& GetCountessMaxStaminaChangedDelegate() override { return Countess_MaxStamina_Changed_Delegate; }
+
+	virtual FCountessAttributeChangedDelegate& GetCountessHealthRegenRateChangedDelegate() override { return Countess_HealthRegenRate_Changed_Delegate; }
+	virtual FCountessAttributeChangedDelegate& GetCountessManaRegenRateChangedDelegate() override { return Countess_ManaRegenRate_Changed_Delegate; }
+	virtual FCountessAttributeChangedDelegate& GetCountessStaminaRegenRateChangedDelegate() override { return Countess_StaminaRegenRate_Changed_Delegate; }
+
+	virtual FCountessAttributeChangedDelegate& GetCountessArmorChangedDelegate() override { return Countess_Armor_Changed_Delegate; }
+	virtual FCountessAttributeChangedDelegate& GetCountessExpChangedDelegate() override { return Countess_Exp_Changed_Delegate; }
+	virtual FCountessAttributeChangedDelegate& GetCountessMaxExpChangedDelegate() override { return Countess_MaxExp_Changed_Delegate; }
+
+	virtual FCountessLevelChangedDelegate& GetCountessLevelChangedDelegate() override;
+	virtual FCountessAbilityAcquiredDelegate& GetCountessAbilityAcquiredDelegate() override { return Countess_Ability_Acquired_Delegate; }
+
 	/*Corresponding functions where necessary logic takes place*/
 	//UFUNCTION(BlueprintCallable)
 	virtual void OnHealthChanged(const FOnAttributeChangeData& Data);

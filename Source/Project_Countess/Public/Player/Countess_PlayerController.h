@@ -4,7 +4,6 @@
 
 #include "Globals/Project_Countess.h"
 #include "GameFramework/PlayerController.h"
-//#include "GameplayEffectTypes.h"
 #include "Countess_PlayerController.generated.h"
 
 class AProject_CountessCharacter;
@@ -13,7 +12,7 @@ class ACountess_HUD;
 class UCountess_HUD_Widget;
 class UCountess_GameplayAbility_Base;
 class USoundBase;
-
+class ICountess_Interface_AbilityDetail;
 
 
 /**
@@ -50,18 +49,12 @@ public:
 
 	bool Handle_Acquire_Ability_OnOverlap(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire);
 
-
 	bool Handle_Acquire_Ability_EndOverlap();
 
 	UFUNCTION()
 	void Remove_Notify_Widget_From_Parent();
 
 	void Populate_Skill_Acquired_Widget(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire);
-
-	//Delegates to handle attribute changes
-
-	FDelegateHandle OnHealthChangedDelegateHandle;
-
 
 	//Timers
 
@@ -119,6 +112,10 @@ public:
 protected:
 
 	AProject_CountessCharacter* PlayerCharacter = nullptr;
+
+	ICountess_Interface_AbilityDetail* PlayerStateInterface;
+	/*UPROPERTY()
+	TScriptInterface<ICountess_Interface_AbilityDetail> PlayerStateInterface;*/
 
 private:
 

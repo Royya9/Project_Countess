@@ -2,13 +2,11 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Globals/Project_Countess.h"
 #include "UObject/Interface.h"
 #include "Countess_Interface_Actor.generated.h"
 
 class UCountess_GameplayAbility_Base;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCountessAbilityAcquired_Interface_Delegate);
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)

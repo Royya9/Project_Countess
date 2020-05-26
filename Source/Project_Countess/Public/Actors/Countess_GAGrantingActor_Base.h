@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Globals/Project_Countess.h"
 #include "GameFramework/Actor.h"
 #include "Countess_GAGrantingActor_Base.generated.h"
 
@@ -31,11 +31,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayAbility, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGrant;
-
-	//UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
-	bool Execute_GiveAbilityOnOverlap(TSubclassOf<UCountess_GameplayAbility_Base> Ability);
-
-	bool Execute_GiveAbilityEndOverlap();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void AbilityAcquired();

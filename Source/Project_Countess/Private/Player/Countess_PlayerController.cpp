@@ -4,7 +4,7 @@
 #include "Player/Countess_PlayerController.h"
 #include "Characters/Project_CountessCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Player/Countess_PlayerState.h"
+#include "GameFramework/PlayerState.h"
 #include "UI/Countess_HUD.h"
 #include "UI/Countess_HUD_Widget.h"
 #include "UI/Countess_Notify_Widget.h"
@@ -13,6 +13,7 @@
 #include "Sound/SoundBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
+#include "Interfaces/Countess_Interface_AbilityDetail.h"
 
 ACountess_PlayerController::ACountess_PlayerController()
 {
@@ -75,9 +76,10 @@ void ACountess_PlayerController::Ability_Jump()
 	
 	TSubclassOf<UGameplayAbility> JumpAbility;
 	/*Check with PlayerState whether we have the ability to Jump*/
-	if (PlayerState->CanJump(JumpAbility) && !PlayerCharacter->GetCharacterMovement()->IsFalling())
+	if (PlayerStateInterface->CanJump(JumpAbility) && !PlayerCharacter->GetCharacterMovement()->IsFalling())
 	{
-		PlayerState->Countess_TryActivateAbilityByClass(JumpAbility);
+		//PlayerState->Countess_TryActivateAbilityByClass(JumpAbility);
+		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), JumpAbility);
 	}
 }
 
@@ -85,9 +87,10 @@ void ACountess_PlayerController::Ability_StopJumping()
 {
 	TSubclassOf<UGameplayAbility> JumpAbility;
 	/*Check with PlayerState whether we have the ability to Jump*/
-	if (PlayerState->CanJump(JumpAbility))
+	if (PlayerStateInterface->CanJump(JumpAbility))
 	{
-		PlayerState->Countess_CancelAbility(JumpAbility);
+		//PlayerState->Countess_CancelAbility(JumpAbility);
+		PlayerStateInterface->Execute_Countess_Interface_CancelAbility(GetPlayerState<APlayerState>(),JumpAbility);
 	}
 }
 
@@ -111,47 +114,48 @@ void ACountess_PlayerController::BeginPlay()
 	if(!Countess_HUD_Widget)
 		return;
 
-	PlayerState = GetPlayerState<ACountess_PlayerState>();
-	if (!PlayerState)
-		return;
+	PlayerStateInterface = GetPlayerState<ICountess_Interface_AbilityDetail>();
+
+	if (!PlayerStateInterface)
+		UE_LOG(Countess_Log, Error, TEXT("Player State Interface NOT found in %s."), TEXT(__FUNCTION__));
 
 	/*Load Player Character Attribute values in our HUD Widget*/
-	Countess_HUD_Widget->SetCurrentHealth(PlayerState->GetCurrentHealth());
-	Countess_HUD_Widget->SetMaxHealth(PlayerState->GetMaxHealth());
-	Countess_HUD_Widget->SetHealthPercentage(PlayerState->GetCurrentHealth()/ PlayerState->GetMaxHealth());
-	Countess_HUD_Widget->SetHealthRegenRate(PlayerState->GetHealthRegenRate());
-	Countess_HUD_Widget->SetCurrentMana(PlayerState->GetCurrentMana());
-	Countess_HUD_Widget->SetMaxMana(PlayerState->GetMaxMana());
-	Countess_HUD_Widget->SetManaPercentage(PlayerState->GetCurrentMana()/ PlayerState->GetMaxMana());
-	Countess_HUD_Widget->SetManaRegenRate(PlayerState->GetManaRegenRate());
-	Countess_HUD_Widget->SetArmor(PlayerState->GetArmor());
-	Countess_HUD_Widget->SetCurrentStamina(PlayerState->GetCurrentStamina());
-	Countess_HUD_Widget->SetMaxStamina(PlayerState->GetMaxStamina());
-	Countess_HUD_Widget->SetStaminaPercentage(PlayerState->GetCurrentStamina() / PlayerState->GetMaxStamina());
-	Countess_HUD_Widget->SetStaminaRegenRate(PlayerState->GetStaminaRegenRate());
-	Countess_HUD_Widget->SetExp(PlayerState->GetCurrentExp());
-	Countess_HUD_Widget->SetMaxExp(PlayerState->GetMaxExp());
-	Countess_HUD_Widget->SetExpPercentage(PlayerState->GetCurrentExp() / PlayerState->GetMaxExp());
-	Countess_HUD_Widget->SetPlayerLevel(PlayerState->GetPlayerLevel());
+	Countess_HUD_Widget->SetCurrentHealth(PlayerStateInterface->GetCurrentHealth());
+	Countess_HUD_Widget->SetMaxHealth(PlayerStateInterface->GetMaxHealth());
+	Countess_HUD_Widget->SetHealthPercentage(PlayerStateInterface->GetCurrentHealth() / PlayerStateInterface->GetMaxHealth());
+	Countess_HUD_Widget->SetHealthRegenRate(PlayerStateInterface->GetHealthRegenRate());
+	Countess_HUD_Widget->SetCurrentMana(PlayerStateInterface->GetCurrentMana());
+	Countess_HUD_Widget->SetMaxMana(PlayerStateInterface->GetMaxMana());
+	Countess_HUD_Widget->SetManaPercentage(PlayerStateInterface->GetCurrentMana() / PlayerStateInterface->GetMaxMana());
+	Countess_HUD_Widget->SetManaRegenRate(PlayerStateInterface->GetManaRegenRate());
+	Countess_HUD_Widget->SetArmor(PlayerStateInterface->GetArmor());
+	Countess_HUD_Widget->SetCurrentStamina(PlayerStateInterface->GetCurrentStamina());
+	Countess_HUD_Widget->SetMaxStamina(PlayerStateInterface->GetMaxStamina());
+	Countess_HUD_Widget->SetStaminaPercentage(PlayerStateInterface->GetCurrentStamina() / PlayerStateInterface->GetMaxStamina());
+	Countess_HUD_Widget->SetStaminaRegenRate(PlayerStateInterface->GetStaminaRegenRate());
+	Countess_HUD_Widget->SetExp(PlayerStateInterface->GetCurrentExp());
+	Countess_HUD_Widget->SetMaxExp(PlayerStateInterface->GetMaxExp());
+	Countess_HUD_Widget->SetExpPercentage(PlayerStateInterface->GetCurrentExp() / PlayerStateInterface->GetMaxExp());
+	Countess_HUD_Widget->SetPlayerLevel(PlayerStateInterface->GetPlayerLevel());
 
 	/*Delegates to handle Player attribute changes from PlayerState which inturn receives changes from ASC*/
 
-	PlayerState->Countess_Health_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnHealthChanged);
-	PlayerState->Countess_Stamina_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnStaminaChanged);
-	PlayerState->Countess_Mana_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnManaChanged);
-	PlayerState->Countess_MaxHealth_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnMaxHealthChanged);
-	PlayerState->Countess_MaxStamina_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnMaxStaminaChanged);
-	PlayerState->Countess_MaxMana_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnMaxManaChanged);
-	PlayerState->Countess_HealthRegenRate_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnHealthRegenRateChanged);
-	PlayerState->Countess_ManaRegenRate_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnManaRegenRateChanged);
-	PlayerState->Countess_StaminaRegenRate_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnStaminaRegenRateChanged);
-	PlayerState->Countess_Armor_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnArmorChanged);
-	PlayerState->Countess_Exp_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnExpChanged);
-	PlayerState->Countess_MaxExp_Changed_Delegate.AddDynamic(this, &ACountess_PlayerController::OnMaxExpChanged);
-	PlayerState->Countess_Level_Changed_Delegate_TO_BE_REFACTORED_COZ_DECLARED_TWICE_IN_PLAYERSTATE_TOO.AddDynamic(this, &ACountess_PlayerController::OnPlayerLevelIncreased);
+	PlayerStateInterface->GetCountessHealthChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnHealthChanged);
+	PlayerStateInterface->GetCountessStaminaChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnStaminaChanged);
+	PlayerStateInterface->GetCountessManaChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnManaChanged);
+	PlayerStateInterface->GetCountessMaxHealthChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnMaxHealthChanged);
+	PlayerStateInterface->GetCountessMaxStaminaChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnMaxStaminaChanged);
+	PlayerStateInterface->GetCountessMaxManaChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnMaxManaChanged);
+	PlayerStateInterface->GetCountessHealthRegenRateChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnHealthRegenRateChanged);
+	PlayerStateInterface->GetCountessManaRegenRateChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnManaRegenRateChanged);
+	PlayerStateInterface->GetCountessStaminaRegenRateChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnStaminaRegenRateChanged);
+	PlayerStateInterface->GetCountessArmorChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnArmorChanged);
+	PlayerStateInterface->GetCountessExpChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnExpChanged);
+	PlayerStateInterface->GetCountessMaxExpChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnMaxExpChanged);
+	PlayerStateInterface->GetCountessLevelChangedDelegate().AddDynamic(this, &ACountess_PlayerController::OnPlayerLevelIncreased);
 	// #TODO: handle UI after Player loses Abilities too..
 	/*Delegates to handle UI after Player acquires Abilities */
-	PlayerState->Countess_Ability_Acquired_Delegate.AddDynamic(this, &ACountess_PlayerController::OnAbilityAcquired);
+	PlayerStateInterface->GetCountessAbilityAcquiredDelegate().AddDynamic(this, &ACountess_PlayerController::OnAbilityAcquired);
 
 	BMagicSlotted = E_BMagic::None;
 	WMagicSlotted = E_WMagic::None;
@@ -170,7 +174,7 @@ void ACountess_PlayerController::Interact()
 	{
 		if (Countess_HUD->Get_Countess_Notify_Widget()->IsInViewport())
 		{
-			bAbilityAcquired = PlayerState->AcquireAbilitiy(m_AbilityToAcquire);
+			bAbilityAcquired = PlayerStateInterface->Execute_Countess_Interface_AcquireAbilitiy(GetPlayerState<APlayerState>(), m_AbilityToAcquire);
 			// Creating Countess_SkillAcquired_Widget is done in OnAbilityAcquired bound Delegate
 		}
 	}
@@ -178,12 +182,13 @@ void ACountess_PlayerController::Interact()
 
 void ACountess_PlayerController::EndInteract()
 {
-	if (this->IsPaused())
-	{
-		this->SetPause(false);
-		FInputModeGameOnly GameOnly;
-		this->SetInputMode(GameOnly);
-	}
+	if (!this->IsPaused())
+		return;
+
+	this->SetPause(false);
+	FInputModeGameOnly GameOnly;
+	this->SetInputMode(GameOnly);
+
 	if (Countess_HUD->Get_Countess_Skill_Acquired_Widget())
 	{
 		if (Countess_HUD->Get_Countess_Skill_Acquired_Widget()->IsInViewport())
@@ -196,7 +201,7 @@ void ACountess_PlayerController::EndInteract()
 
 bool ACountess_PlayerController::Handle_Acquire_Ability_OnOverlap(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire)
 {
-	if (PlayerState->GetAcquiredAbilities().Contains(AbilityToAcquire))
+	if (PlayerStateInterface->GetAcquiredAbilities().Contains(AbilityToAcquire))
 		return true;
 
 	bAbilityAcquired = false;
@@ -266,25 +271,25 @@ void ACountess_PlayerController::OnHealthChanged(float NewHealthValue)
 {
 	//UE_LOG(Countess_Log, Warning, TEXT("Here from %s"), TEXT(__FUNCTION__));
 	Countess_HUD_Widget->SetCurrentHealth(FMath::TruncateToHalfIfClose(NewHealthValue));
-	Countess_HUD_Widget->SetHealthPercentage(NewHealthValue / PlayerState->GetMaxHealth());
+	Countess_HUD_Widget->SetHealthPercentage(NewHealthValue / PlayerStateInterface->GetMaxHealth());
 }
 
 void ACountess_PlayerController::OnStaminaChanged(float NewStaminaValue)
 {
 	Countess_HUD_Widget->SetCurrentStamina(FMath::TruncateToHalfIfClose(NewStaminaValue));
-	Countess_HUD_Widget->SetStaminaPercentage(NewStaminaValue / PlayerState->GetMaxStamina());
+	Countess_HUD_Widget->SetStaminaPercentage(NewStaminaValue / PlayerStateInterface->GetMaxStamina());
 }
 
 void ACountess_PlayerController::OnManaChanged(float NewManaValue)
 {
 	Countess_HUD_Widget->SetCurrentMana(NewManaValue);
-	Countess_HUD_Widget->SetManaPercentage(NewManaValue / PlayerState->GetMaxMana());
+	Countess_HUD_Widget->SetManaPercentage(NewManaValue / PlayerStateInterface->GetMaxMana());
 }
 
 void ACountess_PlayerController::OnExpChanged(float NewExpValue)
 {
 	Countess_HUD_Widget->SetExp(NewExpValue);
-	Countess_HUD_Widget->SetExpPercentage(NewExpValue / PlayerState->GetMaxExp());
+	Countess_HUD_Widget->SetExpPercentage(NewExpValue / PlayerStateInterface->GetMaxExp());
 }
 
 void ACountess_PlayerController::OnMaxHealthChanged(float NewMaxHealthValue)

@@ -84,7 +84,7 @@ void UCountess_AttributeSet_Base::SetAttributes()
 		if (ExpHandle)
 		{
 			Exp = ExpHandle->Eval(1.f);
-			MAX_PLAYER_LEVEL = ExpHandle->GetNumKeys();
+			MAX_PLAYER_LEVEL = ExpHandle->GetNumKeys() + 1; // Note +1
 		}
 		if (MaxExpHandle)
 			MaxExp = MaxExpHandle->Eval(1.f);
@@ -116,7 +116,7 @@ void UCountess_AttributeSet_Base::PreAttributeChange(const FGameplayAttribute& A
 		if(NewValue > (MaxExp.GetCurrentValue() ))
 		{
 			CurrentPlayerLevel++;
-			if (CurrentPlayerLevel == MAX_PLAYER_LEVEL+1)
+			if (CurrentPlayerLevel == GetPlayerMaxLevel())
 			{
 				//UE_LOG(Countess_Log, Warning, TEXT("Max Player Level reached. Max Exp value is %f. From %s"), GetMaxExp(), TEXT(__FUNCTION__));
 				bMaxPlayerLevelReached = true;
@@ -126,7 +126,7 @@ void UCountess_AttributeSet_Base::PreAttributeChange(const FGameplayAttribute& A
 			{
 				NewValue -= MaxExp.GetCurrentValue();
 				// We broadcast that player level changed first instead of SetExp(NewValue) to handle the cases where Player level increases by more than 1 when he gains too much exp.
-				Countess_Level_Changed_Delegate.Broadcast();
+				Countess_Level_Changed_Delegate.Broadcast(CurrentPlayerLevel);
 
 				SetExp(NewValue);
 			}
