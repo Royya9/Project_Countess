@@ -29,6 +29,11 @@ bool AProject_CountessCharacter::GiveAbilityEndOverlap_Implementation()
 	return Countess_PlayerController->Handle_Acquire_Ability_EndOverlap();
 }
 
+void AProject_CountessCharacter::AbilityAcquiredInfoToGAGrantingActor(FSlateBrush AbilityIcon, float Cooldown)
+{
+	CountessAbilityAcquired_Interface_Delegate.Broadcast();
+}
+
 void AProject_CountessCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
@@ -109,6 +114,7 @@ AProject_CountessCharacter::AProject_CountessCharacter()
 void AProject_CountessCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	Countess_PlayerState->Countess_Ability_Acquired_Delegate.AddDynamic(this, &AProject_CountessCharacter::AbilityAcquiredInfoToGAGrantingActor);
 }
 
 void AProject_CountessCharacter::PossessedBy(AController* NewController)

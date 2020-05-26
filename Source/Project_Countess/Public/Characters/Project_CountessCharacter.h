@@ -81,6 +81,9 @@ public:
 	bool GiveAbilityEndOverlap();
 	virtual bool GiveAbilityEndOverlap_Implementation() override;
 
+	UFUNCTION()
+	void AbilityAcquiredInfoToGAGrantingActor(FSlateBrush AbilityIcon, float Cooldown);
+
 private:
 	/**/
 	//TArray<TSubclassOf<UCountess_GameplayAbility_Base>> AcquiredAbilities;

@@ -37,6 +37,11 @@ public:
 
 	bool Execute_GiveAbilityEndOverlap();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void AbilityAcquired();
+	UFUNCTION()
+	virtual void AbilityAcquired_Implementation();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

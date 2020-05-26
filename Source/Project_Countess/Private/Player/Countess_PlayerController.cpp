@@ -171,13 +171,7 @@ void ACountess_PlayerController::Interact()
 		if (Countess_HUD->Get_Countess_Notify_Widget()->IsInViewport())
 		{
 			bAbilityAcquired = PlayerState->AcquireAbilitiy(m_AbilityToAcquire);
-			if (SkillAcquiredSound)
-				UGameplayStatics::PlaySound2D(this, SkillAcquiredSound, 3.f);
-			this->SetPause(true);
-			Countess_HUD->CreateSkillAcquiredWidget(this);
-			Populate_Skill_Acquired_Widget(m_AbilityToAcquire);
-			Countess_HUD->Get_Countess_Skill_Acquired_Widget()->AddToViewport();
-			//UE_LOG(Countess_Log, Warning, TEXT("Interacting!!!"));
+			// Creating Countess_SkillAcquired_Widget is done in OnAbilityAcquired bound Delegate
 		}
 	}
 }
@@ -185,7 +179,11 @@ void ACountess_PlayerController::Interact()
 void ACountess_PlayerController::EndInteract()
 {
 	if (this->IsPaused())
+	{
 		this->SetPause(false);
+		FInputModeGameOnly GameOnly;
+		this->SetInputMode(GameOnly);
+	}
 	if (Countess_HUD->Get_Countess_Skill_Acquired_Widget())
 	{
 		if (Countess_HUD->Get_Countess_Skill_Acquired_Widget()->IsInViewport())
@@ -333,6 +331,15 @@ void ACountess_PlayerController::OnAbilityAcquired(FSlateBrush AbilityIcon, floa
 {
 	UE_LOG(Countess_Log, Warning, TEXT("Success! Handling UI Ability Icons now. From %s. Coolddown for this abillity is %f"), TEXT(__FUNCTION__), Cooldown);
 	Countess_HUD_Widget->SetWMagicAbilityIcon(AbilityIcon);
+	if (SkillAcquiredSound)
+		UGameplayStatics::PlaySound2D(this, SkillAcquiredSound, 3.f);
+	this->SetPause(true);
+	FInputModeGameAndUI GameAndUI;
+	this->SetInputMode(GameAndUI);
+	Countess_HUD->CreateSkillAcquiredWidget(this);
+	Populate_Skill_Acquired_Widget(m_AbilityToAcquire);
+	Countess_HUD->Get_Countess_Skill_Acquired_Widget()->AddToViewport();
+
 }
 
 void ACountess_PlayerController::OnPlayerLevelIncreased(int32 NewPlayerLevel)

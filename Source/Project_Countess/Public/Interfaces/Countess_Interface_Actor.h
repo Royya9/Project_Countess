@@ -8,6 +8,8 @@
 
 class UCountess_GameplayAbility_Base;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCountessAbilityAcquired_Interface_Delegate);
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UCountess_Interface_Actor : public UInterface
@@ -30,4 +32,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
 	bool GiveAbilityEndOverlap();
+
+	FCountessAbilityAcquired_Interface_Delegate CountessAbilityAcquired_Interface_Delegate;
 };
