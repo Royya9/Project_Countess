@@ -59,12 +59,12 @@ public:
 	bool AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
-	bool Countess_Interface_AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire);
-	virtual bool Countess_Interface_AcquireAbilitiy_Implementation(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire) override;
+	bool Countess_Interface_AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire);
+	virtual bool Countess_Interface_AcquireAbilitiy_Implementation(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
-	bool Countess_Interface_TryActivateAbilityByClass(TSubclassOf<UGameplayAbility> AbilityToGive);
-	virtual bool Countess_Interface_TryActivateAbilityByClass_Implementation(TSubclassOf<UGameplayAbility> AbilityToGive) override;
+	bool Countess_Interface_TryActivateAbilityByClass(TSubclassOf<UGameplayAbility>& AbilityToActivate);
+	virtual bool Countess_Interface_TryActivateAbilityByClass_Implementation(TSubclassOf<UGameplayAbility>& AbilityToActivate) override;
 
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
@@ -97,6 +97,8 @@ public:
 	virtual TArray<TSubclassOf<UCountess_GameplayAbility_Base>> GetAcquiredAbilities() const override { return AcquiredAbilities; }
 
 public:
+
+	bool CanDoubleJump() const;
 	/* Queries. All of these are implementations of Countess_Interface_AbilityDetail*/
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
@@ -107,7 +109,7 @@ public:
 
 	/*Checks our list of acquired abilities whether we have the ability to Jump and if yes, populates the JumpAbility class with corresponding Countess_Ability_Jump*/
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	virtual bool CanJump(TSubclassOf<UGameplayAbility>& JumpAbility) const override;
+	virtual bool CanJump(TSubclassOf<UGameplayAbility>& OUTJumpAbility) const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	virtual int32 GetPlayerLevel() const override;

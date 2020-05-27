@@ -49,6 +49,7 @@ void ACountess_PlayerState::BeginPlay()
 	GiveStartupAbilities();
 
 	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull")));
+//	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.DJump"))); // #TODO Remove this. for testing purpose only
 }
 
 bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire)
@@ -93,7 +94,7 @@ bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbilit
 	{
 		//Broadcasting our acquired ability details to listeners.
 		// #TODO Combine all these details to decrease the number of params getting broadcasted. Turn them to a global struct maybe? 
-		Countess_Ability_Acquired_Delegate.Broadcast(AbilityToAcquireCDO->AbilityData->AbilityIcon, Duration);
+		Countess_Ability_Acquired_Delegate.Broadcast(AbilityToAcquire, AbilityToAcquireCDO->AbilityData->AbilityIcon, Duration);
 		//UE_LOG(Countess_Log, Warning, TEXT("Acquired Ability is %s and Description is %s"), *AbilityToAcquire->GetName(), *AbilityToAcquireCDO->AbilityData->Description.ToString());
 	}
 	else
@@ -104,7 +105,7 @@ bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbilit
 	return true;
 }
 
-bool ACountess_PlayerState::Countess_Interface_AcquireAbilitiy_Implementation(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire)
+bool ACountess_PlayerState::Countess_Interface_AcquireAbilitiy_Implementation(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire)
 {
 	return AcquireAbilitiy(AbilityToAcquire);
 }
@@ -205,20 +206,50 @@ UGameplayAbility* ACountess_PlayerState::GetAbilityObjectFromClass(TSubclassOf<U
 	return Cast<UGameplayAbility>(Ability->GetDefaultObject(false));
 }
 
+bool ACountess_PlayerState::CanDoubleJump() const
+{
+	FGameplayTagContainer DoubleJumpContainer;
+
+	DoubleJumpContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
+	
+	return AbilitySystemComponent->HasAllMatchingGameplayTags(DoubleJumpContainer);
+}
+
 bool ACountess_PlayerState::IsAlive() const
 {
 	return AttributeSet->GetHealth() > 0.f;
 }
 
-bool ACountess_PlayerState::CanJump(TSubclassOf<UGameplayAbility>& JumpAbility) const
+bool ACountess_PlayerState::CanJump(TSubclassOf<UGameplayAbility>& OUTJumpAbility) const
 {
+	TSubclassOf<UGameplayAbility> JumpAbility, DoubleJumpAbility;
+
 	for (auto Ability : AcquiredAbilities)
 	{
 		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.Jump"))))
 		{
 			JumpAbility = Ability;
+			OUTJumpAbility = JumpAbility;
+		}
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.DJump"))))
+		{
+			DoubleJumpAbility = Ability;
+		}
+	}
+	if (JumpAbility.GetDefaultObject()->IsValidLowLevel())
+	{
+		if (DoubleJumpAbility.GetDefaultObject()->IsValidLowLevel())
+		{
+			if (CanDoubleJump())
+			{
+				UE_LOG(Countess_Log, Warning, TEXT("Player Can Double Jump now. from %s"), TEXT(__FUNCTION__));
+				AbilitySystemComponent->CancelAbility(JumpAbility.GetDefaultObject());
+				OUTJumpAbility = DoubleJumpAbility;
+			}
 			return true;
 		}
+		OUTJumpAbility = JumpAbility;
+		return true;
 	}
 	return false;
 }
@@ -288,9 +319,9 @@ float ACountess_PlayerState::GetMaxExp() const
 	return AttributeSet->GetMaxExp();
 }
 
-bool ACountess_PlayerState::Countess_Interface_TryActivateAbilityByClass_Implementation(TSubclassOf<UGameplayAbility> AbilityToGive)
+bool ACountess_PlayerState::Countess_Interface_TryActivateAbilityByClass_Implementation(TSubclassOf<UGameplayAbility>& AbilityToActivate)
 {
-	return AbilitySystemComponent->TryActivateAbilityByClass(AbilityToGive);
+	return AbilitySystemComponent->TryActivateAbilityByClass(AbilityToActivate);
 }
 
 void ACountess_PlayerState::Countess_Interface_CancelAbility_Implementation(TSubclassOf<UGameplayAbility>& AbilityToCancel)

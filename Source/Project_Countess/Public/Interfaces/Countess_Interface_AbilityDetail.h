@@ -27,13 +27,13 @@ class PROJECT_COUNTESS_API ICountess_Interface_AbilityDetail
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
-	bool Countess_Interface_TryActivateAbilityByClass(TSubclassOf<UGameplayAbility> AbilityToGive);
+	bool Countess_Interface_TryActivateAbilityByClass(TSubclassOf<UGameplayAbility>& AbilityToGive);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
 	void Countess_Interface_CancelAbility(TSubclassOf<UGameplayAbility>& AbilityToCancel);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
-	bool Countess_Interface_AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire);
+	bool Countess_Interface_AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire);
 
 	virtual FCountessAttributeChangedDelegate& GetCountessHealthChangedDelegate() = 0;
 	virtual FCountessAttributeChangedDelegate& GetCountessManaChangedDelegate() = 0;
@@ -81,7 +81,7 @@ public:
 	 
 	virtual float GetMaxExp() const = 0;
 
-	virtual bool CanJump(TSubclassOf<UGameplayAbility>& JumpAbility) const = 0;
+	virtual bool CanJump(TSubclassOf<UGameplayAbility>& OUTJumpAbility) const = 0;
 
 	virtual bool IsAlive() const = 0;
 

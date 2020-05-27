@@ -42,6 +42,6 @@ UCountess_GE_Health_Regen::UCountess_GE_Health_Regen()
 
 	}
 	InheritableGameplayEffectTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Effect.Health.Regen")));
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Regen")));
+//	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Regen")));
 	OngoingTagRequirements.RequireTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull")));
 }

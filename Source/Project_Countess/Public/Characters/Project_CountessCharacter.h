@@ -82,7 +82,7 @@ public:
 	virtual bool GiveAbilityEndOverlap_Implementation() override;
 
 	UFUNCTION()
-	void AbilityAcquiredInfoToGAGrantingActor(FSlateBrush AbilityIcon, float Cooldown);
+	void AbilityAcquiredInfoToGAGrantingActor(TSubclassOf<UCountess_GameplayAbility_Base> AbilityAcquiredClass, FSlateBrush AbilityIcon, float Cooldown);
 
 private:
 	/**/
@@ -97,6 +97,7 @@ public:
 	/*VFX*/
 
 	/*Play VFX on Landing*/
+	UFUNCTION()
 	virtual void Landed(const FHitResult& Hit) override;
 
 public:

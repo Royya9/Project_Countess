@@ -55,7 +55,7 @@ void UCountess_GameplayAbility_Regen::ActivateAbility(const FGameplayAbilitySpec
 
 			ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, Countess_Stamina_Regen_Effect, Countess_PlayerLevel);
 			ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, Countess_Health_Regen_Effect, Countess_PlayerLevel);
-			UE_LOG(Countess_Log, Warning, TEXT(" HERE!!!. Acquired Regen Ability. Player Level is %d. From %s"), Countess_PlayerLevel, TEXT(__FUNCTION__));
+			//UE_LOG(Countess_Log, Warning, TEXT(" HERE!!!. Acquired Regen Ability. Player Level is %d. From %s"), Countess_PlayerLevel, TEXT(__FUNCTION__));
 		}
 
 		

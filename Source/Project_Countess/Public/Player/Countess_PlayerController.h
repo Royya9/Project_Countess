@@ -13,7 +13,7 @@ class UCountess_HUD_Widget;
 class UCountess_GameplayAbility_Base;
 class USoundBase;
 class ICountess_Interface_AbilityDetail;
-
+class UGameplayAbility;
 
 /**
  *  Player Controller Base Class for Project_Countess Player
@@ -36,8 +36,9 @@ public:
 	/*Bound function to make player jump on button press*/
 	void Ability_Jump();
 
-	/*Bound function to make player stop jumping on button release*/
-	void Ability_StopJumping();
+	/*Bound to PlayerLanded Delegate in BeginPlay*/
+	UFUNCTION()
+	void Ability_StopJumping(const FHitResult& Hit);
 
 	virtual void BeginPlay() override;
 
@@ -99,7 +100,7 @@ public:
 	void OnArmorChanged(float NewArmorValue);
 
 	UFUNCTION()
-	void OnAbilityAcquired(FSlateBrush AbilityIcon, float Cooldown);
+	void OnAbilityAcquired(TSubclassOf<UCountess_GameplayAbility_Base> AbilityAcquiredClass, FSlateBrush AbilityIcon, float Cooldown);
 
 	UFUNCTION()
 	void OnPlayerLevelIncreased(int32 NewPlayerLevel);
@@ -123,7 +124,7 @@ private:
 	UCountess_HUD_Widget* Countess_HUD_Widget;
 	ACountess_PlayerState* PlayerState;
 
-
+	TSubclassOf<UGameplayAbility> JumpAbility;
 	TSubclassOf<UCountess_GameplayAbility_Base> m_AbilityToAcquire;
 	bool bHandlingAbilityAcquire;
 	bool bAbilityAcquired;

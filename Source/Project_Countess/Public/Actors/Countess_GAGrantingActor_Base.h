@@ -20,29 +20,32 @@ public:
 	// Sets default values for this actor's properties
 	ACountess_GAGrantingActor_Base();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true"))
-	TWeakObjectPtr<UBoxComponent> BoxComponent;
-
 	UFUNCTION()
 	virtual void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	virtual void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayAbility, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGrant;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void AbilityAcquired();
 	UFUNCTION()
-	virtual void AbilityAcquired_Implementation();
+	virtual void AbilityAcquired(TSubclassOf<UCountess_GameplayAbility_Base> AcquiredAbility);
+
+	virtual bool IsAbilityAcquired() const;
+
+	virtual UBoxComponent* GetBoxComponent() const;
+
+	virtual TSubclassOf<UCountess_GameplayAbility_Base> GetAbilityToGrant() const;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	bool bAcquired_Ability_Base;
 
-private:
+ 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayAbility, meta = (AllowPrivateAccess = "true"))
+ 	TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGrant_Base;
 
-	bool bAcquired_Ability;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true"))
+	TWeakObjectPtr<UBoxComponent> BoxComponent;
+
+	FCountessAbilityAcquired_Interface_Delegate AbilityAcquiredDelegateFromBaseClass;
 };

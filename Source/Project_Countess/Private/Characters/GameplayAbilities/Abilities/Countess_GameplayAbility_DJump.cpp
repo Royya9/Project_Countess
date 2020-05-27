@@ -1,7 +1,7 @@
 // Free to play. By SoNa Games.
 
 
-#include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Jump.h"
+#include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_DJump.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystemComponent.h"
 #include "Characters/Project_CountessCharacter.h"
@@ -10,16 +10,16 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/ArrowComponent.h"
-#include "Characters/GameplayAbilities/Effects/Countess_GE_Jump_CoolDown.h"
-#include "Characters/GameplayAbilities/Effects/Countess_GE_Jump_Cost.h"
+#include "Characters/GameplayAbilities/Effects/Countess_GE_DJump_CoolDown.h"
+#include "Characters/GameplayAbilities/Effects/Countess_GE_DJump_Cost.h"
 
-UCountess_GameplayAbility_Jump::UCountess_GameplayAbility_Jump()
+UCountess_GameplayAbility_DJump::UCountess_GameplayAbility_DJump()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
 	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")));
 
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Jump")));
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.DJump")));
 
 	/* loading jump sound*/
 	static ConstructorHelpers::FObjectFinder<USoundWave> JumpSoundObject(TEXT("SoundWave'/Game/ParagonCountess/Characters/Heroes/Countess_Sounds/Sounds/SoundWaves/Countess_Effort_Ability_Primary_02.Countess_Effort_Ability_Primary_02'"));
@@ -35,10 +35,10 @@ UCountess_GameplayAbility_Jump::UCountess_GameplayAbility_Jump()
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Can't find particle effect in %s. Check if it is moved."), TEXT(__FUNCTION__));
 
-	
+
 	/*Find AbilityData from our Content Folder that describe this Ability as Class and get CDO from it*/
 
-	static ConstructorHelpers::FClassFinder<UAbilityData> AbilityDataObject(TEXT("'/Game/MyProjectMain/Blueprints/Characters/Abilities/JumpAbility/BP_AbilityData_Jump'"));
+	static ConstructorHelpers::FClassFinder<UAbilityData> AbilityDataObject(TEXT("'/Game/MyProjectMain/Blueprints/Characters/Abilities/DoubleJumpAbility/BP_AbilityData_DJump'"));
 	if (AbilityDataObject.Succeeded())
 	{
 		AbilityData = Cast<UAbilityData>(AbilityDataObject.Class->GetDefaultObject(false));
@@ -48,13 +48,12 @@ UCountess_GameplayAbility_Jump::UCountess_GameplayAbility_Jump()
 		UE_LOG(Countess_Log, Error, TEXT("Corresponding AbilityData Not found.. in %s"), TEXT(__FUNCTION__));
 
 	/*Our Jump Ability CoolDown Class*/
-	
-	CooldownGameplayEffectClass = UCountess_GE_Jump_CoolDown::StaticClass();
-	CostGameplayEffectClass = UCountess_GE_Jump_Cost::StaticClass();
 
+	CooldownGameplayEffectClass = UCountess_GE_DJump_CoolDown::StaticClass();
+	CostGameplayEffectClass = UCountess_GE_DJump_Cost::StaticClass();
 }
 
-void UCountess_GameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UCountess_GameplayAbility_DJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
 	{
@@ -72,8 +71,12 @@ void UCountess_GameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecH
 			return;
 		}
 
-		MyCharacter->Jump();
+		FVector Velocity = MyCharacter->GetVelocity();
+		FVector LaunchVelocity = FVector(Velocity.X, Velocity.Y, 1200.f); // 1200 is hardcoded here. #TODO may be bind this to any attribute? 
+		MyCharacter->LaunchCharacter(LaunchVelocity, false, false);
+		UE_LOG(Countess_Log, Warning, TEXT("Player just Double Jumped!! from %s"), TEXT(__FUNCTION__));
 		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
+		
 		if (SoundToPlay.IsValid(false))
 		{
 			UGameplayStatics::PlaySound2D(this, SoundToPlay.Get(false), 3.f);
@@ -83,30 +86,29 @@ void UCountess_GameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecH
 			UArrowComponent* ArrowComp = Cast<UArrowComponent>(MyCharacter->GetFeetLocationArrowComponent());
 			UGameplayStatics::SpawnEmitterAttached(EmitterToSpawn.Get(false), ArrowComp, FName(NAME_None), FVector(0), FRotator(0), FVector(0.5f));
 		}
-		
+
 	}
-	
 }
 
-void UCountess_GameplayAbility_Jump::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+void UCountess_GameplayAbility_DJump::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
 {
 	if (ScopeLockCount > 0)
 	{
 		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UCountess_GameplayAbility_Base::CancelAbility, Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility));
 		return;
 	}
-
+	UE_LOG(Countess_Log, Warning, TEXT("Player Double Jump Ability was cancelled!! from %s"), TEXT(__FUNCTION__));
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+
 	GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
-	
 }
 
-void UCountess_GameplayAbility_Jump::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UCountess_GameplayAbility_DJump::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UCountess_GameplayAbility_Jump::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+void UCountess_GameplayAbility_DJump::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
-	Super::ApplyCooldown(Handle,ActorInfo,ActivationInfo);
+	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
 }

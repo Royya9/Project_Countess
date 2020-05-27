@@ -147,7 +147,9 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 	// Apply FullStamina Tag to our AbilitySystemComponent to prevent Regen Effect being applied. Remove the tag if not so.
 	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
 	{		
-		UE_LOG(Countess_Log, Warning, TEXT("stamina value is %f and Stamina_Regen_Rate is %f. From %s"), GetStamina(), GetStaminaRegenRate(), TEXT(__FUNCTION__));
+		// UE_LOG(Countess_Log, Warning, TEXT("stamina value is %f and Stamina_Regen_Rate is %f. From %s"), GetStamina(), GetStaminaRegenRate(), TEXT(__FUNCTION__));
+		//#TODO Enable above comment and see it is not entirely working as intended. Stamina is constantly updated even after reaching maxstamina. but getting clamped to show intended result.
+		//Correct this.
 		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
 		if ( GetStamina() > GetMaxStamina() ||  FMath::IsNearlyEqual(GetStamina(), GetMaxStamina()))
 		{

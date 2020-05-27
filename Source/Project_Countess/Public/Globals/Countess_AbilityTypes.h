@@ -40,10 +40,10 @@ enum class E_Skills : uint8
 
 /*Delegates*/
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCountessAbilityAcquired_Interface_Delegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAbilityAcquired_Interface_Delegate, TSubclassOf<UCountess_GameplayAbility_Base>, AcquiredGameplayAbilityClass);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAttributeChangedDelegate, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessLevelChangedDelegate, int32, PlayerLevel);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCountessAbilityAcquiredDelegate, FSlateBrush, AbilityIcon, float, Cooldown); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCountessAbilityAcquiredDelegate, TSubclassOf<UCountess_GameplayAbility_Base>, AcquiredGameplayAbilityClass, FSlateBrush, AbilityIcon, float, Cooldown); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
 
 /*
 USTRUCT(BlueprintType)

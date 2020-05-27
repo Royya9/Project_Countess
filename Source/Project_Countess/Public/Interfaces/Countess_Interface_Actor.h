@@ -16,7 +16,7 @@ class UCountess_Interface_Actor : public UInterface
 };
 
 /**
- * 
+ *  Interface b/w Player Character and GA Granting Actor
  */
 class PROJECT_COUNTESS_API ICountess_Interface_Actor
 {

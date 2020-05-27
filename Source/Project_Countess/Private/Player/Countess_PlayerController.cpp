@@ -48,7 +48,7 @@ void ACountess_PlayerController::OnPossess(APawn* aPawn)
 			SetViewTarget(PlayerCharacter);
 
 			InputComponent->BindAction("Jump", IE_Pressed, this, &ACountess_PlayerController::Ability_Jump);
-			InputComponent->BindAction("Jump", IE_Released, this, &ACountess_PlayerController::Ability_StopJumping);
+			//InputComponent->BindAction("Jump", IE_Released, this, &ACountess_PlayerController::Ability_StopJumping);
 			InputComponent->BindAxis("MoveRight", this, &ACountess_PlayerController::MoveRight);
 			InputComponent->BindAction("Interact", IE_Pressed, this, &ACountess_PlayerController::Interact);
 			/*InputComponent->BindAction("EndInteract", IE_Pressed, this, &ACountess_PlayerController::EndInteract).bExecuteWhenPaused = true;*/
@@ -73,25 +73,19 @@ void ACountess_PlayerController::MoveRight(float value)
 
 void ACountess_PlayerController::Ability_Jump()
 {
-	
-	TSubclassOf<UGameplayAbility> JumpAbility;
 	/*Check with PlayerState whether we have the ability to Jump*/
-	if (PlayerStateInterface->CanJump(JumpAbility) && !PlayerCharacter->GetCharacterMovement()->IsFalling())
+	if (PlayerStateInterface->CanJump(JumpAbility)) /* Ref sent to canJump. This is OUT Param */
 	{
 		//PlayerState->Countess_TryActivateAbilityByClass(JumpAbility);
 		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), JumpAbility);
 	}
 }
 
-void ACountess_PlayerController::Ability_StopJumping()
+void ACountess_PlayerController::Ability_StopJumping(const FHitResult& Hit)
 {
-	TSubclassOf<UGameplayAbility> JumpAbility;
-	/*Check with PlayerState whether we have the ability to Jump*/
-	if (PlayerStateInterface->CanJump(JumpAbility))
-	{
-		//PlayerState->Countess_CancelAbility(JumpAbility);
-		PlayerStateInterface->Execute_Countess_Interface_CancelAbility(GetPlayerState<APlayerState>(),JumpAbility);
-	}
+	//PlayerState->Countess_CancelAbility(JumpAbility);
+	PlayerStateInterface->Execute_Countess_Interface_CancelAbility(GetPlayerState<APlayerState>(), JumpAbility);
+
 }
 
 void ACountess_PlayerController::BeginPlay()
@@ -163,7 +157,7 @@ void ACountess_PlayerController::BeginPlay()
 
 	bHandlingAbilityAcquire = false;
 
-
+	PlayerCharacter->LandedDelegate.AddDynamic(this, &ACountess_PlayerController::Ability_StopJumping);
 }
 
 void ACountess_PlayerController::Interact()
@@ -332,7 +326,7 @@ void ACountess_PlayerController::OnArmorChanged(float NewArmorValue)
 	Countess_HUD_Widget->SetArmor(NewArmorValue);
 }
 
-void ACountess_PlayerController::OnAbilityAcquired(FSlateBrush AbilityIcon, float Cooldown)
+void ACountess_PlayerController::OnAbilityAcquired(TSubclassOf<UCountess_GameplayAbility_Base> AbilityAcquiredClass, FSlateBrush AbilityIcon, float Cooldown)
 {
 	UE_LOG(Countess_Log, Warning, TEXT("Success! Handling UI Ability Icons now. From %s. Coolddown for this abillity is %f"), TEXT(__FUNCTION__), Cooldown);
 	Countess_HUD_Widget->SetWMagicAbilityIcon(AbilityIcon);
@@ -342,7 +336,7 @@ void ACountess_PlayerController::OnAbilityAcquired(FSlateBrush AbilityIcon, floa
 	FInputModeGameAndUI GameAndUI;
 	this->SetInputMode(GameAndUI);
 	Countess_HUD->CreateSkillAcquiredWidget(this);
-	Populate_Skill_Acquired_Widget(m_AbilityToAcquire);
+	Populate_Skill_Acquired_Widget(AbilityAcquiredClass);
 	Countess_HUD->Get_Countess_Skill_Acquired_Widget()->AddToViewport();
 
 }
