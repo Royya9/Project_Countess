@@ -34,6 +34,16 @@ void AProject_CountessCharacter::AbilityAcquiredInfoToGAGrantingActor(TSubclassO
 	CountessAbilityAcquired_Interface_Delegate.Broadcast(AbilityAcquiredClass);
 }
 
+bool AProject_CountessCharacter::GetIsDoubleJumping() const
+{
+	return bIsDoubleJumping;
+}
+
+void AProject_CountessCharacter::SetIsDoubleJumping(bool bNewState)
+{
+	bIsDoubleJumping = bNewState;
+}
+
 void AProject_CountessCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
@@ -46,7 +56,7 @@ void AProject_CountessCharacter::Landed(const FHitResult& Hit)
 		FVector Scale = FVector(FMath::Clamp(GetVelocity().Z * JumpScale, 0.5f, 3.f) / 2);
 		UGameplayStatics::SpawnEmitterAttached(ParticleSystemOnLanding, FeetLocationArrowComponent, FName(NAME_None), FVector(ForceInit), FRotator::ZeroRotator, Scale);
 	}
-	
+	SetIsDoubleJumping(false);
 }
 
 AProject_CountessCharacter::AProject_CountessCharacter()
@@ -108,7 +118,7 @@ AProject_CountessCharacter::AProject_CountessCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
+	bIsDoubleJumping = false;
 }
 
 void AProject_CountessCharacter::BeginPlay()

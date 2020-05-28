@@ -86,12 +86,15 @@ public:
 
 private:
 	/**/
-	//TArray<TSubclassOf<UCountess_GameplayAbility_Base>> AcquiredAbilities;
+	bool bIsDoubleJumping;
 
 	
 public:
 	/* Ability functions*/
+	UFUNCTION(BlueprintCallable)
+	bool GetIsDoubleJumping() const;
 
+	void SetIsDoubleJumping(bool bNewState);
 
 public:
 	/*VFX*/

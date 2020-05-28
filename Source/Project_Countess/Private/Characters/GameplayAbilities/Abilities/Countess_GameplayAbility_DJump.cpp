@@ -74,6 +74,7 @@ void UCountess_GameplayAbility_DJump::ActivateAbility(const FGameplayAbilitySpec
 		FVector Velocity = MyCharacter->GetVelocity();
 		FVector LaunchVelocity = FVector(Velocity.X, Velocity.Y, 1200.f); // 1200 is hardcoded here. #TODO may be bind this to any attribute? 
 		MyCharacter->LaunchCharacter(LaunchVelocity, false, false);
+		MyCharacter->SetIsDoubleJumping(true); // This value is in AnimBP to play appropriate animation
 		UE_LOG(Countess_Log, Warning, TEXT("Player just Double Jumped!! from %s"), TEXT(__FUNCTION__));
 		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
 		
