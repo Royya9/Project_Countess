@@ -2,21 +2,24 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Globals/Project_Countess.h"
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
-#include "Countess_GameplayAbility_Jump.generated.h"
+#include "Countess_GameplayAbility_BDash.generated.h"
+
+class UAnimMontage;
+class UCurveFloat;
 
 /**
- * 
+ *  Our Back Dash Ability
  */
 UCLASS()
-class PROJECT_COUNTESS_API UCountess_GameplayAbility_Jump : public UCountess_GameplayAbility_Base
+class PROJECT_COUNTESS_API UCountess_GameplayAbility_BDash : public UCountess_GameplayAbility_Base
 {
 	GENERATED_BODY()
 
 public:
 
-	UCountess_GameplayAbility_Jump();
+	UCountess_GameplayAbility_BDash();
 
 	/*Overrides*/
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
@@ -27,8 +30,9 @@ public:
 
 	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 
-/*
+	UAnimMontage* BackDashMontage;
+
 	UFUNCTION()
-	void OnLanded(const FHitResult& Hit);*/
-	
+	void MontageEnded();
+
 };

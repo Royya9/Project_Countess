@@ -55,6 +55,7 @@ void ACountess_PlayerController::OnPossess(APawn* aPawn)
 			FInputActionBinding& EndInteractBinding = InputComponent->BindAction("EndInteract", IE_Pressed, this, &ACountess_PlayerController::EndInteract);
 			EndInteractBinding.bConsumeInput = false;
 			EndInteractBinding.bExecuteWhenPaused = true;
+			InputComponent->BindAction("BackDash", IE_Pressed, this, &ACountess_PlayerController::Ability_BackDash);
 		}
 	}
 }
@@ -86,6 +87,18 @@ void ACountess_PlayerController::Ability_StopJumping(const FHitResult& Hit)
 	//PlayerState->Countess_CancelAbility(JumpAbility);
 	PlayerStateInterface->Execute_Countess_Interface_CancelAbility(GetPlayerState<APlayerState>(), JumpAbility);
 
+}
+
+void ACountess_PlayerController::Ability_BackDash()
+{
+	/*Check with PlayerState whether we have the ability to BackDash*/
+	if (PlayerStateInterface->CanBackDash(BackDashAbility)) /* Ref sent to CanBackDash. This is OUT Param */
+	{
+		//UE_LOG(Countess_Log, Warning, TEXT("Can Back Dash. from %s"), TEXT(__FUNCTION__));
+		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BackDashAbility);
+	}
+	//else
+	//	UE_LOG(Countess_Log, Warning, TEXT("Can't Back Dash yet. Check if it is acquired. From %s"), TEXT(__FUNCTION__));
 }
 
 void ACountess_PlayerController::BeginPlay()
@@ -256,6 +269,7 @@ void ACountess_PlayerController::Populate_Skill_Acquired_Widget(TSubclassOf<UCou
 				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetTitle(AbilityToAcquireCDO->AbilityData.Get(false)->Title);
 				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetDescription(AbilityToAcquireCDO->AbilityData.Get(false)->Description);
 				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetAbilityIcon(AbilityToAcquireCDO->AbilityData.Get(false)->AbilityIcon);
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetScreenShotImage(AbilityToAcquireCDO->AbilityData.Get(false)->AbilityImage);
 			}
 		}
 	}

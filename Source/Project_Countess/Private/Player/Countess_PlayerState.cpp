@@ -254,6 +254,19 @@ bool ACountess_PlayerState::CanJump(TSubclassOf<UGameplayAbility>& OUTJumpAbilit
 	return false;
 }
 
+bool ACountess_PlayerState::CanBackDash(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const
+{
+	for (auto Ability : AcquiredAbilities)
+	{
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.BDash"))))
+		{
+			OUTBackDashAbility = Ability;
+			return true;
+		}
+	}
+	return false;
+}
+
 int32 ACountess_PlayerState::GetPlayerLevel() const
 {
 	return PlayerLevel;

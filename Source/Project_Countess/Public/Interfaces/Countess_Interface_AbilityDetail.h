@@ -83,6 +83,8 @@ public:
 
 	virtual bool CanJump(TSubclassOf<UGameplayAbility>& OUTJumpAbility) const = 0;
 
+	virtual bool CanBackDash(TSubclassOf<UGameplayAbility>& OUTJumpAbility) const = 0;
+
 	virtual bool IsAlive() const = 0;
 
 	virtual TArray<TSubclassOf<UCountess_GameplayAbility_Base>> GetAcquiredAbilities() const = 0;

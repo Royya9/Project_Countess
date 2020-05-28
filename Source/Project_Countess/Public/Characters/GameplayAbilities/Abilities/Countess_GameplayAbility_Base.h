@@ -9,6 +9,7 @@
 class USoundWave;
 class UParticleSystem;
 class UAbilityData;
+class USoundCue;
 
 /**
  * 
@@ -16,6 +17,7 @@ class UAbilityData;
 UCLASS(Abstract)
 class PROJECT_COUNTESS_API UCountess_GameplayAbility_Base : public UGameplayAbility
 {
+	
 	GENERATED_BODY()
 
 public:
@@ -37,6 +39,10 @@ public:
 	/*sound to play when ability is activated*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = VFX, meta = (AllowPrivateAccess = "true"))
 	TWeakObjectPtr<USoundWave> SoundToPlay;
+
+	/*sound cue to play when ability is activated*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = VFX, meta = (AllowPrivateAccess = "true"))
+	TWeakObjectPtr<USoundCue> SoundCueToPlay;
 
 	/*particle emitter to spawn when ability is activated*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = VFX, meta = (AllowPrivateAccess = "true"))

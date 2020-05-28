@@ -75,8 +75,9 @@ void UCountess_GameplayAbility_DJump::ActivateAbility(const FGameplayAbilitySpec
 		FVector LaunchVelocity = FVector(Velocity.X, Velocity.Y, 1200.f); // 1200 is hardcoded here. #TODO may be bind this to any attribute? 
 		MyCharacter->LaunchCharacter(LaunchVelocity, false, false);
 		MyCharacter->SetIsDoubleJumping(true); // This value is in AnimBP to play appropriate animation
-		UE_LOG(Countess_Log, Warning, TEXT("Player just Double Jumped!! from %s"), TEXT(__FUNCTION__));
+		//UE_LOG(Countess_Log, Warning, TEXT("Player just Double Jumped!! from %s"), TEXT(__FUNCTION__));
 		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
+		//MyCharacter->LandedDelegate.AddDynamic(this, &UCountess_GameplayAbility_DJump::OnLanded); // This is correct way but giving ensure errors. fix it.
 		
 		if (SoundToPlay.IsValid(false))
 		{
@@ -85,7 +86,7 @@ void UCountess_GameplayAbility_DJump::ActivateAbility(const FGameplayAbilitySpec
 		if (EmitterToSpawn.IsValid(false))
 		{
 			UArrowComponent* ArrowComp = Cast<UArrowComponent>(MyCharacter->GetFeetLocationArrowComponent());
-			UGameplayStatics::SpawnEmitterAttached(EmitterToSpawn.Get(false), ArrowComp, FName(NAME_None), FVector(0), FRotator(0), FVector(0.5f));
+			UGameplayStatics::SpawnEmitterAttached(EmitterToSpawn.Get(false), ArrowComp, FName(NAME_None), FVector(0), FRotator(0), FVector(1.5f));
 		}
 
 	}
@@ -98,7 +99,7 @@ void UCountess_GameplayAbility_DJump::CancelAbility(const FGameplayAbilitySpecHa
 		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UCountess_GameplayAbility_Base::CancelAbility, Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility));
 		return;
 	}
-	UE_LOG(Countess_Log, Warning, TEXT("Player Double Jump Ability was cancelled!! from %s"), TEXT(__FUNCTION__));
+	//UE_LOG(Countess_Log, Warning, TEXT("Player Double Jump Ability was cancelled!! from %s"), TEXT(__FUNCTION__));
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 
 	GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
@@ -113,3 +114,10 @@ void UCountess_GameplayAbility_DJump::ApplyCooldown(const FGameplayAbilitySpecHa
 {
 	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
 }
+
+/*
+void UCountess_GameplayAbility_DJump::OnLanded(const FHitResult& Hit)
+{
+	EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), false, false);
+}
+*/

@@ -40,6 +40,9 @@ public:
 	UFUNCTION()
 	void Ability_StopJumping(const FHitResult& Hit);
 
+
+	void Ability_BackDash();
+
 	virtual void BeginPlay() override;
 
 
@@ -125,6 +128,7 @@ private:
 	ACountess_PlayerState* PlayerState;
 
 	TSubclassOf<UGameplayAbility> JumpAbility;
+	TSubclassOf<UGameplayAbility> BackDashAbility;
 	TSubclassOf<UCountess_GameplayAbility_Base> m_AbilityToAcquire;
 	bool bHandlingAbilityAcquire;
 	bool bAbilityAcquired;

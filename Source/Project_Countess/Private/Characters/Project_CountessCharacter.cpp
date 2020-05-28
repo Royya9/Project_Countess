@@ -11,7 +11,36 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
 #include "Particles/ParticleSystem.h"
+#include "Components/TimelineComponent.h"
+#include "Curves/CurveFloat.h"
 
+
+void AProject_CountessCharacter::TimeLineProgress(float Value)
+{
+	//UE_LOG(Countess_Log, Warning, TEXT("Time Line Progress in %s. Value is %f"), TEXT(__FUNCTION__), Value);
+	FVector NewLocation = FMath::Lerp(StartBackDashLoc, EndBackDashLoc, Value);
+	GetCapsuleComponent()->SetRelativeLocation(NewLocation);
+}
+
+void AProject_CountessCharacter::BeginBackDash()
+{
+	if(CurveFloat)
+	{
+		FOnTimelineFloatStatic TimeLineFloatStatic;
+		TimeLineFloatStatic.BindUFunction(this, FName("TimeLineProgress"));
+		BackDashTimeLine.AddInterpFloat(CurveFloat, TimeLineFloatStatic);
+		//BackDashTimeLine.SetFloatCurve(CurveFloat, FName("BackDashMovementCurve"));
+		StartBackDashLoc = GetCapsuleComponent()->GetComponentLocation();
+		if (GetCapsuleComponent()->GetComponentRotation().Yaw >= 0)
+		{
+			EndBackDashLoc = StartBackDashLoc + BackDashLeftVector;
+		}
+		else
+			EndBackDashLoc = StartBackDashLoc + BackDashRightVector;
+
+		BackDashTimeLine.PlayFromStart();
+	}
+}
 
 UAbilitySystemComponent* AProject_CountessCharacter::GetAbilitySystemComponent() const
 {
@@ -61,6 +90,7 @@ void AProject_CountessCharacter::Landed(const FHitResult& Hit)
 
 AProject_CountessCharacter::AProject_CountessCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -119,6 +149,16 @@ AProject_CountessCharacter::AProject_CountessCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	bIsDoubleJumping = false;
+
+	BackDashLeftVector= FVector(-350.f, 0.f, 0.f);
+	BackDashRightVector = FVector(350.f, 0.f, 0.f);
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> BackDashCurveFloatObject(TEXT("CurveFloat'/Game/MyProjectMain/Blueprints/Characters/Abilities/BackDashAbility/BackDashMovementCurve.BackDashMovementCurve'"));
+	if (BackDashCurveFloatObject.Succeeded())
+		CurveFloat = BackDashCurveFloatObject.Object;
+	else
+		UE_LOG(Countess_Log, Warning, TEXT("Can't find Back Dash CurveFloat in %s. Check if it is moved."), TEXT(__FUNCTION__));
+	
 }
 
 void AProject_CountessCharacter::BeginPlay()
@@ -141,4 +181,9 @@ void AProject_CountessCharacter::PossessedBy(AController* NewController)
 	Countess_PlayerController = Cast<ACountess_PlayerController>(NewController);
 }
 
+void AProject_CountessCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	BackDashTimeLine.TickTimeline(DeltaSeconds);
+}
 

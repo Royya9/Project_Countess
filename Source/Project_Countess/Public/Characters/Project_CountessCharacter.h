@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "Interfaces/Countess_Interface_Actor.h"
+#include "Components/TimelineComponent.h"
 #include "Project_CountessCharacter.generated.h"
 
 /*Forward Declarations*/
@@ -19,6 +20,7 @@ class ACountess_PlayerController;
 class UCountess_AbilitySystemComponent;
 class UCountess_AttributeSet_Base;
 class UCountess_GameplayAbility_Base;
+class UCurveFloat;
 
 UCLASS(config=Game)
 class AProject_CountessCharacter : public ACharacter, public IAbilitySystemInterface, public ICountess_Interface_Actor
@@ -59,8 +61,28 @@ class AProject_CountessCharacter : public ACharacter, public IAbilitySystemInter
 	ACountess_PlayerController* Countess_PlayerController;
 
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ability | BackDash", meta = (AllowPrivateAccess = "true"))
+	FVector BackDashLeftVector;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ability | BackDash", meta = (AllowPrivateAccess = "true"))
+	FVector BackDashRightVector;
+
+	FVector StartBackDashLoc;
+	FVector EndBackDashLoc;
+
+	FTimeline BackDashTimeLine;
+
+	UCurveFloat* CurveFloat;
+
+	UFUNCTION()
+	void TimeLineProgress(float Value);
+
+
+
 public:
 	/*Ability System*/
+
+	void BeginBackDash();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AbilitySystem, meta = (AllowPrivateAccess = "true"))
 	UAbilitySystemComponent* AbilitySystemComp;
@@ -121,5 +143,9 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void PossessedBy(AController* NewController) override;
+
+
+	virtual void Tick(float DeltaSeconds) override;
+
 
 };

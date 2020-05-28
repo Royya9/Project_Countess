@@ -3,6 +3,8 @@ JumpAbilityCooldown,1.5,1,0.5
 JumpAbilityStaminaCost,1.5,1,0.5
 DoubleJumpAbilityCooldown,2,1.75,1.5
 DoubleJumpAbilityStaminaCost,2,1.5,1
+BackDashAbilityCooldown,0.6,0.5,0.4
+BackDashAbilityCost,1,0.8,0.6
 StaminaRegenRate,0.1,0.5,1
 HealthRegenRate,0.5,0.75,1
 ManaRegenRate,0.5,0.75,1

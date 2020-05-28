@@ -41,10 +41,8 @@ protected:
 
 	bool bAcquired_Ability_Base;
 
- 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayAbility, meta = (AllowPrivateAccess = "true"))
  	TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGrant_Base;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true"))
 	TWeakObjectPtr<UBoxComponent> BoxComponent;
 
 	FCountessAbilityAcquired_Interface_Delegate AbilityAcquiredDelegateFromBaseClass;

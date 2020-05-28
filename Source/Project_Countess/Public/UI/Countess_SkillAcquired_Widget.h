@@ -25,4 +25,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetWidgetAbilityIcon(FSlateBrush WidgetAbilityIcon);
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetWidgetScreenShotImage(FSlateBrush ScreenShotImage);
 };

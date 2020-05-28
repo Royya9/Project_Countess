@@ -74,6 +74,7 @@ void UCountess_GameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecH
 
 		MyCharacter->Jump();
 		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
+		//MyCharacter->LandedDelegate.AddDynamic(this, &UCountess_GameplayAbility_Jump::OnLanded); // This is correct way. But giving ensure fail errors. Fix it
 		if (SoundToPlay.IsValid(false))
 		{
 			UGameplayStatics::PlaySound2D(this, SoundToPlay.Get(false), 3.f);
@@ -110,3 +111,10 @@ void UCountess_GameplayAbility_Jump::ApplyCooldown(const FGameplayAbilitySpecHan
 {
 	Super::ApplyCooldown(Handle,ActorInfo,ActivationInfo);
 }
+
+/*
+void UCountess_GameplayAbility_Jump::OnLanded(const FHitResult& Hit)
+{
+	EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), false, false);
+}*/
+
