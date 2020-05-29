@@ -77,7 +77,7 @@ void UCountess_GameplayAbility_DJump::ActivateAbility(const FGameplayAbilitySpec
 		MyCharacter->SetIsDoubleJumping(true); // This value is in AnimBP to play appropriate animation
 		//UE_LOG(Countess_Log, Warning, TEXT("Player just Double Jumped!! from %s"), TEXT(__FUNCTION__));
 		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
-		//MyCharacter->LandedDelegate.AddDynamic(this, &UCountess_GameplayAbility_DJump::OnLanded); // This is correct way but giving ensure errors. fix it.
+		MyCharacter->LandedDelegate.AddDynamic(this, &UCountess_GameplayAbility_DJump::OnLanded); // This is correct way but giving ensure errors. fix it.
 		
 		if (SoundToPlay.IsValid(false))
 		{
@@ -107,7 +107,14 @@ void UCountess_GameplayAbility_DJump::CancelAbility(const FGameplayAbilitySpecHa
 
 void UCountess_GameplayAbility_DJump::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	AProject_CountessCharacter* MyCharacter = Cast<AProject_CountessCharacter>(ActorInfo->AvatarActor.Get());
+	if (MyCharacter)
+	{
+		MyCharacter->LandedDelegate.Remove(this, FName("OnLanded"));
+	}
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
 }
 
 void UCountess_GameplayAbility_DJump::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
@@ -115,9 +122,8 @@ void UCountess_GameplayAbility_DJump::ApplyCooldown(const FGameplayAbilitySpecHa
 	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
 }
 
-/*
 void UCountess_GameplayAbility_DJump::OnLanded(const FHitResult& Hit)
 {
 	EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), false, false);
 }
-*/
+

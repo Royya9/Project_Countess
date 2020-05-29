@@ -44,6 +44,7 @@ void ACountess_GAGrantingActor_Base::EndOverlap(UPrimitiveComponent* OverlappedC
 	ICountess_Interface_Actor* PlayerCharacter_Interface = Cast<ICountess_Interface_Actor>(OtherActor);
 	if (PlayerCharacter_Interface)
 	{
+		PlayerCharacter_Interface->CountessAbilityAcquired_Interface_Delegate.Remove(this, FName("AbilityAcquired"));
 		PlayerCharacter_Interface->Execute_GiveAbilityEndOverlap(OtherActor);
 	}
 }

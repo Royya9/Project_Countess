@@ -27,8 +27,7 @@ public:
 
 	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 
-/*
 	UFUNCTION()
-	void OnLanded(const FHitResult& Hit);*/
+	void OnLanded(const FHitResult& Hit);
 	
 };

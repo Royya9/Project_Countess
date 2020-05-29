@@ -82,12 +82,13 @@ void ACountess_PlayerController::Ability_Jump()
 	}
 }
 
+/*
 void ACountess_PlayerController::Ability_StopJumping(const FHitResult& Hit)
 {
 	//PlayerState->Countess_CancelAbility(JumpAbility);
-	PlayerStateInterface->Execute_Countess_Interface_CancelAbility(GetPlayerState<APlayerState>(), JumpAbility);
+	//PlayerStateInterface->Execute_Countess_Interface_CancelAbility(GetPlayerState<APlayerState>(), JumpAbility);
 
-}
+}*/
 
 void ACountess_PlayerController::Ability_BackDash()
 {
@@ -170,7 +171,7 @@ void ACountess_PlayerController::BeginPlay()
 
 	bHandlingAbilityAcquire = false;
 
-	PlayerCharacter->LandedDelegate.AddDynamic(this, &ACountess_PlayerController::Ability_StopJumping);
+	//PlayerCharacter->LandedDelegate.AddDynamic(this, &ACountess_PlayerController::Ability_StopJumping);
 }
 
 void ACountess_PlayerController::Interact()

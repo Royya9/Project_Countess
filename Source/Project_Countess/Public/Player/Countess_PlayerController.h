@@ -37,8 +37,9 @@ public:
 	void Ability_Jump();
 
 	/*Bound to PlayerLanded Delegate in BeginPlay*/
+/*
 	UFUNCTION()
-	void Ability_StopJumping(const FHitResult& Hit);
+	void Ability_StopJumping(const FHitResult& Hit);*/
 
 
 	void Ability_BackDash();
