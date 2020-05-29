@@ -3,11 +3,10 @@
 #pragma once
 
 #include "Globals/Project_Countess.h"
-#include "GameFramework/Character.h"
-#include "AbilitySystemInterface.h"
+#include "Characters/Countess_Character_Base.h"
 #include "Interfaces/Countess_Interface_Actor.h"
 #include "Components/TimelineComponent.h"
-#include "Project_CountessCharacter.generated.h"
+#include "Countess_Character_Player.generated.h"
 
 /*Forward Declarations*/
 class UCameraComponent;
@@ -23,7 +22,7 @@ class UCountess_GameplayAbility_Base;
 class UCurveFloat;
 
 UCLASS(config=Game)
-class AProject_CountessCharacter : public ACharacter, public IAbilitySystemInterface, public ICountess_Interface_Actor
+class ACountess_Character_Player : public ACountess_Character_Base, public ICountess_Interface_Actor
 {
 	GENERATED_BODY()
 
@@ -48,23 +47,13 @@ class AProject_CountessCharacter : public ACharacter, public IAbilitySystemInter
 	/*scaling for size of particle system to played on landing*/
 	float JumpScale;
 
-	/*Attribute Set for our Countess*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AbilitySystem, meta = (AllowPrivateAccess = "true"))
-	UCountess_AttributeSet_Base* AttributeSet;
-
-	/*Reference to our Countesss PlayerState*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PlayerState, meta = (AllowPrivateAccess = "true"))
-	ACountess_PlayerState* Countess_PlayerState;
-
-	/*Reference to our Countesss PlayerState*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PlayerState, meta = (AllowPrivateAccess = "true"))
 	ACountess_PlayerController* Countess_PlayerController;
 
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ability | BackDash", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability | BackDash", meta = (AllowPrivateAccess = "true"))
 	FVector BackDashLeftVector;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ability | BackDash", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability | BackDash", meta = (AllowPrivateAccess = "true"))
 	FVector BackDashRightVector;
 
 	FVector StartBackDashLoc;
@@ -77,20 +66,14 @@ class AProject_CountessCharacter : public ACharacter, public IAbilitySystemInter
 	UFUNCTION()
 	void TimeLineProgress(float Value);
 
-
-
 public:
-	/*Ability System*/
+	/*Ability */
 
 	void BeginBackDash();
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AbilitySystem, meta = (AllowPrivateAccess = "true"))
-	UAbilitySystemComponent* AbilitySystemComp;
+	/*Reference to our Countesss PlayerState*/
 
-	//Implementation of IAbilitySystemInterface
-	
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
+	ACountess_PlayerState* Countess_PlayerState;
 
 public:
 	/*Implementation of ICountess_Interface_Actor*/
@@ -126,7 +109,7 @@ public:
 	virtual void Landed(const FHitResult& Hit) override;
 
 public:
-	AProject_CountessCharacter();
+	ACountess_Character_Player();
 
 	/** Returns SideViewCameraComponent subobject **/
 	FORCEINLINE UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
@@ -135,7 +118,6 @@ public:
 	/* Returns FeetLocationArrowComponent subobject*/
 	FORCEINLINE UArrowComponent* GetFeetLocationArrowComponent() const { return FeetLocationArrowComponent; }
 
-	UCountess_AttributeSet_Base* GetAttributeSet() const { return AttributeSet; }
 
 public:
 	/*Overrides*/

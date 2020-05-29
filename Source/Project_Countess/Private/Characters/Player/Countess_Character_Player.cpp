@@ -1,6 +1,6 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
-#include "Characters/Project_CountessCharacter.h"
+#include "Characters/Player/Countess_Character_Player.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/ArrowComponent.h"
@@ -13,16 +13,17 @@
 #include "Particles/ParticleSystem.h"
 #include "Components/TimelineComponent.h"
 #include "Curves/CurveFloat.h"
+#include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 
 
-void AProject_CountessCharacter::TimeLineProgress(float Value)
+void ACountess_Character_Player::TimeLineProgress(float Value)
 {
 	//UE_LOG(Countess_Log, Warning, TEXT("Time Line Progress in %s. Value is %f"), TEXT(__FUNCTION__), Value);
 	FVector NewLocation = FMath::Lerp(StartBackDashLoc, EndBackDashLoc, Value);
 	GetCapsuleComponent()->SetRelativeLocation(NewLocation);
 }
 
-void AProject_CountessCharacter::BeginBackDash()
+void ACountess_Character_Player::BeginBackDash()
 {
 	if(CurveFloat)
 	{
@@ -42,38 +43,33 @@ void AProject_CountessCharacter::BeginBackDash()
 	}
 }
 
-UAbilitySystemComponent* AProject_CountessCharacter::GetAbilitySystemComponent() const
-{
-	return AbilitySystemComp;
-}
-
-bool AProject_CountessCharacter::GiveAbilityOnOverlap_Implementation(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGive)
+bool ACountess_Character_Player::GiveAbilityOnOverlap_Implementation(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGive)
 {
 	//return Countess_PlayerState->AcquireAbilitiy(AbilityToGive);
 	return Countess_PlayerController->Handle_Acquire_Ability_OnOverlap(AbilityToGive);
 }
 
-bool AProject_CountessCharacter::GiveAbilityEndOverlap_Implementation()
+bool ACountess_Character_Player::GiveAbilityEndOverlap_Implementation()
 {
 	return Countess_PlayerController->Handle_Acquire_Ability_EndOverlap();
 }
 
-void AProject_CountessCharacter::AbilityAcquiredInfoToGAGrantingActor(TSubclassOf<UCountess_GameplayAbility_Base> AbilityAcquiredClass, FSlateBrush AbilityIcon, float Cooldown)
+void ACountess_Character_Player::AbilityAcquiredInfoToGAGrantingActor(TSubclassOf<UCountess_GameplayAbility_Base> AbilityAcquiredClass, FSlateBrush AbilityIcon, float Cooldown)
 {
 	CountessAbilityAcquired_Interface_Delegate.Broadcast(AbilityAcquiredClass);
 }
 
-bool AProject_CountessCharacter::GetIsDoubleJumping() const
+bool ACountess_Character_Player::GetIsDoubleJumping() const
 {
 	return bIsDoubleJumping;
 }
 
-void AProject_CountessCharacter::SetIsDoubleJumping(bool bNewState)
+void ACountess_Character_Player::SetIsDoubleJumping(bool bNewState)
 {
 	bIsDoubleJumping = bNewState;
 }
 
-void AProject_CountessCharacter::Landed(const FHitResult& Hit)
+void ACountess_Character_Player::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 	if (SoundToPlayOnLanding)
@@ -88,7 +84,7 @@ void AProject_CountessCharacter::Landed(const FHitResult& Hit)
 	SetIsDoubleJumping(false);
 }
 
-AProject_CountessCharacter::AProject_CountessCharacter()
+ACountess_Character_Player::ACountess_Character_Player()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	// Set size for collision capsule
@@ -161,27 +157,27 @@ AProject_CountessCharacter::AProject_CountessCharacter()
 	
 }
 
-void AProject_CountessCharacter::BeginPlay()
+void ACountess_Character_Player::BeginPlay()
 {
 	Super::BeginPlay();
-	Countess_PlayerState->Countess_Ability_Acquired_Delegate.AddDynamic(this, &AProject_CountessCharacter::AbilityAcquiredInfoToGAGrantingActor);
+	Countess_PlayerState->Countess_Ability_Acquired_Delegate.AddDynamic(this, &ACountess_Character_Player::AbilityAcquiredInfoToGAGrantingActor);
 }
 
-void AProject_CountessCharacter::PossessedBy(AController* NewController)
+void ACountess_Character_Player::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	Countess_PlayerState = GetPlayerState<ACountess_PlayerState>();
 	if (Countess_PlayerState)
 	{
 		/*Configure our AbiltiySystemComponent and AttributeSet*/
-		AbilitySystemComp = Countess_PlayerState->GetAbilitySystemComponent();
+		AbilitySystemComponent = Cast<UCountess_AbilitySystemComponent>(Countess_PlayerState->GetAbilitySystemComponent());
 		AttributeSet = Countess_PlayerState->GetAttributeSet();
 	}
 
 	Countess_PlayerController = Cast<ACountess_PlayerController>(NewController);
 }
 
-void AProject_CountessCharacter::Tick(float DeltaSeconds)
+void ACountess_Character_Player::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	BackDashTimeLine.TickTimeline(DeltaSeconds);

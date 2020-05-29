@@ -4,7 +4,7 @@
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_BDash.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystemComponent.h"
-#include "Characters/Project_CountessCharacter.h"
+#include "Characters/Player/Countess_Character_Player.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystem.h"
@@ -75,7 +75,7 @@ void UCountess_GameplayAbility_BDash::ActivateAbility(const FGameplayAbilitySpec
 		}
 		CommitAbility(Handle, ActorInfo, ActivationInfo);
 
-		AProject_CountessCharacter* MyCharacter = Cast<AProject_CountessCharacter>(ActorInfo->AvatarActor.Get());
+		ACountess_Character_Player* MyCharacter = Cast<ACountess_Character_Player>(ActorInfo->AvatarActor.Get());
 
 		if (!MyCharacter)
 		{

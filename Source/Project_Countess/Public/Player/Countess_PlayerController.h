@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Countess_PlayerController.generated.h"
 
-class AProject_CountessCharacter;
+class ACountess_Character_Player;
 class ACountess_PlayerState;
 class ACountess_HUD;
 class UCountess_HUD_Widget;
@@ -116,7 +116,7 @@ public:
 
 protected:
 
-	AProject_CountessCharacter* PlayerCharacter = nullptr;
+	ACountess_Character_Player* PlayerCharacter = nullptr;
 
 	ICountess_Interface_AbilityDetail* PlayerStateInterface;
 	/*UPROPERTY()

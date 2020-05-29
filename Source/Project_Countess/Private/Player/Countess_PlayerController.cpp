@@ -2,7 +2,7 @@
 
 
 #include "Player/Countess_PlayerController.h"
-#include "Characters/Project_CountessCharacter.h"
+#include "Characters/Player/Countess_Character_Player.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "UI/Countess_HUD.h"
@@ -41,7 +41,7 @@ void ACountess_PlayerController::OnPossess(APawn* aPawn)
 	Super::OnPossess(aPawn);
 	if (aPawn)
 	{
-		PlayerCharacter = Cast<AProject_CountessCharacter>(aPawn);
+		PlayerCharacter = Cast<ACountess_Character_Player>(aPawn);
 		if (PlayerCharacter)
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("%s Possessed %s"), *this->GetName(), *PlayerCharacter->GetName());

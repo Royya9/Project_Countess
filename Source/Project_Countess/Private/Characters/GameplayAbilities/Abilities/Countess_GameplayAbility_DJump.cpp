@@ -4,7 +4,7 @@
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_DJump.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystemComponent.h"
-#include "Characters/Project_CountessCharacter.h"
+#include "Characters/Player/Countess_Character_Player.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
 #include "Particles/ParticleSystem.h"
@@ -63,7 +63,7 @@ void UCountess_GameplayAbility_DJump::ActivateAbility(const FGameplayAbilitySpec
 		}
 		CommitAbility(Handle, ActorInfo, ActivationInfo);
 
-		AProject_CountessCharacter* MyCharacter = Cast<AProject_CountessCharacter>(ActorInfo->AvatarActor.Get());
+		ACountess_Character_Player* MyCharacter = Cast<ACountess_Character_Player>(ActorInfo->AvatarActor.Get());
 
 		if (!MyCharacter)
 		{
@@ -107,7 +107,7 @@ void UCountess_GameplayAbility_DJump::CancelAbility(const FGameplayAbilitySpecHa
 
 void UCountess_GameplayAbility_DJump::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	AProject_CountessCharacter* MyCharacter = Cast<AProject_CountessCharacter>(ActorInfo->AvatarActor.Get());
+	ACountess_Character_Player* MyCharacter = Cast<ACountess_Character_Player>(ActorInfo->AvatarActor.Get());
 	if (MyCharacter)
 	{
 		MyCharacter->LandedDelegate.Remove(this, FName("OnLanded"));
