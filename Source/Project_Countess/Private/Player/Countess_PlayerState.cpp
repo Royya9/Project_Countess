@@ -49,7 +49,7 @@ void ACountess_PlayerState::BeginPlay()
 	GiveStartupAbilities();
 
 	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull")));
-//	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("Ability.DJump"))); // #TODO Remove this. for testing purpose only
+
 }
 
 bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire)
@@ -136,9 +136,9 @@ void ACountess_PlayerState::GiveStartupAbilities()
 		FGameplayEffectSpecHandle GameplayEffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UCountess_GE_PlayerStats::StaticClass(), GetPlayerLevel(), GameplayEffectContextHandle);
 		if (GameplayEffectSpecHandle.IsValid())
 		{
-			FActiveGameplayEffectHandle ActiveGameplayEffectHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*GameplayEffectSpecHandle.Data.Get(), AbilitySystemComponent);
+			//FActiveGameplayEffectHandle ActiveGameplayEffectHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*GameplayEffectSpecHandle.Data.Get(), AbilitySystemComponent);
+			FActiveGameplayEffectHandle ActiveGameplayEffectHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*GameplayEffectSpecHandle.Data.Get());
 		}
-
 		bAbilitiesInitialized = true;
 	}
 }

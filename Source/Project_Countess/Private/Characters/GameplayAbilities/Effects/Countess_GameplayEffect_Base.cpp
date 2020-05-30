@@ -29,5 +29,14 @@ UCountess_GameplayEffect_Base::UCountess_GameplayEffect_Base()
 		UE_LOG(Countess_Log, Error, TEXT("Cannot find AbilityDetails curve table in location : /Game/MyProjectMain/Blueprints/Characters/Abilities/AbilityDetails. Check if it is moved. From %s"), TEXT(__FUNCTION__));
 	}
 
-
+	//Get Minion AbilityDetails Curve Table
+	static ConstructorHelpers::FObjectFinder<UCurveTable> MinionDetailsObject(TEXT("/Game/MyProjectMain/Blueprints/Characters/Abilities/Minion_AbilityDetails"));
+	if (MinionDetailsObject.Succeeded())
+	{
+		MinionDetailsTable = MinionDetailsObject.Object;
+	}
+	else
+	{
+		UE_LOG(Countess_Log, Error, TEXT("Cannot find Minion_AbilityDetails curve table in location : /Game/MyProjectMain/Blueprints/Characters/Abilities/ . Check if it is moved. From %s"), TEXT(__FUNCTION__));
+	}
 }

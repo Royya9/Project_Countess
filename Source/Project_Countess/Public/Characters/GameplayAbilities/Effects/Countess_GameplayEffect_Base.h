@@ -23,8 +23,10 @@ public:
 
 protected:
 
-	//CurveTable that contains all Ability/Effect Details. 
+	//CurveTable that contains all Player Ability/Effect Details. 
 	UCurveTable* AbilityDetailsTable;
+
+	UCurveTable* MinionDetailsTable;
 
 	//AttributeSet needed by subclasses to find the attribute the corresponding Effect to be applied to.
 	UCountess_AttributeSet_Base* Countess_AttributeSet;

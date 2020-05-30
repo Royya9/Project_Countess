@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Globals/Project_Countess.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "Countess_Character_Base.generated.h"

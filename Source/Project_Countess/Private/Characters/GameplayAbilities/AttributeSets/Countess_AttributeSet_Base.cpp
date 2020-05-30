@@ -61,6 +61,7 @@ void UCountess_AttributeSet_Base::SetAttributes()
 		FSimpleCurve* ExpHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Exp"), ContextString);
 		FSimpleCurve* MaxExpHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("MaxExp"), ContextString);
 
+/*
 		if (HealthHandle)
 			Health = HealthHandle->Eval(1.f);
 		if (MaxHealthHandle)
@@ -80,7 +81,7 @@ void UCountess_AttributeSet_Base::SetAttributes()
 		if (ManaRegenHandle)
 			ManaRegenRate = ManaRegenHandle->Eval(1.f);
 		if (ArmorHandle)
-			Armor = ArmorHandle->Eval(1.f);
+			Armor = ArmorHandle->Eval(1.f);*/
 		if (ExpHandle)
 		{
 			Exp = ExpHandle->Eval(1.f);
