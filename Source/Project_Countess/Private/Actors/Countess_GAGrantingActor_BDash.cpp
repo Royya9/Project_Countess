@@ -13,6 +13,7 @@ ACountess_GAGrantingActor_BDash::ACountess_GAGrantingActor_BDash()
 	PrimaryActorTick.bCanEverTick = false;
 
 	BoxComponent_HardRef = CreateDefaultSubobject<UBoxComponent>(FName("Box Component"));
+	BoxComponent_HardRef->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 	RootComponent = BoxComponent_HardRef;
 	BoxComponent_HardRef->SetBoxExtent(FVector(100.f, 100.f, 100.f));
 

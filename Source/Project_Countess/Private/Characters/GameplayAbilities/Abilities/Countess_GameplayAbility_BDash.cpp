@@ -94,6 +94,10 @@ void UCountess_GameplayAbility_BDash::ActivateAbility(const FGameplayAbilitySpec
 		MyCharacter->BeginBackDash(); //While montage is playing, tell character to move left/right depending on facing left/right by some amount.
 
 		PlayMontagenWait->OnCompleted.AddDynamic(this, &UCountess_GameplayAbility_BDash::MontageEnded); // End Ability when montage ends.
+		PlayMontagenWait->OnInterrupted.AddDynamic(this, &UCountess_GameplayAbility_BDash::MontageEnded);
+		PlayMontagenWait->OnBlendOut.AddDynamic(this, &UCountess_GameplayAbility_BDash::MontageEnded);
+		PlayMontagenWait->OnCancelled.AddDynamic(this, &UCountess_GameplayAbility_BDash::MontageEnded);
+
 
 		if (SoundCueToPlay.IsValid(false))
 		{

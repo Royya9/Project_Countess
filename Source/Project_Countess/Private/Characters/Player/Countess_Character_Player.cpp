@@ -128,6 +128,10 @@ ACountess_Character_Player::ACountess_Character_Player()
 	FeetLocationArrowComponent->SetupAttachment(RootComponent);
 	FeetLocationArrowComponent->SetRelativeLocation(FVector(0, 0, -96.f));
 
+	FireballSpawnLocationArrowComponent = CreateDefaultSubobject<UArrowComponent>(FName("Fireball Spawn Point"));
+	FireballSpawnLocationArrowComponent->SetupAttachment(RootComponent);
+	FireballSpawnLocationArrowComponent->SetRelativeLocation(FVector(70.f, 0.f, 20.f));
+
 	/*Load VFX to be played on Player Landing*/
 	//Load Soundwave
 	static ConstructorHelpers::FObjectFinder<USoundWave> SoundToPlayOnLandingObject(TEXT("SoundWave'/Game/ParagonCountess/Characters/Heroes/Vamp/Sounds/SoundWaves/Countess_Effort_Land_03.Countess_Effort_Land_03'"));

@@ -38,6 +38,10 @@ class ACountess_Character_Player : public ACountess_Character_Base, public ICoun
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	UArrowComponent* FeetLocationArrowComponent;
 
+	/*Location of Feet to spawn emitters (preferrably dust)*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	UArrowComponent* FireballSpawnLocationArrowComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
 	USoundWave* SoundToPlayOnLanding;
 
@@ -117,7 +121,8 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/* Returns FeetLocationArrowComponent subobject*/
 	FORCEINLINE UArrowComponent* GetFeetLocationArrowComponent() const { return FeetLocationArrowComponent; }
-
+	/* Returns FeetLocationArrowComponent subobject*/
+	FORCEINLINE UArrowComponent* GetFireballSpawnLocationArrowComponent() const { return FireballSpawnLocationArrowComponent; }
 
 public:
 	/*Overrides*/

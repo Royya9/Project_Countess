@@ -44,6 +44,8 @@ public:
 
 	void Ability_BackDash();
 
+	void Ability_Fireball();
+
 	virtual void BeginPlay() override;
 
 
@@ -131,6 +133,8 @@ private:
 	TSubclassOf<UGameplayAbility> JumpAbility;
 	TSubclassOf<UGameplayAbility> BackDashAbility;
 	TSubclassOf<UCountess_GameplayAbility_Base> m_AbilityToAcquire;
+	TSubclassOf<UGameplayAbility> BlackMagicAbility;
+
 	bool bHandlingAbilityAcquire;
 	bool bAbilityAcquired;
 
