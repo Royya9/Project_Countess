@@ -14,7 +14,7 @@
 #include "Characters/GameplayAbilities/Effects/Countess_GE_Fireball_CoolDown.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_Fireball_Cost.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_Fireball_Damage.h"
-#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Characters/GameplayAbilities/AbilityTasks/CT_PlayMontageAndWaitForEvent.h"
 
 UCountess_GameplayAbility_Fball::UCountess_GameplayAbility_Fball()
 {
@@ -42,11 +42,19 @@ UCountess_GameplayAbility_Fball::UCountess_GameplayAbility_Fball()
 	else
 		UE_LOG(Countess_Log, Error, TEXT("Corresponding AbilityData Not found.. in %s"), TEXT(__FUNCTION__));
 
+	/*Load Fireball Montage*/
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> FireballMontageObject(TEXT("AnimMontage'/Game/MyProjectMain/Animations/AnimMontage_Cast.AnimMontage_Cast'"));
 	if (FireballMontageObject.Succeeded())
 		FireballAnimMontage = FireballMontageObject.Object;
 	else
 		UE_LOG(Countess_Log, Warning, TEXT("Can't find Fireball Anim Montage in %s. Check if it is moved."), TEXT(__FUNCTION__));
+
+	/* loading Fireball emitter*/
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> FireballParticleEffectObject(TEXT("ParticleSystem'/Game/MyProjectMain/Particles/p_Countess_BlinkStrikeFlash.p_Countess_BlinkStrikeFlash'"));
+	if (FireballParticleEffectObject.Succeeded())
+		EmitterToSpawn = FireballParticleEffectObject.Object;
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Can't find particle effect in %s. Check if it is moved."), TEXT(__FUNCTION__));
 
 	CooldownGameplayEffectClass = UCountess_GE_Fireball_CoolDown::StaticClass();
 	CostGameplayEffectClass = UCountess_GE_Fireball_Cost::StaticClass();
@@ -69,13 +77,15 @@ void UCountess_GameplayAbility_Fball::ActivateAbility(const FGameplayAbilitySpec
 		return;
 	}
 
-	UAbilityTask_PlayMontageAndWait* PlayMontageAndWait = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, FName("Fireball Montage"), FireballAnimMontage);
-		
-	PlayMontageAndWait->OnCompleted.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnCompleted);
-	PlayMontageAndWait->OnInterrupted.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnCompleted);
-	PlayMontageAndWait->OnBlendOut.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnCompleted);
-	PlayMontageAndWait->OnCancelled.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnCompleted);
-	PlayMontageAndWait->ReadyForActivation();
+	UCT_PlayMontageAndWaitForEvent* PlayMontageAndWaitForEvent = UCT_PlayMontageAndWaitForEvent::PlayMontageAndWaitForEvent(
+		this, FName("Fireball Montage"), FireballAnimMontage, FGameplayTagContainer(), 1.f, NAME_None, false, 1.f
+	);
+	PlayMontageAndWaitForEvent->OnCompleted.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnCompleted);
+	PlayMontageAndWaitForEvent->OnInterrupted.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnCompleted);
+	PlayMontageAndWaitForEvent->OnBlendOut.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnCompleted);
+	PlayMontageAndWaitForEvent->OnCancelled.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnCompleted);
+	PlayMontageAndWaitForEvent->EventReceived.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnEventReceived);
+	PlayMontageAndWaitForEvent->ReadyForActivation();
 
 }
 
@@ -100,9 +110,17 @@ void UCountess_GameplayAbility_Fball::ApplyCooldown(const FGameplayAbilitySpecHa
 	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
 }
 
-void UCountess_GameplayAbility_Fball::OnCompleted()
+void UCountess_GameplayAbility_Fball::OnCompleted(FGameplayTag EventTag, FGameplayEventData EventData)
 {
-	
+	EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), false, false);
+}
+
+void UCountess_GameplayAbility_Fball::OnEventReceived(FGameplayTag EventTag, FGameplayEventData EventData)
+{
+	//UE_LOG(Countess_Log, Warning, TEXT("Event %s Received from %s"), *EventTag.ToString(), TEXT(__FUNCTION__)); 
+	// We received Event.Ability.Fireball.Cast Tag at the correct instant in montage which we setup in
+	// FireballAnimMontage:notify -> AnimBP:make event data & send to actor
+	// We can check for matching that exact tag but we are sending only one tag to actor at the moment. So we can afford to skip this check for now.
 	ACountess_Character_Player* Player = Cast<ACountess_Character_Player>(GetCurrentActorInfo()->AvatarActor.Get());
 
 	if (!Player)
@@ -111,6 +129,7 @@ void UCountess_GameplayAbility_Fball::OnCompleted()
 		EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), false, false);
 		return;
 	}
+
 
 	FTransform ProjectileSpawnTransform = Player->GetFireballSpawnLocationArrowComponent()->GetComponentTransform();
 
@@ -121,5 +140,10 @@ void UCountess_GameplayAbility_Fball::OnCompleted()
 		Player, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	Fireball->FinishSpawning(ProjectileSpawnTransform);
 
-	EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), false, false);
+	if (SoundToPlay.IsValid(false))
+		UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay.Get(false), ProjectileSpawnTransform.GetLocation());
+
+	if (EmitterToSpawn.IsValid(false))
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EmitterToSpawn.Get(false), ProjectileSpawnTransform.GetLocation());
+	
 }

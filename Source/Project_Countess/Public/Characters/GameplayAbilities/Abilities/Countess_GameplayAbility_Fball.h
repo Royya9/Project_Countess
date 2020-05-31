@@ -35,6 +35,9 @@ public:
 	UAnimMontage* FireballAnimMontage;
 
 	UFUNCTION()
-	void OnCompleted();
+	void OnCompleted(FGameplayTag EventTag, FGameplayEventData EventData);
+
+	UFUNCTION()
+	void OnEventReceived(FGameplayTag EventTag, FGameplayEventData EventData);
 
 };
