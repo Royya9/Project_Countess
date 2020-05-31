@@ -8,6 +8,7 @@
 
 class ACountess_Actor_Fireball;
 class UAnimMontage;
+class UGameplayEffect;
 
 /**
  *  Our Fireball Ability
@@ -40,4 +41,6 @@ public:
 	UFUNCTION()
 	void OnEventReceived(FGameplayTag EventTag, FGameplayEventData EventData);
 
+
+	TSubclassOf<UGameplayEffect> FireballDamageEffectClass;
 };

@@ -11,6 +11,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Actors/Countess_Actor_Fireball.h"
+#include "Player/Countess_PlayerState.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_Fireball_CoolDown.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_Fireball_Cost.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_Fireball_Damage.h"
@@ -56,9 +57,17 @@ UCountess_GameplayAbility_Fball::UCountess_GameplayAbility_Fball()
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Can't find particle effect in %s. Check if it is moved."), TEXT(__FUNCTION__));
 
+	/* loading Fireball emitter*/
+// 	static ConstructorHelpers::FClassFinder<ACountess_Actor_Fireball> FireballParticleClassFinder(TEXT("'/Game/MyProjectMain/Blueprints/Actors/BP_Countess_Actor_Fireball'"));
+// 	if (FireballParticleClassFinder.Succeeded())
+// 		FireballClass = FireballParticleClassFinder.Class;
+// 	else
+// 		UE_LOG(LogTemp, Warning, TEXT("Can't find particle effect in %s. Check if it is moved."), TEXT(__FUNCTION__));
+
 	CooldownGameplayEffectClass = UCountess_GE_Fireball_CoolDown::StaticClass();
 	CostGameplayEffectClass = UCountess_GE_Fireball_Cost::StaticClass();
 	FireballClass = ACountess_Actor_Fireball::StaticClass();
+	FireballDamageEffectClass = UCountess_GE_Fireball_Damage::StaticClass();
 }
 
 void UCountess_GameplayAbility_Fball::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -122,22 +131,26 @@ void UCountess_GameplayAbility_Fball::OnEventReceived(FGameplayTag EventTag, FGa
 	// FireballAnimMontage:notify -> AnimBP:make event data & send to actor
 	// We can check for matching that exact tag but we are sending only one tag to actor at the moment. So we can afford to skip this check for now.
 	ACountess_Character_Player* Player = Cast<ACountess_Character_Player>(GetCurrentActorInfo()->AvatarActor.Get());
-
-	if (!Player)
+	ACountess_PlayerState* Countess_PlayerState = Cast<ACountess_PlayerState>(GetCurrentActorInfo()->OwnerActor.Get());
+	if (!Player || !Countess_PlayerState)
 	{
-		UE_LOG(Countess_Log, Error, TEXT("CountessPlayerCharacter ie Avatar Actor not found in %s"), TEXT(__FUNCTION__));
+		UE_LOG(Countess_Log, Error, TEXT("CountessPlayerCharacter ie Avatar Actor or Countess PlayerState not found in %s"), TEXT(__FUNCTION__));
 		EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), false, false);
 		return;
 	}
+	FGameplayEffectContextHandle EffectContextHandle = Player->GetAbilitySystemComponent()->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(this);
 
+	FGameplayEffectSpecHandle SpecHandle = Player->GetAbilitySystemComponent()->MakeOutgoingSpec(FireballDamageEffectClass, Countess_PlayerState->GetPlayerLevel(), EffectContextHandle);
 
 	FTransform ProjectileSpawnTransform = Player->GetFireballSpawnLocationArrowComponent()->GetComponentTransform();
-
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	ACountess_Actor_Fireball* Fireball = GetWorld()->SpawnActorDeferred<ACountess_Actor_Fireball>(FireballClass, ProjectileSpawnTransform, GetOwningActorFromActorInfo(),
 		Player, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	Fireball->Range = 4500.f;
+	Fireball->DamageEffectSpecHandle = SpecHandle;
 	Fireball->FinishSpawning(ProjectileSpawnTransform);
 
 	if (SoundToPlay.IsValid(false))

@@ -4,7 +4,6 @@
 
 #include "Globals/Project_Countess.h"
 #include "Characters/Countess_Character_Base.h"
-#include "Interfaces/Countess_Interface_Actor.h"
 #include "Components/TimelineComponent.h"
 #include "Countess_Character_Player.generated.h"
 
@@ -22,7 +21,7 @@ class UCountess_GameplayAbility_Base;
 class UCurveFloat;
 
 UCLASS(config=Game)
-class ACountess_Character_Player : public ACountess_Character_Base, public ICountess_Interface_Actor
+class ACountess_Character_Player : public ACountess_Character_Base
 {
 	GENERATED_BODY()
 

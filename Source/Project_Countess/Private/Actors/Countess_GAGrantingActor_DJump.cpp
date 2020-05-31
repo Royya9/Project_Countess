@@ -13,7 +13,7 @@ ACountess_GAGrantingActor_DJump::ACountess_GAGrantingActor_DJump()
 	PrimaryActorTick.bCanEverTick = false;
 
 	BoxComponent_HardRef_DJump = CreateDefaultSubobject<UBoxComponent>(FName("Box Component"));
-	BoxComponent_HardRef_DJump->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+	BoxComponent_HardRef_DJump->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
 	RootComponent = BoxComponent_HardRef_DJump;
 	BoxComponent_HardRef_DJump->SetBoxExtent(FVector(100.f, 100.f, 100.f));
 

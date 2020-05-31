@@ -89,6 +89,9 @@ ACountess_Character_Player::ACountess_Character_Player()
 	PrimaryActorTick.bCanEverTick = true;
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 
 	// Don't rotate when the controller rotates.
 	bUseControllerRotationPitch = false;

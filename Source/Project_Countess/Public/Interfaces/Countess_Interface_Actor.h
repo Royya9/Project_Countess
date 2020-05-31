@@ -7,6 +7,7 @@
 #include "Countess_Interface_Actor.generated.h"
 
 class UCountess_GameplayAbility_Base;
+class UAbilitySystemComponent;
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -30,6 +31,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
 	bool GiveAbilityEndOverlap();
+
+	virtual UAbilitySystemComponent* GetASC() const = 0;
 
 	FCountessAbilityAcquired_Interface_Delegate CountessAbilityAcquired_Interface_Delegate;
 };
