@@ -10,7 +10,7 @@ UCountess_GE_MinionStats::UCountess_GE_MinionStats()
 
 	if (MinionDetailsTable)
 	{
-		const uint32 NumOfMinionStatsToCapture = 10;
+		const uint32 NumOfMinionStatsToCapture = 11;
 
 		TArray<FScalableFloat> ScalableFloats;
 		ScalableFloats.SetNum(NumOfMinionStatsToCapture);
@@ -52,6 +52,9 @@ UCountess_GE_MinionStats::UCountess_GE_MinionStats()
 
 			CurveTableRowHandles[9].RowName = FName("Stamina");
 			ModifierInfos[9].Attribute = Countess_AttributeSet->GetStaminaAttribute();
+
+			CurveTableRowHandles[10].RowName = FName("MagicResistancePercentage");
+			ModifierInfos[10].Attribute = Countess_AttributeSet->GetMagicResistanceAttribute();
 
 		}
 

@@ -95,7 +95,7 @@ void ACountess_Character_AI_Minion::GiveStartupEffects()
 
 void ACountess_Character_AI_Minion::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
-	UE_LOG(Countess_Log, Warning, TEXT("From %s. Minion Health Changed to %f"), TEXT(__FUNCTION__), Data.NewValue);
+	//UE_LOG(Countess_Log, Warning, TEXT("From %s. Minion Health Changed to %f"), TEXT(__FUNCTION__), Data.NewValue);
 	if (Minion_Widget)
 		Minion_Widget->SetHealthPercentage(Data.NewValue / MinionAttributeSet->GetMaxHealth());
 }

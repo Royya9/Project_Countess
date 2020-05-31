@@ -10,7 +10,7 @@ UCountess_GE_PlayerStats::UCountess_GE_PlayerStats()
 
 	if (AbilityDetailsTable)
 	{
-		const uint32 NumOfPlayerStatsToCapture = 9;
+		const uint32 NumOfPlayerStatsToCapture = 10;
 
 		TArray<FScalableFloat> ScalableFloats;
 		ScalableFloats.SetNum(NumOfPlayerStatsToCapture);
@@ -44,11 +44,14 @@ UCountess_GE_PlayerStats::UCountess_GE_PlayerStats()
 			CurveTableRowHandles[6].RowName = FName("Armor");
 			ModifierInfos[6].Attribute = Countess_AttributeSet->GetArmorAttribute();
 
-			CurveTableRowHandles[7].RowName = FName("MaxExp");
-			ModifierInfos[7].Attribute = Countess_AttributeSet->GetMaxExpAttribute();
+			CurveTableRowHandles[7].RowName = FName("MagicResistancePercentage");
+			ModifierInfos[7].Attribute = Countess_AttributeSet->GetMagicResistanceAttribute();
 
-			CurveTableRowHandles[8].RowName = FName("Exp");
-			ModifierInfos[8].Attribute = Countess_AttributeSet->GetExpAttribute();
+			CurveTableRowHandles[8].RowName = FName("MaxExp");
+			ModifierInfos[8].Attribute = Countess_AttributeSet->GetMaxExpAttribute();
+
+			CurveTableRowHandles[9].RowName = FName("Exp");
+			ModifierInfos[9].Attribute = Countess_AttributeSet->GetExpAttribute();
 
 		}
 

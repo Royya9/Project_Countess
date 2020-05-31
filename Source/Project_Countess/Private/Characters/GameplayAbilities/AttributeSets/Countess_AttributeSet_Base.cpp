@@ -18,6 +18,7 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 	MaxStamina(10.f),
 	StaminaRegenRate(1.f),
 	Armor(5.f),
+	MagicResistance(0.f),
 	Exp(0.f),
 	MaxExp(100.f),
 	CurrentPlayerLevel(1),
@@ -48,6 +49,7 @@ void UCountess_AttributeSet_Base::SetAttributes()
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Found Data Table %s"), *StartupData->GetName());
 		FString ContextString;
+/*
 		FSimpleCurve* HealthHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Health"), ContextString);
 		FSimpleCurve* MaxHealthHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("MaxHealth"), ContextString);
 		FSimpleCurve* ManaHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Mana"), ContextString);
@@ -57,7 +59,7 @@ void UCountess_AttributeSet_Base::SetAttributes()
 		FSimpleCurve* HealthRegenHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("HealthRegenRate"), ContextString);
 		FSimpleCurve* StaminaRegenHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("StaminaRegenRate"), ContextString);
 		FSimpleCurve* ManaRegenHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("ManaRegenRate"), ContextString);
-		FSimpleCurve* ArmorHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Armor"), ContextString);
+		FSimpleCurve* ArmorHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Armor"), ContextString);*/
 		FSimpleCurve* ExpHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Exp"), ContextString);
 		FSimpleCurve* MaxExpHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("MaxExp"), ContextString);
 

@@ -74,6 +74,10 @@ public:
 	FGameplayAttributeData Armor;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, Armor)
 
+	UPROPERTY(BlueprintReadOnly, Category = "MagicResistance")
+	FGameplayAttributeData MagicResistance;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, MagicResistance)
+
 	//Temporary Attribute to calculate health
 	UPROPERTY(BlueprintReadOnly, Category = "Damage", meta = (HideFromLevelInfos))
 	FGameplayAttributeData Damage;

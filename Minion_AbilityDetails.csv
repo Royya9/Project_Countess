@@ -12,3 +12,4 @@ MaxMana,10,15,20
 Stamina,20,25,30
 MaxStamina,20,25,30
 Armor,5,6,7
+MagicResistancePercentage,25,30,35

@@ -113,7 +113,7 @@ void ACountess_PlayerController::Ability_Fireball()
 	// #TODO /*Actually check with PlayerState which blackmagic ability is slotted right and return that ability. For testing we are asking about fireball ability*/
 	if (PlayerStateInterface->CanFireball(BlackMagicAbility))
 	{
-		UE_LOG(Countess_Log, Warning, TEXT("Can Fireball. from %s"), TEXT(__FUNCTION__));
+		//UE_LOG(Countess_Log, Warning, TEXT("Can Fireball. from %s"), TEXT(__FUNCTION__));
 		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BlackMagicAbility);
 	}
 }
