@@ -14,6 +14,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
 #include "Interfaces/Countess_Interface_AbilityDetail.h"
+#include "Camera/Countess_CameraManager.h"
 
 ACountess_PlayerController::ACountess_PlayerController()
 {
@@ -34,6 +35,8 @@ ACountess_PlayerController::ACountess_PlayerController()
 	{
 		NotifyWidgetCloseSound = NotifyWidgetCloseSoundObject.Object;
 	}
+
+	PlayerCameraManagerClass = ACountess_CameraManager::StaticClass();
 }
 
 void ACountess_PlayerController::OnPossess(APawn* aPawn)

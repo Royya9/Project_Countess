@@ -11,6 +11,7 @@
 #include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Camera//Countess_Fireball_CameraShake.h"
 
 // Sets default values
 ACountess_Actor_Fireball::ACountess_Actor_Fireball()
@@ -106,6 +107,8 @@ void ACountess_Actor_Fireball::OnHit(UPrimitiveComponent* HitComponent, AActor* 
 					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireballImpactVFX, Hit.Location);
 				if (FireballImpactSoundCue)
 					UGameplayStatics::PlaySoundAtLocation(this, FireballImpactSoundCue, Hit.Location);
+
+				UGameplayStatics::PlayWorldCameraShake(this, UCountess_Fireball_CameraShake::StaticClass(), Hit.Location, 0, 1000.f);
 				Destroy();
 			}
 		}
