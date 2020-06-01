@@ -46,6 +46,8 @@ public:
 
 	void Ability_Fireball();
 
+	void Ability_ESpark();
+
 	virtual void BeginPlay() override;
 
 
@@ -117,18 +119,19 @@ public:
 	virtual void SetupInputComponent() override;
 
 protected:
-
+	UPROPERTY()
 	ACountess_Character_Player* PlayerCharacter = nullptr;
-
+	
 	ICountess_Interface_AbilityDetail* PlayerStateInterface;
 	/*UPROPERTY()
 	TScriptInterface<ICountess_Interface_AbilityDetail> PlayerStateInterface;*/
 
 private:
-
+	UPROPERTY()
 	ACountess_HUD* Countess_HUD;
+	UPROPERTY()
 	UCountess_HUD_Widget* Countess_HUD_Widget;
-	ACountess_PlayerState* PlayerState;
+
 
 	TSubclassOf<UGameplayAbility> JumpAbility;
 	TSubclassOf<UGameplayAbility> BackDashAbility;
@@ -138,9 +141,11 @@ private:
 	bool bHandlingAbilityAcquire;
 	bool bAbilityAcquired;
 
-
+	UPROPERTY()
 	USoundBase* SkillAcquiredSound;
+	UPROPERTY()
 	USoundBase* NotifyWidgetOpenSound;
+	UPROPERTY()
 	USoundBase* NotifyWidgetCloseSound;
 
 	/*Variables that hold which magic skills are slotted currently*/

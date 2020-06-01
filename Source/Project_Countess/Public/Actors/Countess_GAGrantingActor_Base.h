@@ -43,6 +43,7 @@ protected:
 
  	TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGrant_Base;
 
+	UPROPERTY()
 	TWeakObjectPtr<UBoxComponent> BoxComponent;
 
 	FCountessAbilityAcquired_Interface_Delegate AbilityAcquiredDelegateFromBaseClass;

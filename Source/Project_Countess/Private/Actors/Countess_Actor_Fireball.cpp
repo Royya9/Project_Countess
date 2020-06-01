@@ -90,7 +90,7 @@ ACountess_Actor_Fireball::ACountess_Actor_Fireball()
 		UE_LOG(Countess_Log, Warning, TEXT("Fireball Impact SoundCue not found for ActorFireball. Check if it is moved. from %s"), TEXT(__FUNCTION__));
 }
 
-void ACountess_Actor_Fireball::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ACountess_Actor_Fireball::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor)
 	{
@@ -104,11 +104,11 @@ void ACountess_Actor_Fireball::OnHit(UPrimitiveComponent* HitComponent, AActor* 
 				//UE_LOG(Countess_Log, Warning, TEXT("From %s. Hit Actor ASC is %s"), TEXT(__FUNCTION__), *ASC->GetFName().ToString());
 				ASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
 				if (FireballImpactVFX)
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireballImpactVFX, Hit.Location);
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireballImpactVFX, SweepResult.Location);
 				if (FireballImpactSoundCue)
-					UGameplayStatics::PlaySoundAtLocation(this, FireballImpactSoundCue, Hit.Location);
+					UGameplayStatics::PlaySoundAtLocation(this, FireballImpactSoundCue, SweepResult.Location);
 
-				UGameplayStatics::PlayWorldCameraShake(this, UCountess_Fireball_CameraShake::StaticClass(), Hit.Location, 0, 1000.f);
+				UGameplayStatics::PlayWorldCameraShake(this, UCountess_Fireball_CameraShake::StaticClass(), SweepResult.Location, 0, 1000.f);
 				Destroy();
 			}
 		}
@@ -119,7 +119,7 @@ void ACountess_Actor_Fireball::OnHit(UPrimitiveComponent* HitComponent, AActor* 
 void ACountess_Actor_Fireball::BeginPlay()
 {
 	Super::BeginPlay();
-	FireballCollision->OnComponentHit.AddDynamic(this, &ACountess_Actor_Fireball::OnHit);
+	FireballCollision->OnComponentBeginOverlap.AddDynamic(this, &ACountess_Actor_Fireball::OnOverlap);
 	SetLifeSpan(Range / FireballProjectileMovementComponent->InitialSpeed);
 }
 

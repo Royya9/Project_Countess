@@ -24,9 +24,9 @@ class PROJECT_COUNTESS_API ACountess_PlayerState : public APlayerState, public I
 	GENERATED_BODY()
 
 private:
-
+	UPROPERTY()
 	UCountess_AbilitySystemComponent* AbilitySystemComponent;
-
+	UPROPERTY()
 	UCountess_AttributeSet_Base* AttributeSet;
 
 	/*Array containing all our acquired abilities*/
@@ -118,6 +118,10 @@ public:
 	/*Checks our list of acquired abilities whether we have the ability to BackDash and if yes, populates the BackDashAbility class with corresponding Countess_Ability_BDash*/
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	virtual bool CanFireball(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const override;
+
+	/*Checks our list of acquired abilities whether we have the ability to BackDash and if yes, populates the BackDashAbility class with corresponding Countess_Ability_BDash*/
+	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	virtual bool CanESpark(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	virtual int32 GetPlayerLevel() const override;

@@ -41,11 +41,13 @@ public:
 	bool CreateSkillAcquiredWidget(APlayerController* PlayerController, ESlateVisibility Visibility = ESlateVisibility::Visible);
 
 private:
-
+	UPROPERTY()
 	UCountess_HUD_Widget* HUD_Widget;
 
+	UPROPERTY()
 	UCountess_Notify_Widget* Notify_Widget;
 
+	UPROPERTY()
 	UCountess_SkillAcquired_Widget* Skill_Acquired_Widget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

@@ -2,22 +2,22 @@
 
 #pragma once
 
-#include "Globals/Project_Countess.h"
+#include "CoreMinimal.h"
 #include "GameplayEffectExecutionCalculation.h"
-#include "Countess_GE_Damage_Execution.generated.h"
+#include "Countess_GE_ESpark_Dmg_Execution.generated.h"
 
 /**
- *  Fireball Damage Execution
+ * 
  */
 UCLASS()
-class PROJECT_COUNTESS_API UCountess_GE_Damage_Execution : public UGameplayEffectExecutionCalculation
+class PROJECT_COUNTESS_API UCountess_GE_ESpark_Dmg_Execution : public UGameplayEffectExecutionCalculation
 {
 	GENERATED_BODY()
 
 public:
 
-	UCountess_GE_Damage_Execution();
+	UCountess_GE_ESpark_Dmg_Execution();
 
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
-	
+
 };

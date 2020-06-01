@@ -83,6 +83,7 @@ void UCountess_GameplayAbility_Fball::ActivateAbility(const FGameplayAbilitySpec
 	if (!Player)
 	{
 		UE_LOG(Countess_Log, Error, TEXT("CountessPlayerCharacter ie Avatar Actor not found in %s"), TEXT(__FUNCTION__));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 

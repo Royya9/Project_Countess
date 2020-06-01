@@ -87,6 +87,8 @@ public:
 
 	virtual bool CanFireball(TSubclassOf<UGameplayAbility>& OUTFireballAbility) const = 0;
 
+	virtual bool CanESpark(TSubclassOf<UGameplayAbility>& OUTFireballAbility) const = 0;
+
 	virtual bool IsAlive() const = 0;
 
 	virtual TArray<TSubclassOf<UCountess_GameplayAbility_Base>> GetAcquiredAbilities() const = 0;

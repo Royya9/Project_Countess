@@ -19,6 +19,7 @@ class UCountess_AbilitySystemComponent;
 class UCountess_AttributeSet_Base;
 class UCountess_GameplayAbility_Base;
 class UCurveFloat;
+class UFloatingPawnMovement;
 
 UCLASS(config=Game)
 class ACountess_Character_Player : public ACountess_Character_Base
@@ -47,6 +48,10 @@ class ACountess_Character_Player : public ACountess_Character_Base
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* ParticleSystemOnLanding;
 
+	/*Floating Pawn Movement enabled during ElectroSparkVFX*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	UFloatingPawnMovement* FloatingPawnMovement;
+
 	/*scaling for size of particle system to played on landing*/
 	float JumpScale;
 
@@ -72,8 +77,14 @@ class ACountess_Character_Player : public ACountess_Character_Base
 public:
 	/*Ability */
 
+	/*Handled by BackDash Ability*/
 	void BeginBackDash();
 	
+	/*Handled by ElectroSpark Ability*/
+	void ElectroSparkOn();
+
+	/*Handled by ElectroSpark Ability*/
+	void ElectroSparkOff();
 	/*Reference to our Countesss PlayerState*/
 
 	ACountess_PlayerState* Countess_PlayerState;

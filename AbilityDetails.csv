@@ -8,6 +8,9 @@ BackDashAbilityCost,1,0.8,0.6
 FireballAbilityCooldown,1,0.9,0.8
 FireballAbilityCost,1,0.8,0.6
 FireballAbilityDamage,8,9,10
+ElectroSparkAbilityCooldown,2,1.8,1.6
+ElectroSparkAbilityCost,10,12,14
+ElectroSparkAbilityDamage,15,18,21
 StaminaRegenRate,0.1,0.5,1
 HealthRegenRate,0.5,0.75,1
 ManaRegenRate,0.5,0.75,1

@@ -281,6 +281,20 @@ bool ACountess_PlayerState::CanFireball(TSubclassOf<UGameplayAbility>& OUTBackDa
 	return false;
 }
 
+
+bool ACountess_PlayerState::CanESpark(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const
+{
+	for (auto Ability : AcquiredAbilities)
+	{
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.ESpark"))))
+		{
+			OUTBackDashAbility = Ability;
+			return true;
+		}
+	}
+	return false;
+}
+
 int32 ACountess_PlayerState::GetPlayerLevel() const
 {
 	return PlayerLevel;

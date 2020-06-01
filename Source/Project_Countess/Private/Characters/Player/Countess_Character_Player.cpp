@@ -14,6 +14,7 @@
 #include "Components/TimelineComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
+#include "GameFramework/FloatingPawnMovement.h"
 
 
 void ACountess_Character_Player::TimeLineProgress(float Value)
@@ -41,6 +42,25 @@ void ACountess_Character_Player::BeginBackDash()
 
 		BackDashTimeLine.PlayFromStart();
 	}
+}
+
+
+void ACountess_Character_Player::ElectroSparkOn()
+{
+	if (GetCharacterMovement()->IsFalling())
+	{
+		FloatingPawnMovement->Activate();
+		GetCharacterMovement()->Deactivate();
+	}
+	DisableInput(Countess_PlayerController);
+}
+
+
+void ACountess_Character_Player::ElectroSparkOff()
+{
+	EnableInput(Countess_PlayerController);
+	FloatingPawnMovement->Deactivate();
+	GetCharacterMovement()->Activate();
 }
 
 bool ACountess_Character_Player::GiveAbilityOnOverlap_Implementation(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGive)
@@ -134,6 +154,9 @@ ACountess_Character_Player::ACountess_Character_Player()
 	FireballSpawnLocationArrowComponent = CreateDefaultSubobject<UArrowComponent>(FName("Fireball Spawn Point"));
 	FireballSpawnLocationArrowComponent->SetupAttachment(RootComponent);
 	FireballSpawnLocationArrowComponent->SetRelativeLocation(FVector(70.f, 0.f, 20.f));
+
+
+	FloatingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(FName("Floating Pawn Movement"));
 
 	/*Load VFX to be played on Player Landing*/
 	//Load Soundwave

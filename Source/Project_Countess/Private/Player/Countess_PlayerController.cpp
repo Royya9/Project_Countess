@@ -60,6 +60,7 @@ void ACountess_PlayerController::OnPossess(APawn* aPawn)
 			EndInteractBinding.bExecuteWhenPaused = true;
 			InputComponent->BindAction("BackDash", IE_Pressed, this, &ACountess_PlayerController::Ability_BackDash);
 			InputComponent->BindAction("Fireball", IE_Pressed, this, &ACountess_PlayerController::Ability_Fireball);
+			InputComponent->BindAction("ElectroSpark", IE_Pressed, this, &ACountess_PlayerController::Ability_ESpark);
 		}
 	}
 }
@@ -114,6 +115,18 @@ void ACountess_PlayerController::Ability_Fireball()
 	if (PlayerStateInterface->CanFireball(BlackMagicAbility))
 	{
 		//UE_LOG(Countess_Log, Warning, TEXT("Can Fireball. from %s"), TEXT(__FUNCTION__));
+		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BlackMagicAbility);
+	}
+}
+
+
+void ACountess_PlayerController::Ability_ESpark()
+{
+	/*Check with PlayerState whether we have the ability to Fireball*/
+// #TODO /*Actually check with PlayerState which blackmagic ability is slotted right and return that ability. For testing we are asking about fireball ability*/
+	if (PlayerStateInterface->CanESpark(BlackMagicAbility))
+	{
+		//UE_LOG(Countess_Log, Warning, TEXT("Can ESpark. from %s"), TEXT(__FUNCTION__));
 		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BlackMagicAbility);
 	}
 }
