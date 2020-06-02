@@ -10,7 +10,8 @@
 UCountess_GE_ESpark_Dmg_Execution::UCountess_GE_ESpark_Dmg_Execution()
 {
 	RelevantAttributesToCapture.Add(Countess_Statics().MagicResistanceDef);
-	RelevantAttributesToCapture.Add(Countess_Statics().HealthDef);
+	RelevantAttributesToCapture.Add(Countess_Statics().ElectroSparkDamageDef);
+	RelevantAttributesToCapture.Add(Countess_Statics().DamageDef);
 }
 
 void UCountess_GE_ESpark_Dmg_Execution::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -31,13 +32,13 @@ void UCountess_GE_ESpark_Dmg_Execution::Execute_Implementation(const FGameplayEf
 	(ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Countess_Statics().MagicResistanceDef, EvaluationParameters, MagicResistance)); //Getting Armor Snapshot from AttributeSet
 	//UE_LOG(Countess_Log, Warning, TEXT("Captured Magic Resistance Percentage value from %s is %f"), TEXT(__FUNCTION__), MagicResistance);
 
-	float Health = 0.f;
-	(ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Countess_Statics().HealthDef, EvaluationParameters, Health)); // Get Health Snapshot from AttributeSet
+	float ElectroSparkDamage = 0.f;
+	(ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Countess_Statics().ElectroSparkDamageDef, EvaluationParameters, ElectroSparkDamage)); // Get Health Snapshot from AttributeSet
 	//UE_LOG(Countess_Log, Warning, TEXT("Captured Health value from %s is %f"), TEXT(__FUNCTION__), Health);
 
 
-	float UnMitigatedDamage = Spec.GetModifierMagnitude(0, true); // Getting our Damage from Fireball Damage CurveTable in Countess_GE_Fireball_Damage Effect
-
+	//float UnMitigatedDamage = Spec.GetModifierMagnitude(0, true); // Getting our Damage from Fireball Damage CurveTable in Countess_GE_Fireball_Damage Effect
+	float UnMitigatedDamage = ElectroSparkDamage;
 	//UE_LOG(Countess_Log, Warning, TEXT("UnMitigated Damage value from %s is %f"), TEXT(__FUNCTION__), UnMitigatedDamage);
 
 	float MitigatedDamage = UnMitigatedDamage * (1 - (MagicResistance / 100)); // Damage is reduced by Magic Resistance Attribute Percentage
@@ -47,6 +48,6 @@ void UCountess_GE_ESpark_Dmg_Execution::Execute_Implementation(const FGameplayEf
 	if (MitigatedDamage > 0.f)
 	{
 		// Set the Target's health attribute after calculation
-		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(Countess_Statics().HealthProperty, EGameplayModOp::Additive, -MitigatedDamage));
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(Countess_Statics().DamageProperty, EGameplayModOp::Additive, MitigatedDamage));
 	}
 }

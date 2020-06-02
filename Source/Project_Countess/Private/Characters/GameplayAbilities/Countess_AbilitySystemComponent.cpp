@@ -7,3 +7,8 @@ void UCountess_AbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor
 {
 	Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
 }
+
+void UCountess_AbilitySystemComponent::OnDamageReceived(UCountess_AbilitySystemComponent* SourceASC, float UnMitigatedDamage, float MitigatedDamage)
+{
+	OnDamageReceivedDelegate.Broadcast(SourceASC, UnMitigatedDamage, MitigatedDamage);
+}

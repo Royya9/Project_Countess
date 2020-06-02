@@ -10,7 +10,7 @@ UCountess_GE_PlayerStats::UCountess_GE_PlayerStats()
 
 	if (AbilityDetailsTable)
 	{
-		const uint32 NumOfPlayerStatsToCapture = 10;
+		const uint32 NumOfPlayerStatsToCapture = 12;
 
 		TArray<FScalableFloat> ScalableFloats;
 		ScalableFloats.SetNum(NumOfPlayerStatsToCapture);
@@ -52,6 +52,12 @@ UCountess_GE_PlayerStats::UCountess_GE_PlayerStats()
 
 			CurveTableRowHandles[9].RowName = FName("Exp");
 			ModifierInfos[9].Attribute = Countess_AttributeSet->GetExpAttribute();
+
+			CurveTableRowHandles[10].RowName = FName("FireballAbilityDamage");
+			ModifierInfos[10].Attribute = Countess_AttributeSet->GetFireballDamageAttribute();
+
+			CurveTableRowHandles[11].RowName = FName("ElectroSparkAbilityDamage");
+			ModifierInfos[11].Attribute = Countess_AttributeSet->GetElectroSparkDamageAttribute();
 
 		}
 

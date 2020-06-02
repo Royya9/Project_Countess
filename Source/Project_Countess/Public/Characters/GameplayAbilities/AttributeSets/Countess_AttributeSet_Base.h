@@ -83,6 +83,14 @@ public:
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, Damage)
 
+	UPROPERTY(BlueprintReadOnly, Category = "FireballDamage")
+	FGameplayAttributeData FireballDamage;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, FireballDamage)
+	
+	UPROPERTY(BlueprintReadOnly, Category = "ElectroSparkDamage")
+	FGameplayAttributeData ElectroSparkDamage;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, ElectroSparkDamage)
+
 	UPROPERTY(BlueprintReadOnly, Category = "Exp")
 	FGameplayAttributeData Exp;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, Exp)

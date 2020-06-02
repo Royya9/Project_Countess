@@ -141,6 +141,7 @@ public:
 
 	virtual void PossessedBy(AController* NewController) override;
 
+	virtual bool IsAlive() const override;
 
 	virtual void Tick(float DeltaSeconds) override;
 

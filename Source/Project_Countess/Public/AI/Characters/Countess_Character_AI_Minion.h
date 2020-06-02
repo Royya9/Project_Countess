@@ -23,6 +23,7 @@ public:
 
 	UCountess_AI_Widget* Minion_Widget;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UWidgetComponent* Minion_Widget_Component;
 
 	TSubclassOf<UCountess_AI_Widget> Minion_Widget_Class;
@@ -36,6 +37,8 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void GiveStartupEffects();
+
+	virtual bool IsAlive() const override;
 
 private:
 

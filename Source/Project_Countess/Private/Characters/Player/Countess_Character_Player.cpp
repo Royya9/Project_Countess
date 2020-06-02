@@ -207,6 +207,12 @@ void ACountess_Character_Player::PossessedBy(AController* NewController)
 	Countess_PlayerController = Cast<ACountess_PlayerController>(NewController);
 }
 
+
+bool ACountess_Character_Player::IsAlive() const
+{
+	return Countess_PlayerState->GetCurrentHealth() > 0.f;
+}
+
 void ACountess_Character_Player::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

@@ -65,6 +65,9 @@ public:
 
 	void Populate_Skill_Acquired_Widget(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire);
 
+	void ShowDamageNumber(float Damage, ACountess_Character_Base* TargetCharacter);
+
+
 	//Timers
 
 	FTimerHandle NotifyWidgetDelayHandle;
@@ -131,7 +134,6 @@ private:
 	ACountess_HUD* Countess_HUD;
 	UPROPERTY()
 	UCountess_HUD_Widget* Countess_HUD_Widget;
-
 
 	TSubclassOf<UGameplayAbility> JumpAbility;
 	TSubclassOf<UGameplayAbility> BackDashAbility;

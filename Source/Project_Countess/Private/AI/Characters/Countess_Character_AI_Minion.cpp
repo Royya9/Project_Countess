@@ -93,6 +93,11 @@ void ACountess_Character_AI_Minion::GiveStartupEffects()
 	}
 }
 
+bool ACountess_Character_AI_Minion::IsAlive() const
+{
+	return MinionAttributeSet->GetHealth() > 0.f;
+}
+
 void ACountess_Character_AI_Minion::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	//UE_LOG(Countess_Log, Warning, TEXT("From %s. Minion Health Changed to %f"), TEXT(__FUNCTION__), Data.NewValue);

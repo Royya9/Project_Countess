@@ -9,6 +9,7 @@
 #include "UI/Countess_HUD_Widget.h"
 #include "UI/Countess_Notify_Widget.h"
 #include "UI/Countess_SkillAcquired_Widget.h"
+#include "UI/Countess_DamageText_WidgetComp.h"
 #include "TimerManager.h"
 #include "Sound/SoundBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -35,8 +36,6 @@ ACountess_PlayerController::ACountess_PlayerController()
 	{
 		NotifyWidgetCloseSound = NotifyWidgetCloseSoundObject.Object;
 	}
-
-	PlayerCameraManagerClass = ACountess_CameraManager::StaticClass();
 }
 
 void ACountess_PlayerController::OnPossess(APawn* aPawn)
@@ -302,6 +301,19 @@ void ACountess_PlayerController::Populate_Skill_Acquired_Widget(TSubclassOf<UCou
 				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetScreenShotImage(AbilityToAcquireCDO->AbilityData.Get(false)->AbilityImage);
 			}
 		}
+	}
+}
+
+
+void ACountess_PlayerController::ShowDamageNumber(float Damage, ACountess_Character_Base* TargetCharacter)
+{
+	//UE_LOG(Countess_Log, Warning, TEXT("From %s. %s received %f Damage."), TEXT(__FUNCTION__), *TargetCharacter->GetFName().ToString(), Damage);
+	UCountess_DamageText_WidgetComp* DamageTextWC = NewObject<UCountess_DamageText_WidgetComp>(TargetCharacter, UCountess_DamageText_WidgetComp::StaticClass());
+	if (DamageTextWC)
+	{
+		DamageTextWC->RegisterComponent();
+		DamageTextWC->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageTextWC->SetDamageText(Damage);
 	}
 }
 

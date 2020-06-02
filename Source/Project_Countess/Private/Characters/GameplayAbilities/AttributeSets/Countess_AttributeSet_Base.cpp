@@ -5,6 +5,7 @@
 #include "Engine/CurveTable.h"
 #include "GameplayEffect.h"
 #include "GameplayEffectExtension.h"
+#include "Player/Countess_PlayerController.h"
 
 
 UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
@@ -19,6 +20,9 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 	StaminaRegenRate(1.f),
 	Armor(5.f),
 	MagicResistance(0.f),
+	Damage(0.f),
+	FireballDamage(0.f),
+	ElectroSparkDamage(0.f),
 	Exp(0.f),
 	MaxExp(100.f),
 	CurrentPlayerLevel(1),
@@ -145,7 +149,25 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 
 	FGameplayEffectContextHandle Countess_Context = Data.EffectSpec.GetContext();
 	
-	UAbilitySystemComponent* AbilitySystemComponent = Countess_Context.GetOriginalInstigatorAbilitySystemComponent();
+	UAbilitySystemComponent* SourceASC = Countess_Context.GetOriginalInstigatorAbilitySystemComponent();
+
+	AActor* TargetActor = nullptr;
+	AController* TargetController = nullptr;
+	ACountess_Character_Base* TargetCharacter = nullptr;
+
+	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
+	{
+		TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
+		TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
+
+		if (TargetActor)
+		{
+			//UE_LOG(Countess_Log, Warning, TEXT("From %s. Target Actor is %s"), TEXT(__FUNCTION__), *TargetActor->GetFName().ToString());
+			TargetCharacter = Cast<ACountess_Character_Base>(TargetActor);
+		}
+// 		if (TargetController)
+// 			UE_LOG(Countess_Log, Warning, TEXT("From %s. Target Controller is %s"), TEXT(__FUNCTION__), *TargetController->GetFName().ToString());
+	}
 	
 	// Apply FullStamina Tag to our AbilitySystemComponent to prevent Regen Effect being applied. Remove the tag if not so.
 	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
@@ -156,11 +178,81 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
 		if ( GetStamina() > GetMaxStamina() ||  FMath::IsNearlyEqual(GetStamina(), GetMaxStamina()))
 		{
-			AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+			SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
 		}
 		else
 		{
-			AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+			SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+		}
+	}
+
+	else if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+	{
+		AActor* SourceActor = nullptr;
+		AController* SourceController = nullptr;
+		ACountess_Character_Base* SourceCharacter = nullptr;
+
+		if (SourceASC && SourceASC->AbilityActorInfo.IsValid() && SourceASC->AbilityActorInfo->AvatarActor.IsValid())
+		{
+			SourceActor = SourceASC->AbilityActorInfo->AvatarActor.Get();
+			SourceController = SourceASC->AbilityActorInfo->PlayerController.Get();
+
+			if (SourceActor)
+			{
+				//UE_LOG(Countess_Log, Warning, TEXT("From %s. Source Actor is %s"), TEXT(__FUNCTION__), *SourceActor->GetFName().ToString());
+				SourceCharacter = Cast<ACountess_Character_Base>(SourceActor);
+			}
+// 			if (SourceController)
+// 				UE_LOG(Countess_Log, Warning, TEXT("From %s. Source Controller is %s"), TEXT(__FUNCTION__), *SourceController->GetFName().ToString());
+
+			if (SourceController == nullptr && SourceActor != nullptr)
+			{
+				if (APawn* Pawn = Cast<APawn>(SourceActor))
+				{
+					SourceController = Pawn->GetController();
+				}
+			}
+
+			// Use the controller to find the source pawn
+			if (SourceController)
+			{
+				SourceCharacter = Cast<ACountess_Character_Base>(SourceController->GetPawn());
+			}
+			else
+			{
+				SourceCharacter = Cast<ACountess_Character_Base>(SourceActor);
+			}
+
+			// Set the causer actor based on context if it's set
+			if (Countess_Context.GetEffectCauser())
+			{
+				SourceActor = Countess_Context.GetEffectCauser();
+			}
+		}
+
+		const float DamageDone = GetDamage();
+		SetDamage(0.f); // Reset Damage
+
+		if (DamageDone > 0.f)
+		{
+			bool WasAlive = true;
+			if (TargetCharacter)
+				WasAlive = TargetCharacter->IsAlive();
+
+			const float NewHealth = GetHealth() - DamageDone;
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+			if (TargetCharacter && WasAlive)
+			{
+				if (SourceActor != TargetActor) // Damage Causer is NOT ourself
+				{
+					ACountess_PlayerController* PC = Cast<ACountess_PlayerController>(SourceController);
+					if (PC)
+					{
+						PC->ShowDamageNumber(DamageDone, TargetCharacter);
+					}
+				}
+			}
 		}
 	}
 	
@@ -169,17 +261,17 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 		if (FMath::IsNearlyEqual(GetHealth(), GetMaxHealth()))
 		{
-			AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull")));
+			SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull")));
 		}
 		else
 		{
-			AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull")));
+			SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull")));
 		}
 	}
 	
 	else if (Data.EvaluatedData.Attribute == GetMaxExpAttribute())
 	{
-		if (!AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull"))))
+		if (!SourceASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull"))))
 		{
 			UE_LOG(Countess_Log, Warning, TEXT("Max Player Level Reached?? From %s"), TEXT(__FUNCTION__));
 		}

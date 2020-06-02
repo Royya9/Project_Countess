@@ -3,7 +3,9 @@
 
 #include "Characters/Countess_Character_Base.h"
 #include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
+#include "Characters/GameplayAbilities/AttributeSets/Countess_AttributeSet_Base.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/Controller.h"
 
 // Sets default values
 ACountess_Character_Base::ACountess_Character_Base()
@@ -24,11 +26,16 @@ UAbilitySystemComponent* ACountess_Character_Base::GetASC() const
 	return AbilitySystemComponent.Get();
 }
 
+
+bool ACountess_Character_Base::IsAlive() const
+{
+	return AttributeSet.Get()->GetHealth() > 0.f;
+}
+
 // Called when the game starts or when spawned
 void ACountess_Character_Base::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
 }
 
 

@@ -29,6 +29,8 @@ public:
 
 	virtual UAbilitySystemComponent* GetASC() const override; // Override from ICountess_Interface_Actor
 
+	virtual bool IsAlive() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
