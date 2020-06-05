@@ -28,6 +28,8 @@ public:
 	UCountess_DamageNumber_Widget* DamageNumberWidget;
 
 	TSubclassOf<UCountess_DamageNumber_Widget> DamageNumberWidgetClass;
+
+	FTimerHandle DamageTextWidgetTimerHandle;
 	
 	UFUNCTION()
 	void DestroyDamageTextWidgetComponent();

@@ -29,7 +29,7 @@ void UCountess_DamageText_WidgetComp::SetDamageText_Implementation(float Damage)
 	if (DamageNumberWidget)
 		DamageNumberWidget->SetDamageText(Damage);
 
-	FTimerHandle DamageTextWidgetTimerHandle;
+	
 	FTimerDelegate DamageTextWidgetTimerDelegate = FTimerDelegate::CreateUObject(this, &UCountess_DamageText_WidgetComp::DestroyDamageTextWidgetComponent);
 	GetWorld()->GetTimerManager().SetTimer(DamageTextWidgetTimerHandle, DamageTextWidgetTimerDelegate, 1.f, false);
 }
@@ -37,5 +37,6 @@ void UCountess_DamageText_WidgetComp::SetDamageText_Implementation(float Damage)
 void UCountess_DamageText_WidgetComp::DestroyDamageTextWidgetComponent()
 {
 	//UE_LOG(Countess_Log, Warning, TEXT("Destroyed %s"), *this->GetFName().ToString());
+	GetWorld()->GetTimerManager().ClearTimer(DamageTextWidgetTimerHandle);
 	this->DestroyComponent();
 }

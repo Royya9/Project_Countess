@@ -14,6 +14,7 @@
 #include "Components/TimelineComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
+#include "Characters/GameplayAbilities/AttributeSets/Countess_AttributeSet_Base.h"
 #include "GameFramework/FloatingPawnMovement.h"
 
 
@@ -52,13 +53,13 @@ void ACountess_Character_Player::ElectroSparkOn()
 		FloatingPawnMovement->Activate();
 		GetCharacterMovement()->Deactivate();
 	}
-	DisableInput(Countess_PlayerController);
+	Countess_PlayerController->DisableInput(Countess_PlayerController);
 }
 
 
 void ACountess_Character_Player::ElectroSparkOff()
 {
-	EnableInput(Countess_PlayerController);
+	Countess_PlayerController->EnableInput(Countess_PlayerController);
 	FloatingPawnMovement->Deactivate();
 	GetCharacterMovement()->Activate();
 }
@@ -201,7 +202,7 @@ void ACountess_Character_Player::PossessedBy(AController* NewController)
 	{
 		/*Configure our AbiltiySystemComponent and AttributeSet*/
 		AbilitySystemComponent = Cast<UCountess_AbilitySystemComponent>(Countess_PlayerState->GetAbilitySystemComponent());
-		AttributeSet = Countess_PlayerState->GetAttributeSet();
+		AttributeSet = Cast<UCountess_AttributeSet_Base>(Countess_PlayerState->GetAttributeSet());
 	}
 
 	Countess_PlayerController = Cast<ACountess_PlayerController>(NewController);

@@ -4,12 +4,14 @@
 
 #include "Globals/Project_Countess.h"
 #include "Characters/Countess_Character_Base.h"
+#include "GameplayEffectTypes.h"
 #include "Countess_Character_AI_Minion.generated.h"
 
 class UCountess_AbilitySystemComponent;
 class UCountess_AI_Widget;
 class UWidgetComponent;
 class UCountess_AttributeSet_Base;
+class UBehaviorTree;
 
 /*AI Minion Class :) */
 UCLASS()
@@ -29,6 +31,9 @@ public:
 	TSubclassOf<UCountess_AI_Widget> Minion_Widget_Class;
 
 	int32 GetMinionLevel() const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UBehaviorTree* MinionBehaviorTree;
 
 protected:
 	// Called when the game starts or when spawned

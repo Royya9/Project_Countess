@@ -9,6 +9,7 @@
 #include "Characters/GameplayAbilities/AttributeSets/Countess_AttributeSet_Base.h"
 #include "AI/Effects/Countess_GE_MinionStats.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_PlayerStats.h"
+#include "AI/Controllers/Countess_AIMinion_Controller.h"
 
 // Sets default values
 ACountess_Character_AI_Minion::ACountess_Character_AI_Minion()
@@ -35,6 +36,8 @@ ACountess_Character_AI_Minion::ACountess_Character_AI_Minion()
 	else
 		UE_LOG(Countess_Log, Warning, TEXT("Countess AI Widget not FOUND!!! Check if it is moved. from %s"), TEXT(__FUNCTION__));
 
+	//Setting our AI Controller
+	AIControllerClass = ACountess_AIMinion_Controller::StaticClass();
 
 	MinionLevel = 1;
 }

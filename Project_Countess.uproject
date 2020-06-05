@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "4.24",
+	"EngineAssociation": "{CFC12641-488B-F48A-84ED-37B74C9D5463}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -11,26 +11,14 @@
 			"AdditionalDependencies": [
 				"Engine",
 				"GameplayAbilities",
-				"UMG"
+				"UMG",
+				"AIModule"
 			]
 		}
 	],
 	"Plugins": [
 		{
-			"Name": "ElectronicNodes",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/5cb2a394d0c04e73891762be4cbd7216"
-		},
-		{
-			"Name": "HoudiniEngine",
-			"Enabled": true
-		},
-		{
 			"Name": "Niagara",
-			"Enabled": true
-		},
-		{
-			"Name": "HoudiniNiagara",
 			"Enabled": true
 		},
 		{
