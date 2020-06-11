@@ -38,7 +38,7 @@ UCountess_GE_Mana_Regen::UCountess_GE_Mana_Regen()
         Period = ScalableFloat_Period;
 
     }
-    InheritableGameplayEffectTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Effect.Mana.Regen")));
+    InheritableGameplayEffectTags.AddTag(CountessTags::FEffectTags::ManaRegenTag);
     //	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Regen")));
-    OngoingTagRequirements.RequireTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Mana.NotFull")));
+    OngoingTagRequirements.RequireTags.AddTag(CountessTags::FStatusTags::ManaNotFullTag);
 }

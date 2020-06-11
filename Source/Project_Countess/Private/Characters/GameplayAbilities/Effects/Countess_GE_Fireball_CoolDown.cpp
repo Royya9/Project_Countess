@@ -29,6 +29,6 @@ UCountess_GE_Fireball_CoolDown::UCountess_GE_Fireball_CoolDown()
 		DurationMagnitude = FGameplayEffectModifierMagnitude(3.f);
 	}
 
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Cooldown")));
-	InheritableGameplayEffectTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Cooldown")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FCooldownTags::FireballAbilityCooldownTag);
+	InheritableGameplayEffectTags.AddTag(CountessTags::FCooldownTags::FireballAbilityCooldownTag);
 }

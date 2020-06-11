@@ -67,8 +67,5 @@ UCountess_GE_MinionStats::UCountess_GE_MinionStats()
 			ModifierInfos[i].ModifierMagnitude = FGameplayEffectModifierMagnitude(ScalableFloats[i]);
 			Modifiers.Add(ModifierInfos[i]);
 		}
-
-
-
 	}
 }

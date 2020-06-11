@@ -10,5 +10,6 @@ public class Project_Countess : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[] 
 		{ "Core", "CoreUObject", "Engine", "InputCore", "GameplayAbilities", "GameplayTasks", "GameplayTags", "Slate", "SlateCore", "AIModule" });
+		CppStandard = CppStandardVersion.Cpp17;
 	}
 }

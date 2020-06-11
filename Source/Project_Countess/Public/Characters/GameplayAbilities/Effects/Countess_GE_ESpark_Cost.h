@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Globals/Project_Countess.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GameplayEffect_Base.h"
 #include "Countess_GE_ESpark_Cost.generated.h"
 

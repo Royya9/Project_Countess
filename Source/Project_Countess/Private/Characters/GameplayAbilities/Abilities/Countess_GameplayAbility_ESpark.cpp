@@ -19,9 +19,9 @@ UCountess_GameplayAbility_ESpark::UCountess_GameplayAbility_ESpark()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")));
+	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
 
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ESpark")));
+	AbilityTags.AddTag(CountessTags::FAbilityTags::ElectroSparkAbilityTag);
 
 	/* loading ElectroSpark sound*/
 	static ConstructorHelpers::FObjectFinder<USoundWave> ElectroSparkSoundObject(TEXT("SoundWave'/Game/MyProjectMain/Audio/SFX_ElectroSpark.SFX_ElectroSpark'"));

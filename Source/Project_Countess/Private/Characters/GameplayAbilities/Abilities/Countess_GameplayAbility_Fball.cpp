@@ -21,9 +21,9 @@ UCountess_GameplayAbility_Fball::UCountess_GameplayAbility_Fball()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")));
+	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
 
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fireball")));
+	AbilityTags.AddTag(CountessTags::FAbilityTags::FireballAbilityTag);
 
 	/* loading fireball sound*/
 	static ConstructorHelpers::FObjectFinder<USoundWave> FireballSoundObject(TEXT("SoundWave'/Game/MyProjectMain/Audio/SFX_Fireball_wav.SFX_Fireball_wav'"));

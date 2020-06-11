@@ -31,6 +31,6 @@ UCountess_GE_BDash_CoolDown::UCountess_GE_BDash_CoolDown()
 		DurationMagnitude = FGameplayEffectModifierMagnitude(3.f);
 	}
 
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BDash.Cooldown")));
-	InheritableGameplayEffectTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BDash.Cooldown")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FCooldownTags::BackDashAbilityCooldownTag);
+	InheritableGameplayEffectTags.AddTag(CountessTags::FCooldownTags::BackDashAbilityCooldownTag);
 }

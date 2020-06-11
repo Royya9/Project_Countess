@@ -17,9 +17,9 @@ UCountess_GameplayAbility_Jump::UCountess_GameplayAbility_Jump()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")));
+	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
 
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Jump")));
+	AbilityTags.AddTag(CountessTags::FAbilityTags::JumpAbilityTag);
 
 	/* loading jump sound*/
 	static ConstructorHelpers::FObjectFinder<USoundWave> JumpSoundObject(TEXT("SoundWave'/Game/ParagonCountess/Characters/Heroes/Countess_Sounds/Sounds/SoundWaves/Countess_Effort_Ability_Primary_02.Countess_Effort_Ability_Primary_02'"));
@@ -73,7 +73,7 @@ void UCountess_GameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecH
 		}
 
 		MyCharacter->Jump();
-		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
+		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(CountessTags::FStatusTags::JumpingTag);
 		MyCharacter->LandedDelegate.AddDynamic(this, &UCountess_GameplayAbility_Jump::OnLanded); // This is correct way. But giving ensure fail errors. Fix it
 		if (SoundToPlay.IsValid(false))
 		{
@@ -102,7 +102,7 @@ void UCountess_GameplayAbility_Jump::CancelAbility(const FGameplayAbilitySpecHan
 		MyCharacter->LandedDelegate.Remove(this, FName("OnLanded"));
 	}
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
-	GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
+	GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(CountessTags::FStatusTags::JumpingTag);
 	
 }
 
@@ -114,7 +114,7 @@ void UCountess_GameplayAbility_Jump::EndAbility(const FGameplayAbilitySpecHandle
 		MyCharacter->LandedDelegate.Remove(this, FName("OnLanded"));
 	}
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-	GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
+	GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(CountessTags::FStatusTags::JumpingTag);
 }
 
 void UCountess_GameplayAbility_Jump::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const

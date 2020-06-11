@@ -30,6 +30,6 @@ UCountess_GE_ESpark_CoolDown::UCountess_GE_ESpark_CoolDown()
 		DurationMagnitude = FGameplayEffectModifierMagnitude(3.f);
 	}
 
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Cooldown")));
-	InheritableGameplayEffectTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Cooldown")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FCooldownTags::ElectroSparkAbilityCooldownTag);
+	InheritableGameplayEffectTags.AddTag(CountessTags::FCooldownTags::ElectroSparkAbilityCooldownTag);
 }

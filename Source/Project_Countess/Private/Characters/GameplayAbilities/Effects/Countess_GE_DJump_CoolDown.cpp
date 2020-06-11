@@ -31,6 +31,6 @@ UCountess_GE_DJump_CoolDown::UCountess_GE_DJump_CoolDown()
 		DurationMagnitude = FGameplayEffectModifierMagnitude(3.f);
 	}
 
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.DJump.Cooldown")));
-	InheritableGameplayEffectTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.DJump.Cooldown")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FCooldownTags::DoubleJumpAbilityCooldownTag);
+	InheritableGameplayEffectTags.AddTag(CountessTags::FCooldownTags::DoubleJumpAbilityCooldownTag);
 }

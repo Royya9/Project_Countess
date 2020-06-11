@@ -246,11 +246,11 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 		if (FMath::IsNearlyEqual(GetHealth(), GetMaxHealth()))
 		{
-			SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull")));
+			SourceASC->RemoveLooseGameplayTag(CountessTags::FStatusTags::HealthNotFullTag);
 		}
 		else
 		{
-			SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull")));
+			SourceASC->AddLooseGameplayTag(CountessTags::FStatusTags::HealthNotFullTag);
 		}
 	}
 
@@ -259,11 +259,11 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 		if (FMath::IsNearlyEqual(GetMana(), GetMaxMana()))
 		{
-			SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Mana.NotFull")));
+			SourceASC->RemoveLooseGameplayTag(CountessTags::FStatusTags::ManaNotFullTag);
 		}
 		else
 		{
-			SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Mana.NotFull")));
+			SourceASC->AddLooseGameplayTag(CountessTags::FStatusTags::ManaNotFullTag);
 		}
 	}
 	
@@ -276,16 +276,16 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
 		if ( GetStamina() > GetMaxStamina() ||  FMath::IsNearlyEqual(GetStamina(), GetMaxStamina()))
 		{
-			SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+			SourceASC->RemoveLooseGameplayTag(CountessTags::FStatusTags::StaminaNotFullTag);
 		}
 		else
 		{
-			SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+			SourceASC->AddLooseGameplayTag(CountessTags::FStatusTags::StaminaNotFullTag);
 		}
 	}
 	else if (Data.EvaluatedData.Attribute == GetMaxExpAttribute())
 	{
-		if (!SourceASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull"))))
+		if (!SourceASC->HasMatchingGameplayTag(CountessTags::FStatusTags::ExpNotFullTag))
 		{
 			UE_LOG(Countess_Log, Warning, TEXT("Max Player Level Reached?? From %s"), TEXT(__FUNCTION__));
 		}

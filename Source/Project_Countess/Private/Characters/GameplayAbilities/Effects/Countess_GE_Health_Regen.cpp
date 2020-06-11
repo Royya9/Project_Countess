@@ -41,7 +41,7 @@ UCountess_GE_Health_Regen::UCountess_GE_Health_Regen()
 		Period = ScalableFloat_Period;
 
 	}
-	InheritableGameplayEffectTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Effect.Health.Regen")));
+	InheritableGameplayEffectTags.AddTag(CountessTags::FEffectTags::HealthRegenTag);
 //	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Regen")));
-	OngoingTagRequirements.RequireTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull")));
+	OngoingTagRequirements.RequireTags.AddTag(CountessTags::FStatusTags::HealthNotFullTag);
 }

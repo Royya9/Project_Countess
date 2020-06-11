@@ -28,5 +28,5 @@ UCountess_GE_DJump_Cost::UCountess_GE_DJump_Cost()
 		}
 
 	}
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.DJump.Cost")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FCostTags::DoubleJumpAbilityCostTag);
 }

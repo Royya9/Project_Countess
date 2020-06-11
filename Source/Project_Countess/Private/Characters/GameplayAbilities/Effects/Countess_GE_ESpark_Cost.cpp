@@ -28,5 +28,5 @@ UCountess_GE_ESpark_Cost::UCountess_GE_ESpark_Cost()
 		}
 
 	}
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Cost")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FCostTags::ElectroSparkAbilityCostTag);
 }

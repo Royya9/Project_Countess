@@ -1,8 +1,7 @@
 // Free to play. By SoNa Games.
 
 #pragma once
-
-#include "Engine/CurveTable.h"
+#include "GameplayTagContainer.h"
 #include "Countess_AbilityTypes.generated.h"
 
 UENUM(BlueprintType)
@@ -45,42 +44,67 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAttributeChangedDelegate, f
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessLevelChangedDelegate, int32, PlayerLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCountessAbilityAcquiredDelegate, TSubclassOf<UCountess_GameplayAbility_Base>, AcquiredGameplayAbilityClass, FSlateBrush, AbilityIcon, float, Cooldown); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
 
-/*
-USTRUCT(BlueprintType)
-struct FAbilityDetails
+namespace CountessTags
 {
-	GENERATED_BODY()
+	struct FAbilityTags
+	{
+		inline static const FGameplayTag PrimaryAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Primary"));
+		inline static const FGameplayTag RegenAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Regen"));
+		inline static const FGameplayTag JumpAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Jump"));
+		inline static const FGameplayTag DoubleJumpAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.DJump"));
+		inline static const FGameplayTag BackDashAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.BDash"));
+		inline static const FGameplayTag FireballAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Fireball"));
+		inline static const FGameplayTag ElectroSparkAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.ESpark"));
+		
+	};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MasterData", meta = (DisplayName = "Cool Down"))
-	float Cooldown;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MasterData", meta = (DisplayName = "Mana Cost"))
-	float ManaCost;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MasterData", meta = (DisplayName = "Stamina Cost"))
-	float StaminaCost;
-};
-*/
+	struct FStatusTags
+	{
+		inline static const FGameplayTag DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
+		inline static const FGameplayTag StunTag = FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun"));
+		inline static const FGameplayTag JumpingTag = FGameplayTag::RequestGameplayTag(FName("State.Jumping"));
+		inline static const FGameplayTag ExpNotFullTag = FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull"));
+		inline static const FGameplayTag HealthNotFullTag = FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull"));
+		inline static const FGameplayTag ManaNotFullTag = FGameplayTag::RequestGameplayTag(FName("State.Mana.NotFull"));
+		inline static const FGameplayTag StaminaNotFullTag = FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull"));
+	};
 
-/*Holds the Data required all classes*/
-/*
-USTRUCT(BlueprintType, Blueprintable)
-struct PROJECT_COUNTESS_API FMaster_Data
-{
-	GENERATED_BODY()
+	struct FCooldownTags
+	{   
+		inline static const FGameplayTag PrimaryAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.Primary.Cooldown"));
+		inline static const FGameplayTag BackDashAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.BDash.Cooldown"));
+		inline static const FGameplayTag JumpAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.Jump.Cooldown"));
+		inline static const FGameplayTag DoubleJumpAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.DJump.Cooldown"));
+		inline static const FGameplayTag FireballAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Cooldown"));
+		inline static const FGameplayTag ElectroSparkAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Cooldown"));
+	};  
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MasterData", meta = (DisplayName = "Ability Data"))
-	//TArray<TMap<TSubclassOf<class UCountess_GameplayAbility_Base>, float>> AbilityData;
-	TMap<TSubclassOf<class UCountess_GameplayAbility_Base>, FAbilityDetails> AbilityData;
+	struct FCostTags
+	{
+		inline static const FGameplayTag BackDashAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.BDash.Cost"));
+		inline static const FGameplayTag JumpAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.Jump.Cost"));
+		inline static const FGameplayTag DoubleJumpAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.DJump.Cost"));
+		inline static const FGameplayTag FireballAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Cost"));
+		inline static const FGameplayTag ElectroSparkAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Cost"));
+	};
 
-};
-*/
-/*
-UCLASS(BlueprintType, Blueprintable)
-class PROJECT_COUNTESS_API UMaster_Data_Table : public UCurveTable
-{
-	GENERATED_BODY()
+	struct FEffectTags
+	{
+		inline static const FGameplayTag HealthRegenTag = FGameplayTag::RequestGameplayTag(FName("Effect.Health.Regen"));
+		inline static const FGameplayTag ManaRegenTag = FGameplayTag::RequestGameplayTag(FName("Effect.Mana.Regen"));
+		inline static const FGameplayTag StaminaRegenTag = FGameplayTag::RequestGameplayTag(FName("Effect.Stamina.Regen"));
+	};
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MasterData", meta = (DisplayName = "Master Data"))
-	FMaster_Data MasterData;
-};
-*/
+	struct FEventTags
+	{
+		inline static const FGameplayTag FireballCastEventTag = FGameplayTag::RequestGameplayTag(FName("Event.Ability.Fireball.Cast"));
+		inline static const FGameplayTag ElectroSparkCastEventTag = FGameplayTag::RequestGameplayTag(FName("Event.Ability.ESpark.Cast"));
+	};
+
+	struct FDamageTags
+	{
+		inline static const FGameplayTag FireballAbilityDamageTag = FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Damage"));
+		inline static const FGameplayTag ElectroSparkAbilityDamageTag = FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Damage"));
+		inline static const FGameplayTag PrimaryAbilityDamageTag = FGameplayTag::RequestGameplayTag(FName("Ability.Primary.Damage"));
+	};
+}

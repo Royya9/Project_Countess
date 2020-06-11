@@ -27,5 +27,5 @@ UCountess_GE_Fireball_Cost::UCountess_GE_Fireball_Cost()
 		}
 
 	}
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Cost")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FCostTags::FireballAbilityCostTag);
 }

@@ -18,10 +18,10 @@ UCountess_GameplayAbility_BDash::UCountess_GameplayAbility_BDash()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")));
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping"))); // Jumping also blocks this ability
+	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
+	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::JumpingTag); // Jumping also blocks this ability
 
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BDash")));
+	AbilityTags.AddTag(CountessTags::FAbilityTags::BackDashAbilityTag);
 
 	/* loading BackDash sound cue*/
 	static ConstructorHelpers::FObjectFinder<USoundCue> BDashSoundObject(TEXT("SoundCue'/Game/MyProjectMain/Audio/SFX-BackDash_Cue.SFX-BackDash_Cue'"));

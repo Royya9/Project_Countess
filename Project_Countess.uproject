@@ -26,12 +26,8 @@
 			"Enabled": true
 		},
 		{
-			"Name": "RiderLink",
-			"Enabled": true
-		},
-		{
 			"Name": "FieldSystemPlugin",
 			"Enabled": true
-		}
+		},
 	]
 }

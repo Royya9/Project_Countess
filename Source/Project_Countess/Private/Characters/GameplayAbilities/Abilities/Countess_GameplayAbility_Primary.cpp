@@ -11,8 +11,8 @@
 UCountess_GameplayAbility_Primary::UCountess_GameplayAbility_Primary()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-    ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")));
-    AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Primary")));
+    ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
+    AbilityTags.AddTag(CountessTags::FAbilityTags::PrimaryAbilityTag);
 
     static ConstructorHelpers::FObjectFinder<UAnimMontage> PrimaryAttackMontageObject(TEXT("AnimMontage'/Game/MyProjectMain/Animations/Primary_Attack_A_Normal_Montage.Primary_Attack_A_Normal_Montage'"));
     if(PrimaryAttackMontageObject.Succeeded())

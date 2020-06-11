@@ -29,6 +29,6 @@ UCountess_GE_Primary_CoolDown::UCountess_GE_Primary_CoolDown()
         DurationMagnitude = FGameplayEffectModifierMagnitude(3.f);
     }
 
-    InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Primary.Cooldown")));
-    InheritableGameplayEffectTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Primary.Cooldown")));
+    InheritableOwnedTagsContainer.AddTag(CountessTags::FCooldownTags::PrimaryAbilityCooldownTag);
+    InheritableGameplayEffectTags.AddTag(CountessTags::FCooldownTags::PrimaryAbilityCooldownTag);
 }

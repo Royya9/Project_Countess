@@ -28,5 +28,5 @@ UCountess_GE_Jump_Cost::UCountess_GE_Jump_Cost()
 		}
 
 	}
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Jump.Cost")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FCostTags::JumpAbilityCostTag);
 }

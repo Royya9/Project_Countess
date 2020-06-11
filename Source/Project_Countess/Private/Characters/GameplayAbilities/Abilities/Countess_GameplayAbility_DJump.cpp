@@ -17,9 +17,9 @@ UCountess_GameplayAbility_DJump::UCountess_GameplayAbility_DJump()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Debuff.Stun")));
+	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
 
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.DJump")));
+	AbilityTags.AddTag(CountessTags::FAbilityTags::DoubleJumpAbilityTag);
 
 	/* loading jump sound*/
 	static ConstructorHelpers::FObjectFinder<USoundWave> JumpSoundObject(TEXT("SoundWave'/Game/ParagonCountess/Characters/Heroes/Countess_Sounds/Sounds/SoundWaves/Countess_Effort_Ability_Primary_02.Countess_Effort_Ability_Primary_02'"));

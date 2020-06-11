@@ -13,5 +13,5 @@ UCountess_GE_Fireball_Damage::UCountess_GE_Fireball_Damage()
 	Definition.CalculationClass = UCountess_GE_Damage_Execution::StaticClass();
 	this->Executions.Add(Definition);
 
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Damage")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FDamageTags::FireballAbilityDamageTag);
 }

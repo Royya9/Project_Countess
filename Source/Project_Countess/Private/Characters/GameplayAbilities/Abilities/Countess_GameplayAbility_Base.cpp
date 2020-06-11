@@ -9,7 +9,7 @@ UCountess_GameplayAbility_Base::UCountess_GameplayAbility_Base()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Dead")));
+	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::DeadTag);
 	
 }
 

@@ -50,7 +50,7 @@ void ACountess_PlayerState::BeginPlay()
 
 	GiveStartupAbilities();
 
-	AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull")));
+	AbilitySystemComponent->AddLooseGameplayTag(CountessTags::FStatusTags::ExpNotFullTag);
 
 }
 
@@ -188,7 +188,7 @@ void ACountess_PlayerState::PlayerLevelIncreased(int32 NewLevel)
 {
 	if (NewLevel == AttributeSet->GetPlayerMaxLevel())
 	{
-		AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull")));
+		AbilitySystemComponent->RemoveLooseGameplayTag(CountessTags::FStatusTags::ExpNotFullTag);
 	}
 	else
 	{
@@ -212,7 +212,7 @@ bool ACountess_PlayerState::CanDoubleJump() const
 {
 	FGameplayTagContainer DoubleJumpContainer;
 
-	DoubleJumpContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Jumping")));
+	DoubleJumpContainer.AddTag(CountessTags::FStatusTags::JumpingTag);
 	
 	return AbilitySystemComponent->HasAllMatchingGameplayTags(DoubleJumpContainer);
 }
@@ -228,12 +228,12 @@ bool ACountess_PlayerState::CanJump(TSubclassOf<UGameplayAbility>& OUTJumpAbilit
 
 	for (auto Ability : AcquiredAbilities)
 	{
-		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.Jump"))))
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(CountessTags::FAbilityTags::JumpAbilityTag))
 		{
 			JumpAbility = Ability;
 			OUTJumpAbility = JumpAbility;
 		}
-		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.DJump"))))
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(CountessTags::FAbilityTags::DoubleJumpAbilityTag))
 		{
 			DoubleJumpAbility = Ability;
 		}
@@ -260,7 +260,7 @@ bool ACountess_PlayerState::CanBackDash(TSubclassOf<UGameplayAbility>& OUTBackDa
 {
 	for (auto Ability : AcquiredAbilities)
 	{
-		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.BDash"))))
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(CountessTags::FAbilityTags::BackDashAbilityTag))
 		{
 			OUTBackDashAbility = Ability;
 			return true;
@@ -274,7 +274,7 @@ bool ACountess_PlayerState::CanFireball(TSubclassOf<UGameplayAbility>& OUTBackDa
 {
 	for (auto Ability : AcquiredAbilities)
 	{
-		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.Fireball"))))
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(CountessTags::FAbilityTags::FireballAbilityTag))
 		{
 			OUTBackDashAbility = Ability;
 			return true;
@@ -288,7 +288,7 @@ bool ACountess_PlayerState::CanESpark(TSubclassOf<UGameplayAbility>& OUTBackDash
 {
 	for (auto Ability : AcquiredAbilities)
 	{
-		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.ESpark"))))
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(CountessTags::FAbilityTags::ElectroSparkAbilityTag))
 		{
 			OUTBackDashAbility = Ability;
 			return true;
@@ -301,7 +301,7 @@ bool ACountess_PlayerState::CanPrimary(TSubclassOf<UGameplayAbility>& OUTPrimary
 {
 	for (auto Ability : AcquiredAbilities)
 	{
-		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.Primary"))))
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(CountessTags::FAbilityTags::PrimaryAbilityTag))
 		{
 			OUTPrimaryAbility = Ability;
 			return true;

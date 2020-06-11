@@ -13,5 +13,5 @@ UCountess_GE_ESpark_Damage::UCountess_GE_ESpark_Damage()
 	Definition.CalculationClass = UCountess_GE_ESpark_Dmg_Execution::StaticClass();
 	this->Executions.Add(Definition);
 
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Damage")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FDamageTags::ElectroSparkAbilityDamageTag);
 }

@@ -29,5 +29,5 @@ UCountess_GE_BDash_Cost::UCountess_GE_BDash_Cost()
 		}
 
 	}
-	InheritableOwnedTagsContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BDash.Cost")));
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FCostTags::BackDashAbilityCostTag);
 }

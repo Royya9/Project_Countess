@@ -43,7 +43,7 @@ UCountess_GE_Stamina_Regen::UCountess_GE_Stamina_Regen()
 		//Period = FScalableFloat(1.f);
 	}
 
-	InheritableGameplayEffectTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Effect.Stamina.Regen")));
-	OngoingTagRequirements.RequireTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+	InheritableGameplayEffectTags.AddTag(CountessTags::FEffectTags::StaminaRegenTag);
+	OngoingTagRequirements.RequireTags.AddTag(CountessTags::FStatusTags::StaminaNotFullTag);
 
 }
