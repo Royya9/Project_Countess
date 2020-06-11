@@ -10,6 +10,7 @@
 class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
 class UAISenseConfig_Hearing;
+class UBehaviorTree;
 
 /**
  *  Our AI MinionController
@@ -23,6 +24,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "AI")
 	UAIPerceptionComponent* AIPerceptionComponent;
+
+	UPROPERTY()
+	TWeakObjectPtr<UBehaviorTree> BehaviorTree_WeakPtr;
 
 public:
 

@@ -14,6 +14,7 @@ ACountess_Character_Base::ACountess_Character_Base()
 	PrimaryActorTick.bCanEverTick = false;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CharacterBaseLevel = 1;
 }
 
 UAbilitySystemComponent* ACountess_Character_Base::GetAbilitySystemComponent() const
@@ -30,6 +31,11 @@ UAbilitySystemComponent* ACountess_Character_Base::GetASC() const
 bool ACountess_Character_Base::IsAlive() const
 {
 	return AttributeSet.Get()->GetHealth() > 0.f;
+}
+
+int32 ACountess_Character_Base::GetCharacterLevel() const
+{
+	return CharacterBaseLevel;
 }
 
 // Called when the game starts or when spawned

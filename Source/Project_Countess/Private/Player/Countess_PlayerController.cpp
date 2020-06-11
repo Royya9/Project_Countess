@@ -60,6 +60,8 @@ void ACountess_PlayerController::OnPossess(APawn* aPawn)
 			InputComponent->BindAction("BackDash", IE_Pressed, this, &ACountess_PlayerController::Ability_BackDash);
 			InputComponent->BindAction("Fireball", IE_Pressed, this, &ACountess_PlayerController::Ability_Fireball);
 			InputComponent->BindAction("ElectroSpark", IE_Pressed, this, &ACountess_PlayerController::Ability_ESpark);
+			InputComponent->BindAction("Primary", IE_Pressed, this, &ACountess_PlayerController::Ability_Primary);
+			
 		}
 	}
 }
@@ -127,6 +129,15 @@ void ACountess_PlayerController::Ability_ESpark()
 	{
 		//UE_LOG(Countess_Log, Warning, TEXT("Can ESpark. from %s"), TEXT(__FUNCTION__));
 		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BlackMagicAbility);
+	}
+}
+
+void ACountess_PlayerController::Ability_Primary()
+{
+	if(PlayerStateInterface->CanPrimary(PrimaryAbility))
+	{
+		//UE_LOG(Countess_Log, Warning, TEXT("Can do Primary Attack. from %s"), TEXT(__FUNCTION__));
+		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), PrimaryAbility);
 	}
 }
 

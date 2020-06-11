@@ -124,6 +124,9 @@ public:
 	virtual bool CanESpark(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	virtual bool CanPrimary(TSubclassOf<UGameplayAbility>& OUTPrimaryAbility) const override;
+
+	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	virtual int32 GetPlayerLevel() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")

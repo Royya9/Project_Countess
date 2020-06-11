@@ -10,12 +10,16 @@
 #include "Player/Countess_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
+#include "Sound/SoundBase.h"
+#include "Sound/SoundCue.h"
 #include "Particles/ParticleSystem.h"
 #include "Components/TimelineComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 #include "Characters/GameplayAbilities/AttributeSets/Countess_AttributeSet_Base.h"
 #include "GameFramework/FloatingPawnMovement.h"
+#include "Animation/AnimInstance.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 
 void ACountess_Character_Player::TimeLineProgress(float Value)
@@ -78,6 +82,31 @@ bool ACountess_Character_Player::GiveAbilityEndOverlap_Implementation()
 void ACountess_Character_Player::AbilityAcquiredInfoToGAGrantingActor(TSubclassOf<UCountess_GameplayAbility_Base> AbilityAcquiredClass, FSlateBrush AbilityIcon, float Cooldown)
 {
 	CountessAbilityAcquired_Interface_Delegate.Broadcast(AbilityAcquiredClass);
+}
+
+void ACountess_Character_Player::MontageToPlayOnGameBeginEnded(FTimerHandle& TimerHandle) const
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+	if(!Countess_PlayerController->InputEnabled())
+		Countess_PlayerController->EnableInput(Countess_PlayerController);
+}
+
+void ACountess_Character_Player::OnLeftSwordBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(OtherActor)
+	{
+		ACountess_Character_Base* OtherCharacter = Cast<ACountess_Character_Base>(OtherActor);
+		//UE_LOG(Countess_Log, Warning, TEXT("OtherCharacter team id is %d and our team id is %d"), OtherCharacter->GetGenericTeamId().GetId(), this->GetGenericTeamId().GetId());
+		if(OtherCharacter && OtherCharacter->GetGenericTeamId().GetId() != this->GetGenericTeamId().GetId())
+		{
+			//UE_LOG(Countess_Log, Warning, TEXT("From %s. Left Sword Overlapped with %s."), TEXT(__FUNCTION__), *OtherCharacter->GetFName().ToString());
+			FGameplayEventData Payload;
+			Payload.Instigator = this;
+			Payload.Target = OtherCharacter;
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this,FGameplayTag::RequestGameplayTag(FName("Ability.Primary.Damage")),Payload);
+		}
+	}
 }
 
 bool ACountess_Character_Player::GetIsDoubleJumping() const
@@ -159,6 +188,26 @@ ACountess_Character_Player::ACountess_Character_Player()
 
 	FloatingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(FName("Floating Pawn Movement"));
 
+	CapsuleSwordCollisionLeft = CreateDefaultSubobject<UCapsuleComponent>(FName("Capsule Collision Sword Left"));
+	CapsuleSwordCollisionLeft->SetCapsuleHalfHeight(55.f);
+	CapsuleSwordCollisionLeft->SetCapsuleRadius(10.f);
+	CapsuleSwordCollisionLeft->SetupAttachment(GetMesh(), FName("hand_lSocket"));
+	CapsuleSwordCollisionLeft->SetRelativeLocation(FVector(21.4f,0.f,-35.6f));
+	CapsuleSwordCollisionLeft->SetRelativeRotation(FRotator(10.f,0.f,0.f));
+	CapsuleSwordCollisionLeft->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CapsuleSwordCollisionLeft->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn,ECollisionResponse::ECR_Overlap);
+	CapsuleSwordCollisionLeft->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	CapsuleSwordCollisionRight = CreateDefaultSubobject<UCapsuleComponent>(FName("Capsule Collision Sword Right"));
+	CapsuleSwordCollisionRight->SetCapsuleHalfHeight(55.f);
+	CapsuleSwordCollisionRight->SetCapsuleRadius(10.f);
+	CapsuleSwordCollisionRight->SetupAttachment(GetMesh(), FName("hand_rSocket"));
+	CapsuleSwordCollisionRight->SetRelativeLocation(FVector(-21.4f,0.f,35.6f));
+	CapsuleSwordCollisionRight->SetRelativeRotation(FRotator(10.f,0.f,0.f));
+	CapsuleSwordCollisionRight->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CapsuleSwordCollisionRight->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn,ECollisionResponse::ECR_Overlap);
+	CapsuleSwordCollisionRight->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	/*Load VFX to be played on Player Landing*/
 	//Load Soundwave
 	static ConstructorHelpers::FObjectFinder<USoundWave> SoundToPlayOnLandingObject(TEXT("SoundWave'/Game/ParagonCountess/Characters/Heroes/Vamp/Sounds/SoundWaves/Countess_Effort_Land_03.Countess_Effort_Land_03'"));
@@ -169,6 +218,10 @@ ACountess_Character_Player::ACountess_Character_Player()
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleSystemOnLandingObject(TEXT("ParticleSystem'/Game/InfinityBladeEffects/Effects/FX_Monsters/FX_Monster_Gruntling/Master/P_MasterGrunt_Drag_Dust.P_MasterGrunt_Drag_Dust'"));
 	if (ParticleSystemOnLandingObject.Succeeded())
 		ParticleSystemOnLanding = ParticleSystemOnLandingObject.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AnimMontageToPlayOnGameBeginObject(TEXT("AnimMontage'/Game/MyProjectMain/Animations/LevelStart_Montage.LevelStart_Montage'"));
+	if(AnimMontageToPlayOnGameBeginObject.Succeeded())
+		MontageToPlayOnGameBegin = AnimMontageToPlayOnGameBeginObject.Object;
 
 	//set emitter scaling value on landing
 	JumpScale = -0.001f;
@@ -185,6 +238,12 @@ ACountess_Character_Player::ACountess_Character_Player()
 		CurveFloat = BackDashCurveFloatObject.Object;
 	else
 		UE_LOG(Countess_Log, Warning, TEXT("Can't find Back Dash CurveFloat in %s. Check if it is moved."), TEXT(__FUNCTION__));
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> BeginPlaySoundCueObject(TEXT("SoundCue'/Game/MyProjectMain/Audio/Countess_BeginPlay_Cue.Countess_BeginPlay_Cue'"));
+	if(BeginPlaySoundCueObject.Succeeded())
+		BeginPlaySoundCue = BeginPlaySoundCueObject.Object;
+	else
+		UE_LOG(Countess_Log, Warning, TEXT("Can't find BeingPlay Sound Cue in %s. Check if it is moved."), TEXT(__FUNCTION__));
 	
 }
 
@@ -192,6 +251,26 @@ void ACountess_Character_Player::BeginPlay()
 {
 	Super::BeginPlay();
 	Countess_PlayerState->Countess_Ability_Acquired_Delegate.AddDynamic(this, &ACountess_Character_Player::AbilityAcquiredInfoToGAGrantingActor);
+	if(MontageToPlayOnGameBegin)
+	{
+		const float MontageLength = GetMesh()->GetAnimInstance()->Montage_Play(MontageToPlayOnGameBegin);
+		if(Countess_PlayerController)
+		{
+			Countess_PlayerController->DisableInput(Countess_PlayerController);
+			FTimerHandle MontagePlayHandle;
+			FTimerDelegate MontagePlayDelegate;
+			MontagePlayDelegate.BindUFunction(this, FName("MontageToPlayOnGameBeginEnded"), MontagePlayHandle);
+			GetWorldTimerManager().SetTimer(MontagePlayHandle,MontagePlayDelegate,MontageLength,false);
+			if(BeginPlaySoundCue)
+				UGameplayStatics::PlaySound2D(this,Cast<USoundBase>(BeginPlaySoundCue));
+		}
+	}
+	/*Player Team Id. Useful for identifying enemy/player since both derive from same character base class*/
+	PlayerTeamId = FGenericTeamId(0);
+	this->SetGenericTeamId(PlayerTeamId);
+
+	CapsuleSwordCollisionLeft->OnComponentBeginOverlap.AddDynamic(this, &ACountess_Character_Player::OnLeftSwordBeginOverlap);
+
 }
 
 void ACountess_Character_Player::PossessedBy(AController* NewController)
@@ -218,5 +297,15 @@ void ACountess_Character_Player::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	BackDashTimeLine.TickTimeline(DeltaSeconds);
+}
+
+FGenericTeamId ACountess_Character_Player::GetGenericTeamId() const
+{
+	return PlayerTeamId;
+}
+
+int32 ACountess_Character_Player::GetCharacterLevel() const
+{
+	return Countess_PlayerState->GetPlayerLevel();
 }
 

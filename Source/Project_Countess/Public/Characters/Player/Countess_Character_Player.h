@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "Globals/Project_Countess.h"
 #include "Characters/Countess_Character_Base.h"
 #include "Components/TimelineComponent.h"
+#include "Globals/Project_Countess.h"
 #include "Countess_Character_Player.generated.h"
 
 /*Forward Declarations*/
@@ -20,6 +20,9 @@ class UCountess_AttributeSet_Base;
 class UCountess_GameplayAbility_Base;
 class UCurveFloat;
 class UFloatingPawnMovement;
+class UAnimMontage;
+class UCapsuleComponent;
+class USoundCue;
 
 UCLASS(config=Game)
 class ACountess_Character_Player : public ACountess_Character_Base
@@ -52,6 +55,11 @@ class ACountess_Character_Player : public ACountess_Character_Base
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	UFloatingPawnMovement* FloatingPawnMovement;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UCapsuleComponent* CapsuleSwordCollisionLeft;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UCapsuleComponent* CapsuleSwordCollisionRight;
 	/*scaling for size of particle system to played on landing*/
 	float JumpScale;
 
@@ -70,6 +78,10 @@ class ACountess_Character_Player : public ACountess_Character_Base
 	FTimeline BackDashTimeLine;
 
 	UCurveFloat* CurveFloat;
+
+	USoundCue* BeginPlaySoundCue;
+
+	FGenericTeamId PlayerTeamId;
 
 	UFUNCTION()
 	void TimeLineProgress(float Value);
@@ -103,6 +115,15 @@ public:
 	UFUNCTION()
 	void AbilityAcquiredInfoToGAGrantingActor(TSubclassOf<UCountess_GameplayAbility_Base> AbilityAcquiredClass, FSlateBrush AbilityIcon, float Cooldown);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* MontageToPlayOnGameBegin;
+
+	UFUNCTION() // Our begin play montage ended. so enable input and clear this timer
+	void MontageToPlayOnGameBeginEnded(FTimerHandle& TimerHandle) const;
+
+	UFUNCTION()
+	void OnLeftSwordBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
 private:
 	/**/
 	bool bIsDoubleJumping;
@@ -134,6 +155,12 @@ public:
 	/* Returns FeetLocationArrowComponent subobject*/
 	FORCEINLINE UArrowComponent* GetFireballSpawnLocationArrowComponent() const { return FireballSpawnLocationArrowComponent; }
 
+	UFUNCTION(BlueprintCallable, Category = "Countess | Components")
+	FORCEINLINE UCapsuleComponent* GetCollisionSwordLeftComponent() { return CapsuleSwordCollisionLeft; }
+
+	UFUNCTION(BlueprintCallable, Category = "Countess | Components")
+	FORCEINLINE UCapsuleComponent* GetCollisionSwordRightComponent() { return CapsuleSwordCollisionRight; }
+
 public:
 	/*Overrides*/
 	
@@ -145,5 +172,7 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual FGenericTeamId GetGenericTeamId() const override;
 
+	virtual int32 GetCharacterLevel() const override;
 };

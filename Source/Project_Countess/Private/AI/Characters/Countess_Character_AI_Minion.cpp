@@ -22,8 +22,6 @@ ACountess_Character_AI_Minion::ACountess_Character_AI_Minion()
 	MinionAttributeSet = CreateDefaultSubobject<UCountess_AttributeSet_Base>(FName("Minion Attribute Set"));
 	//AttributeSet = MinionAttributeSet;
 
-	//MinionAbilitySystemComponent->GetOrCreateAttributeSubobject(UCountess_AttributeSet_Base::StaticClass());
-
 	Minion_Widget_Component = CreateDefaultSubobject<UWidgetComponent>(FName("Health Widget"));
 	Minion_Widget_Component->SetupAttachment(RootComponent);
 	Minion_Widget_Component->SetRelativeLocation(FVector(0, 0, 150.f));
@@ -74,6 +72,9 @@ void ACountess_Character_AI_Minion::BeginPlay()
 
 		MinionAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(MinionAttributeSet->GetHealthAttribute()).AddUObject(this, &ACountess_Character_AI_Minion::OnHealthChanged);
 	}
+	
+	MinionTeamId = FGenericTeamId(1);
+	this->SetGenericTeamId(MinionTeamId);
 }
 
 void ACountess_Character_AI_Minion::PossessedBy(AController* NewController)
@@ -101,11 +102,21 @@ bool ACountess_Character_AI_Minion::IsAlive() const
 	return MinionAttributeSet->GetHealth() > 0.f;
 }
 
+FGenericTeamId ACountess_Character_AI_Minion::GetGenericTeamId() const
+{
+	return MinionTeamId;
+}
+
+int32 ACountess_Character_AI_Minion::GetCharacterLevel() const
+{
+	return MinionLevel;
+}
+
 void ACountess_Character_AI_Minion::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
 	//UE_LOG(Countess_Log, Warning, TEXT("From %s. Minion Health Changed to %f"), TEXT(__FUNCTION__), Data.NewValue);
 	if (Minion_Widget)
-		Minion_Widget->SetHealthPercentage(Data.NewValue / MinionAttributeSet->GetMaxHealth());
+		Minion_Widget->SetHealthPercentage(Data.NewValue / MinionAttributeSet->GetMaxHealth());	
 }
 
 UCountess_AbilitySystemComponent* ACountess_Character_AI_Minion::GetMinionAbilitySystemComponent()

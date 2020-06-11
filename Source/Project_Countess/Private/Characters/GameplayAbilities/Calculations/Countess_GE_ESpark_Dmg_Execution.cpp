@@ -5,7 +5,45 @@
 #include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 #include "Characters/GameplayAbilities/AttributeSets/Countess_AttributeSet_Base.h"
 
+struct Countess_DamageStatics
+{
+	DECLARE_ATTRIBUTE_CAPTUREDEF(MagicResistance);
 
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
+
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Damage);
+
+	DECLARE_ATTRIBUTE_CAPTUREDEF(FireballDamage);
+
+	DECLARE_ATTRIBUTE_CAPTUREDEF(ElectroSparkDamage);
+
+	DECLARE_ATTRIBUTE_CAPTUREDEF(Armor);
+
+	DECLARE_ATTRIBUTE_CAPTUREDEF(PrimaryAbilityDamage);
+
+	Countess_DamageStatics()
+	{
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, MagicResistance, Target, false); // capture Armor of defender and don't snapshot it (don't capture at the time of Spec creation. we want this value at the time of Spec application) 
+
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, Health, Target, false); // capture Health of defender and don't snapshot it 
+
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, Damage, Source, true);
+
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, FireballDamage, Source, true);
+
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, ElectroSparkDamage, Source, true);
+
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, PrimaryAbilityDamage, Source, true);
+
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, Armor, Target, false);
+	}
+};
+
+static const Countess_DamageStatics& Countess_Statics()
+{
+	static Countess_DamageStatics Statics;
+	return Statics;
+}
 
 UCountess_GE_ESpark_Dmg_Execution::UCountess_GE_ESpark_Dmg_Execution()
 {

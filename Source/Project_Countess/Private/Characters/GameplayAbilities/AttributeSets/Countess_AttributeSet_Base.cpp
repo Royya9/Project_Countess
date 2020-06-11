@@ -6,6 +6,7 @@
 #include "GameplayEffect.h"
 #include "GameplayEffectExtension.h"
 #include "Player/Countess_PlayerController.h"
+#include "Characters/Countess_Character_Base.h"
 
 
 UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
@@ -23,6 +24,7 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 	Damage(0.f),
 	FireballDamage(0.f),
 	ElectroSparkDamage(0.f),
+	PrimaryAbilityDamage(0.f),
 	Exp(0.f),
 	MaxExp(100.f),
 	CurrentPlayerLevel(1),
@@ -33,13 +35,13 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 	static ConstructorHelpers::FObjectFinder<UCurveTable> _AbilityDetailsObject(TEXT("'/Game/MyProjectMain/Blueprints/Characters/Abilities/AbilityDetails'"));
 	if (_AbilityDetailsObject.Succeeded())
 	{
-		AbiiltyDetailsTable = _AbilityDetailsObject.Object;
+		AbilityDetailsTable = _AbilityDetailsObject.Object;
 	}
 	else
 	{
 		UE_LOG(Countess_Log, Error, TEXT("Cannot find AbilityDetails curve table in location : /Game/MyProjectMain/Blueprints/Characters/Abilities/AbilityDetails. Check if it is moved. From %s"), TEXT(__FUNCTION__));
 	}
-	if (AbiiltyDetailsTable)
+	if (AbilityDetailsTable)
 	{
 		//Create Attributes at Level 1 from our AbilityDetails Table
 		SetAttributes();
@@ -49,7 +51,7 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 
 void UCountess_AttributeSet_Base::SetAttributes()
 {
-	if (AbiiltyDetailsTable)
+	if (AbilityDetailsTable)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Found Data Table %s"), *StartupData->GetName());
 		FString ContextString;
@@ -64,8 +66,8 @@ void UCountess_AttributeSet_Base::SetAttributes()
 		FSimpleCurve* StaminaRegenHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("StaminaRegenRate"), ContextString);
 		FSimpleCurve* ManaRegenHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("ManaRegenRate"), ContextString);
 		FSimpleCurve* ArmorHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Armor"), ContextString);*/
-		FSimpleCurve* ExpHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("Exp"), ContextString);
-		FSimpleCurve* MaxExpHandle = AbiiltyDetailsTable->FindSimpleCurve(FName("MaxExp"), ContextString);
+		FSimpleCurve* ExpHandle = AbilityDetailsTable->FindSimpleCurve(FName("Exp"), ContextString);
+		FSimpleCurve* MaxExpHandle = AbilityDetailsTable->FindSimpleCurve(FName("MaxExp"), ContextString);
 
 /*
 		if (HealthHandle)

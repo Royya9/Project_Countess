@@ -15,6 +15,7 @@ class UStaticMesh;
 class UMaterialInterface;
 class UProjectileMovementComponent;
 class USoundCue;
+class UAIPerceptionStimuliSourceComponent;
 
 /*Our Fireball Actor*/
 UCLASS()
@@ -58,6 +59,9 @@ public:
 
 	UPROPERTY()
 	USoundCue* FireballImpactSoundCue;
+
+	UPROPERTY()
+	UAIPerceptionStimuliSourceComponent* StimuliSourceComponent;
 
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

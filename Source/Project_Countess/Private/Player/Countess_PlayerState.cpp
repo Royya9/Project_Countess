@@ -8,6 +8,7 @@
 #include "Characters/GameplayAbilities/Effects/Countess_GameplayEffect_Base.h"
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Regen.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_PlayerStats.h"
+#include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Primary.h"
 
 
 ACountess_PlayerState::ACountess_PlayerState()
@@ -17,6 +18,7 @@ ACountess_PlayerState::ACountess_PlayerState()
 	AttributeSet = CreateDefaultSubobject<UCountess_AttributeSet_Base>(FName("AttributeSet"));
 
 	StartupAbilities.Add(UCountess_GameplayAbility_Regen::StaticClass());
+	StartupAbilities.Add(UCountess_GameplayAbility_Primary::StaticClass());
 	PlayerLevel = 1;
 }
 
@@ -289,6 +291,19 @@ bool ACountess_PlayerState::CanESpark(TSubclassOf<UGameplayAbility>& OUTBackDash
 		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.ESpark"))))
 		{
 			OUTBackDashAbility = Ability;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ACountess_PlayerState::CanPrimary(TSubclassOf<UGameplayAbility>& OUTPrimaryAbility) const
+{
+	for (auto Ability : AcquiredAbilities)
+	{
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Ability.Primary"))))
+		{
+			OUTPrimaryAbility = Ability;
 			return true;
 		}
 	}

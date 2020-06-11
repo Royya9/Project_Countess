@@ -19,6 +19,8 @@ class PROJECT_COUNTESS_API ACountess_Character_AI_Minion : public ACountess_Char
 {
 	GENERATED_BODY()
 
+	FGenericTeamId MinionTeamId;
+
 public:
 	// Sets default values for this character's properties
 	ACountess_Character_AI_Minion();
@@ -44,6 +46,10 @@ protected:
 	virtual void GiveStartupEffects();
 
 	virtual bool IsAlive() const override;
+
+	virtual FGenericTeamId GetGenericTeamId() const override;
+
+	virtual int32 GetCharacterLevel() const override;
 
 private:
 

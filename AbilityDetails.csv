@@ -1,4 +1,6 @@
 ---,1,2,3
+PrimaryAbilityCooldown,1,0.9,0.8
+PrimaryAbilityDamage,10,15,20
 JumpAbilityCooldown,1.5,1,0.5
 JumpAbilityStaminaCost,1.5,1,0.5
 DoubleJumpAbilityCooldown,2,1.75,1.5

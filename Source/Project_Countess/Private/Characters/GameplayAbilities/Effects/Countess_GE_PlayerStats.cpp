@@ -10,7 +10,7 @@ UCountess_GE_PlayerStats::UCountess_GE_PlayerStats()
 
 	if (AbilityDetailsTable)
 	{
-		const uint32 NumOfPlayerStatsToCapture = 12;
+		const uint32 NumOfPlayerStatsToCapture = 13;
 
 		TArray<FScalableFloat> ScalableFloats;
 		ScalableFloats.SetNum(NumOfPlayerStatsToCapture);
@@ -59,6 +59,8 @@ UCountess_GE_PlayerStats::UCountess_GE_PlayerStats()
 			CurveTableRowHandles[11].RowName = FName("ElectroSparkAbilityDamage");
 			ModifierInfos[11].Attribute = Countess_AttributeSet->GetElectroSparkDamageAttribute();
 
+			CurveTableRowHandles[12].RowName = FName("PrimaryAbilityDamage");
+			ModifierInfos[12].Attribute = Countess_AttributeSet->GetPrimaryAbilityDamageAttribute();
 		}
 
 		for (uint32 i = 0; i < NumOfPlayerStatsToCapture; i++)
@@ -70,9 +72,5 @@ UCountess_GE_PlayerStats::UCountess_GE_PlayerStats()
 			ModifierInfos[i].ModifierMagnitude = FGameplayEffectModifierMagnitude(ScalableFloats[i]);
 			Modifiers.Add(ModifierInfos[i]);
 		}
-
-
-
 	}
-
 }

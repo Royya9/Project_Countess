@@ -12,6 +12,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Camera//Countess_Fireball_CameraShake.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
 
 // Sets default values
 ACountess_Actor_Fireball::ACountess_Actor_Fireball()
@@ -41,6 +43,9 @@ ACountess_Actor_Fireball::ACountess_Actor_Fireball()
 	FireballProjectileMovementComponent->InitialSpeed = 1500.f;
 	FireballProjectileMovementComponent->MaxSpeed = 1500.f;
 	FireballProjectileMovementComponent->ProjectileGravityScale = 0.f;
+
+	StimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(FName("AI Stimuli Scource Component"));
+	StimuliSourceComponent->RegisterForSense(UAISense_Sight::StaticClass());
 
 	Range = 3000.f;
 

@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Countess_PlayerController.generated.h"
 
+class ACountess_Character_Base;
 class ACountess_Character_Player;
 class ACountess_PlayerState;
 class ACountess_HUD;
@@ -47,6 +48,8 @@ public:
 	void Ability_Fireball();
 
 	void Ability_ESpark();
+
+	void Ability_Primary();
 
 	virtual void BeginPlay() override;
 
@@ -139,6 +142,7 @@ private:
 	TSubclassOf<UGameplayAbility> BackDashAbility;
 	TSubclassOf<UCountess_GameplayAbility_Base> m_AbilityToAcquire;
 	TSubclassOf<UGameplayAbility> BlackMagicAbility;
+	TSubclassOf<UGameplayAbility> PrimaryAbility;
 
 	bool bHandlingAbilityAcquire;
 	bool bAbilityAcquired;

@@ -20,8 +20,9 @@ UCLASS()
 class PROJECT_COUNTESS_API UCountess_AttributeSet_Base : public UAttributeSet
 {
 	GENERATED_BODY()
-	
-	UCurveTable* AbiiltyDetailsTable;
+
+	UPROPERTY()
+	UCurveTable* AbilityDetailsTable;
 public:
 
 	UCountess_AttributeSet_Base();
@@ -91,6 +92,10 @@ public:
 	FGameplayAttributeData ElectroSparkDamage;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, ElectroSparkDamage)
 
+	UPROPERTY(BlueprintReadOnly, Category = "PrimaryAbilityDamage")
+	FGameplayAttributeData PrimaryAbilityDamage;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, PrimaryAbilityDamage)
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Exp")
 	FGameplayAttributeData Exp;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, Exp)

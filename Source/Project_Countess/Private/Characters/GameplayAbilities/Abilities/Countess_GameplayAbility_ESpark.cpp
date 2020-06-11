@@ -13,6 +13,7 @@
 #include "Sound/SoundWave.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/Countess_Fireball_CameraShake.h"
+#include "Components/CapsuleComponent.h"
 
 UCountess_GameplayAbility_ESpark::UCountess_GameplayAbility_ESpark()
 {
