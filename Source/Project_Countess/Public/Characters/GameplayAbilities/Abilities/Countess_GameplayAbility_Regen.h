@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Globals/Project_Countess.h"
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
 #include "Countess_GameplayAbility_Regen.generated.h"
 
@@ -16,10 +16,9 @@ class PROJECT_COUNTESS_API UCountess_GameplayAbility_Regen : public UCountess_Ga
 {
 	GENERATED_BODY()
 	
-private:
-
-	UGameplayEffect* Countess_Stamina_Regen_Effect;
-	UGameplayEffect* Countess_Health_Regen_Effect;
+	TSubclassOf<UGameplayEffect> Countess_Stamina_Regen_Effect;
+	TSubclassOf<UGameplayEffect> Countess_Health_Regen_Effect;
+	TSubclassOf<UGameplayEffect> Countess_Mana_Regen_Effect;
 
 public:
 

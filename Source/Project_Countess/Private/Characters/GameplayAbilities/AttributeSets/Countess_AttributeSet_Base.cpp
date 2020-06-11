@@ -171,24 +171,7 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 // 			UE_LOG(Countess_Log, Warning, TEXT("From %s. Target Controller is %s"), TEXT(__FUNCTION__), *TargetController->GetFName().ToString());
 	}
 	
-	// Apply FullStamina Tag to our AbilitySystemComponent to prevent Regen Effect being applied. Remove the tag if not so.
-	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
-	{		
-		// UE_LOG(Countess_Log, Warning, TEXT("stamina value is %f and Stamina_Regen_Rate is %f. From %s"), GetStamina(), GetStaminaRegenRate(), TEXT(__FUNCTION__));
-		//#TODO Enable above comment and see it is not entirely working as intended. Stamina is constantly updated even after reaching maxstamina. but getting clamped to show intended result.
-		//Correct this.
-		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
-		if ( GetStamina() > GetMaxStamina() ||  FMath::IsNearlyEqual(GetStamina(), GetMaxStamina()))
-		{
-			SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
-		}
-		else
-		{
-			SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
-		}
-	}
-
-	else if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
 		AActor* SourceActor = nullptr;
 		AController* SourceController = nullptr;
@@ -270,7 +253,36 @@ void UCountess_AttributeSet_Base::PostGameplayEffectExecute(const struct FGamepl
 			SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull")));
 		}
 	}
+
+	else if (Data.EvaluatedData.Attribute == GetManaAttribute())
+	{
+		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+		if (FMath::IsNearlyEqual(GetMana(), GetMaxMana()))
+		{
+			SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Mana.NotFull")));
+		}
+		else
+		{
+			SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Mana.NotFull")));
+		}
+	}
 	
+	// Apply FullStamina Tag to our AbilitySystemComponent to prevent Regen Effect being applied. Remove the tag if not so.
+	else if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	{		
+		// UE_LOG(Countess_Log, Warning, TEXT("stamina value is %f and Stamina_Regen_Rate is %f. From %s"), GetStamina(), GetStaminaRegenRate(), TEXT(__FUNCTION__));
+		//#TODO Enable above comment and see it is not entirely working as intended. Stamina is constantly updated even after reaching maxstamina. but getting clamped to show intended result.
+		//Correct this.
+		SetStamina(FMath::Clamp(GetStamina(), 0.f, GetMaxStamina()));
+		if ( GetStamina() > GetMaxStamina() ||  FMath::IsNearlyEqual(GetStamina(), GetMaxStamina()))
+		{
+			SourceASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+		}
+		else
+		{
+			SourceASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+		}
+	}
 	else if (Data.EvaluatedData.Attribute == GetMaxExpAttribute())
 	{
 		if (!SourceASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Exp.NotFull"))))

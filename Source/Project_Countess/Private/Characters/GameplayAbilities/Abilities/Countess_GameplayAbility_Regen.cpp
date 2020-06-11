@@ -4,24 +4,21 @@
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Regen.h"
 #include "GameplayEffect.h"
 #include "AbilitySystemComponent.h"
+#include "Characters/Countess_Character_Base.h"
 #include "Player/Countess_PlayerState.h"
+#include "Characters/GameplayAbilities/Effects/Countess_GE_Health_Regen.h"
+#include "Characters/GameplayAbilities/Effects/Countess_GE_Mana_Regen.h"
+#include "Characters/GameplayAbilities/Effects/Countess_GE_Stamina_Regen.h"
 
 UCountess_GameplayAbility_Regen::UCountess_GameplayAbility_Regen()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Regen")));
 
-	static ConstructorHelpers::FClassFinder<UGameplayEffect> Countess_Stamina_Regen_Effect_Class(TEXT("'/Script/Project_Countess.Countess_GE_Stamina_Regen'"));
-	if (Countess_Stamina_Regen_Effect_Class.Succeeded())
-	{
-		Countess_Stamina_Regen_Effect = Cast<UGameplayEffect>(Countess_Stamina_Regen_Effect_Class.Class->GetDefaultObject(false));
-	}
+	Countess_Health_Regen_Effect = UCountess_GE_Health_Regen::StaticClass();
+	Countess_Mana_Regen_Effect = UCountess_GE_Mana_Regen::StaticClass();
+	Countess_Stamina_Regen_Effect = UCountess_GE_Stamina_Regen::StaticClass();
 	
-	static ConstructorHelpers::FClassFinder<UGameplayEffect> Countess_Health_Regen_Effect_Class(TEXT("'/Script/Project_Countess.Countess_GE_Health_Regen'"));
-	if (Countess_Health_Regen_Effect_Class.Succeeded())
-	{
-		Countess_Health_Regen_Effect = Cast<UGameplayEffect>(Countess_Health_Regen_Effect_Class.Class->GetDefaultObject(false));
-	}
 }
 
 void UCountess_GameplayAbility_Regen::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -34,8 +31,20 @@ void UCountess_GameplayAbility_Regen::ActivateAbility(const FGameplayAbilitySpec
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		}
 		CommitAbility(Handle, ActorInfo, ActivationInfo);
+
+		ACountess_Character_Base* Character_Base = Cast<ACountess_Character_Base>(ActorInfo->AvatarActor.Get(false));
+		if(!Character_Base)
+		{
+			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+			return;
+		}
+		const int32 CharacterLevel = Character_Base->GetCharacterLevel();
 		
-		if (Countess_Stamina_Regen_Effect)
+		ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, Countess_Health_Regen_Effect.GetDefaultObject(), CharacterLevel);
+		ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, Countess_Mana_Regen_Effect.GetDefaultObject(), CharacterLevel);
+		ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, Countess_Stamina_Regen_Effect.GetDefaultObject(), CharacterLevel);
+		
+		/*if (Countess_Stamina_Regen_Effect)
 		{
 // 			UAbilitySystemComponent* AbilitySystemComponent = ActorInfo->AbilitySystemComponent.Get(false);
 // 			AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Buff.FullStamina")));
@@ -56,7 +65,7 @@ void UCountess_GameplayAbility_Regen::ActivateAbility(const FGameplayAbilitySpec
 			ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, Countess_Stamina_Regen_Effect, Countess_PlayerLevel);
 			ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, Countess_Health_Regen_Effect, Countess_PlayerLevel);
 			//UE_LOG(Countess_Log, Warning, TEXT(" HERE!!!. Acquired Regen Ability. Player Level is %d. From %s"), Countess_PlayerLevel, TEXT(__FUNCTION__));
-		}
+		}*/
 
 		
 	}
@@ -72,13 +81,21 @@ void UCountess_GameplayAbility_Regen::EndAbility(const FGameplayAbilitySpecHandl
 	UAbilitySystemComponent* const AbilitySystemComponent = GetAbilitySystemComponentFromActorInfo_Ensured();
 	if (AbilitySystemComponent)
 	{
-		FGameplayTagContainer Health_Regen_Effect_TagContainer, Stamina_Regen_Effect_TagContainer;
-		Stamina_Regen_Effect_TagContainer = Countess_Stamina_Regen_Effect->InheritableGameplayEffectTags.CombinedTags;
-		Health_Regen_Effect_TagContainer = Countess_Health_Regen_Effect->InheritableGameplayEffectTags.CombinedTags;
+		const FGameplayTagContainer Stamina_Regen_Effect_TagContainer = Countess_Stamina_Regen_Effect.GetDefaultObject()->
+		                                                                                        InheritableGameplayEffectTags
+		                                                                                        .CombinedTags;
+		const FGameplayTagContainer Health_Regen_Effect_TagContainer = Countess_Health_Regen_Effect.GetDefaultObject()->
+		                                                                                      InheritableGameplayEffectTags.
+		                                                                                      CombinedTags;
+		const FGameplayTagContainer Mana_Regen_Effect_TagContainer = Countess_Mana_Regen_Effect.GetDefaultObject()->
+                                                                                      InheritableGameplayEffectTags.
+                                                                                      CombinedTags;
 		FGameplayEffectQuery const Health_Regen_Rate_Query = FGameplayEffectQuery::MakeQuery_MatchAnyEffectTags(Health_Regen_Effect_TagContainer);
 		FGameplayEffectQuery const Stamina_Regen_Rate_Query = FGameplayEffectQuery::MakeQuery_MatchAnyEffectTags(Stamina_Regen_Effect_TagContainer);
+		FGameplayEffectQuery const Mana_Regen_Rate_Query = FGameplayEffectQuery::MakeQuery_MatchAnyEffectTags(Mana_Regen_Effect_TagContainer);
 		AbilitySystemComponent->RemoveActiveEffects(Health_Regen_Rate_Query);
 		AbilitySystemComponent->RemoveActiveEffects(Stamina_Regen_Rate_Query);
+		AbilitySystemComponent->RemoveActiveEffects(Mana_Regen_Rate_Query);
 	}
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 

@@ -5,7 +5,7 @@
 #include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 #include "Characters/GameplayAbilities/AttributeSets/Countess_AttributeSet_Base.h"
 
-struct Countess_DamageStatics
+struct Countess_DamageStatics_Primary
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(MagicResistance);
 
@@ -21,7 +21,7 @@ struct Countess_DamageStatics
 
 	DECLARE_ATTRIBUTE_CAPTUREDEF(PrimaryAbilityDamage);
 
-	Countess_DamageStatics()
+	Countess_DamageStatics_Primary()
 	{
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, MagicResistance, Target, false); // capture Armor of defender and don't snapshot it (don't capture at the time of Spec creation. we want this value at the time of Spec application) 
 
@@ -39,17 +39,17 @@ struct Countess_DamageStatics
 	}
 };
 
-static const Countess_DamageStatics& Countess_Statics()
+static const Countess_DamageStatics_Primary& Countess_Statics_Primary()
 {
-	static Countess_DamageStatics Statics;
+	static Countess_DamageStatics_Primary Statics;
 	return Statics;
 }
 
 UCountess_GE_Primary_Execution::UCountess_GE_Primary_Execution()
 {
-    RelevantAttributesToCapture.Add(Countess_Statics().ArmorDef);
-    RelevantAttributesToCapture.Add(Countess_Statics().DamageDef);
-	RelevantAttributesToCapture.Add(Countess_Statics().PrimaryAbilityDamageDef);
+    RelevantAttributesToCapture.Add(Countess_Statics_Primary().ArmorDef);
+    RelevantAttributesToCapture.Add(Countess_Statics_Primary().DamageDef);
+	RelevantAttributesToCapture.Add(Countess_Statics_Primary().PrimaryAbilityDamageDef);
 }
 
 void UCountess_GE_Primary_Execution::Execute_Implementation(
@@ -69,11 +69,11 @@ void UCountess_GE_Primary_Execution::Execute_Implementation(
 	EvaluationParameters.TargetTags = TargetTags;
 
 	float Armor = 0.f;
-	(ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Countess_Statics().ArmorDef, EvaluationParameters, Armor)); //Getting Armor Snapshot from AttributeSet
+	(ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Countess_Statics_Primary().ArmorDef, EvaluationParameters, Armor)); //Getting Armor Snapshot from AttributeSet
 	//UE_LOG(Countess_Log, Warning, TEXT("Captured Armor value from %s is %f"), TEXT(__FUNCTION__), Armor);
 
 	float PrimaryAbilityDamage = 0.f;
-	(ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Countess_Statics().PrimaryAbilityDamageDef, EvaluationParameters, PrimaryAbilityDamage)); // Get Health Snapshot from AttributeSet
+	(ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Countess_Statics_Primary().PrimaryAbilityDamageDef, EvaluationParameters, PrimaryAbilityDamage)); // Get Health Snapshot from AttributeSet
 	//UE_LOG(Countess_Log, Warning, TEXT("Captured Unmitigated Damage from %s is %f"), TEXT(__FUNCTION__), PrimaryAbilityDamage);
 
 
@@ -88,6 +88,6 @@ void UCountess_GE_Primary_Execution::Execute_Implementation(
 	if (MitigatedDamage > 0.f)
 	{
 		// Set the Target's health attribute after calculation
-		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(Countess_Statics().DamageProperty, EGameplayModOp::Additive, MitigatedDamage));
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(Countess_Statics_Primary().DamageProperty, EGameplayModOp::Additive, MitigatedDamage));
 	}
 }
