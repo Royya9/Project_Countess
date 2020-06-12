@@ -11,6 +11,7 @@ class ACountess_Character_Player;
 class ACountess_PlayerState;
 class ACountess_HUD;
 class UCountess_HUD_Widget;
+class UCountess_BMagic_Menu_Widget;
 class UCountess_GameplayAbility_Base;
 class USoundBase;
 class ICountess_Interface_AbilityDetail;
@@ -37,11 +38,9 @@ public:
 	/*Bound function to make player jump on button press*/
 	void Ability_Jump();
 
-	/*Bound to PlayerLanded Delegate in BeginPlay*/
-/*
-	UFUNCTION()
-	void Ability_StopJumping(const FHitResult& Hit);*/
+	void OpenBMagicMenu();
 
+	void CloseBMagicMenu();
 
 	void Ability_BackDash();
 
@@ -67,6 +66,8 @@ public:
 	void Remove_Notify_Widget_From_Parent();
 
 	void Populate_Skill_Acquired_Widget(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire);
+
+	void Populate_BMagicMenu_Widget(UCountess_BMagic_Menu_Widget* BMagic_Menu_Widget);
 
 	void ShowDamageNumber(float Damage, ACountess_Character_Base* TargetCharacter);
 
@@ -153,7 +154,10 @@ private:
 	USoundBase* NotifyWidgetOpenSound;
 	UPROPERTY()
 	USoundBase* NotifyWidgetCloseSound;
-
+	UPROPERTY()
+	USoundBase* BMagicMenuOpenSound;
+	UPROPERTY()
+	USoundBase* BMagicMenuCloseSound;
 	/*Variables that hold which magic skills are slotted currently*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities, meta = (AllowPrivateAccess = "true"))
 	E_BMagic BMagicSlotted;

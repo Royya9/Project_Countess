@@ -34,7 +34,7 @@ UCountess_GameplayAbility_Fball::UCountess_GameplayAbility_Fball()
 
 	/*Find AbilityData from our Content Folder that describe this Ability as Class and get CDO from it*/
 
-	static ConstructorHelpers::FClassFinder<UAbilityData> AbilityDataObject(TEXT("'/Game/MyProjectMain/Blueprints/Characters/Abilities/FireballAbility/BP_AbilityData_BDash'"));
+	static ConstructorHelpers::FClassFinder<UAbilityData> AbilityDataObject(TEXT("'/Game/MyProjectMain/Blueprints/Characters/Abilities/FireballAbility/BP_AbilityData_Fireball'"));
 	if (AbilityDataObject.Succeeded())
 	{
 		AbilityData = Cast<UAbilityData>(AbilityDataObject.Class->GetDefaultObject(false));

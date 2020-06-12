@@ -27,4 +27,17 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetWidgetScreenShotImage(FSlateBrush ScreenShotImage);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable) // #TODO Show cost for all levels instead of only one level 
+	void SetCost(float Cost);
+
+	//CostName = Mana or Stamina or Health etc
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetCostName(FName CostName);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetCooldown(float Cooldown);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetDamage(float Damage);
 };

@@ -10,8 +10,10 @@
 #include "UI/Countess_Notify_Widget.h"
 #include "UI/Countess_SkillAcquired_Widget.h"
 #include "UI/Countess_DamageText_WidgetComp.h"
+#include "UI/Countess_BMagic_Menu_Widget.h"
 #include "TimerManager.h"
 #include "Sound/SoundBase.h"
+#include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
 #include "Interfaces/Countess_Interface_AbilityDetail.h"
@@ -36,6 +38,19 @@ ACountess_PlayerController::ACountess_PlayerController()
 	{
 		NotifyWidgetCloseSound = NotifyWidgetCloseSoundObject.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> BMagicOpenSoundObject(TEXT("SoundCue'/Game/MyProjectMain/Audio/SFX_BMagicMenuOpen_Cue.SFX_BMagicMenuOpen_Cue'"));
+	if(BMagicOpenSoundObject.Succeeded())
+	{
+		BMagicMenuOpenSound = BMagicOpenSoundObject.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> BMagicCloseSoundObject(TEXT("SoundCue'/Game/MyProjectMain/Audio/SFX_BMagicMenuClose_Cue.SFX_BMagicMenuClose_Cue'"));
+	if(BMagicCloseSoundObject.Succeeded())
+	{
+		BMagicMenuCloseSound = BMagicCloseSoundObject.Object;
+	}
+	
 }
 
 void ACountess_PlayerController::OnPossess(APawn* aPawn)
@@ -61,7 +76,10 @@ void ACountess_PlayerController::OnPossess(APawn* aPawn)
 			InputComponent->BindAction("Fireball", IE_Pressed, this, &ACountess_PlayerController::Ability_Fireball);
 			InputComponent->BindAction("ElectroSpark", IE_Pressed, this, &ACountess_PlayerController::Ability_ESpark);
 			InputComponent->BindAction("Primary", IE_Pressed, this, &ACountess_PlayerController::Ability_Primary);
-			
+			FInputActionBinding& OpenBMagicMenuBinding = InputComponent->BindAction("BMagicMenu", IE_Pressed, this, &ACountess_PlayerController::OpenBMagicMenu);
+			OpenBMagicMenuBinding.bExecuteWhenPaused = true;
+			FInputActionBinding& CloseBMagicMenuBinding = InputComponent->BindAction("BMagicMenu", IE_Released, this, &ACountess_PlayerController::CloseBMagicMenu);
+			CloseBMagicMenuBinding.bExecuteWhenPaused = true;
 		}
 	}
 }
@@ -88,13 +106,46 @@ void ACountess_PlayerController::Ability_Jump()
 	}
 }
 
-/*
-void ACountess_PlayerController::Ability_StopJumping(const FHitResult& Hit)
+void ACountess_PlayerController::OpenBMagicMenu()
 {
-	//PlayerState->Countess_CancelAbility(JumpAbility);
-	//PlayerStateInterface->Execute_Countess_Interface_CancelAbility(GetPlayerState<APlayerState>(), JumpAbility);
+	if(Countess_HUD->Get_Countess_HUDWidget())
+		Countess_HUD->Get_Countess_HUDWidget()->RemoveFromParent();
+	
+	if(!Countess_HUD->Get_Countess_BMagic_Menu_Widget())
+		Countess_HUD->CreateBMagicMenuWidget(this);
 
-}*/
+	//Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SetCurrentMana(PlayerStateInterface->GetCurrentMana());
+	//Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SetManaPercentage(PlayerStateInterface->GetCurrentMana()/PlayerStateInterface->GetMaxMana());
+	Populate_BMagicMenu_Widget(Countess_HUD->Get_Countess_BMagic_Menu_Widget());
+	
+	if(!Countess_HUD->Get_Countess_BMagic_Menu_Widget()->IsInViewport())
+		Countess_HUD->Get_Countess_BMagic_Menu_Widget()->AddToViewport();
+	
+	this->SetPause(true);
+	FInputModeGameAndUI GameAndUI;
+
+	if(BMagicMenuOpenSound)
+		UGameplayStatics::PlaySound2D(this, BMagicMenuOpenSound);
+	
+	GameAndUI.SetWidgetToFocus(Countess_HUD->Get_Countess_BMagic_Menu_Widget()->TakeWidget());
+	this->SetInputMode(GameAndUI);
+}
+
+void ACountess_PlayerController::CloseBMagicMenu()
+{
+	if(Countess_HUD->Get_Countess_BMagic_Menu_Widget())
+		Countess_HUD->Get_Countess_BMagic_Menu_Widget()->RemoveFromParent();
+
+	if(!Countess_HUD->Get_Countess_HUDWidget()->IsInViewport())
+		Countess_HUD->Get_Countess_HUDWidget()->AddToViewport();
+
+	if(BMagicMenuCloseSound)
+		UGameplayStatics::PlaySound2D(this, BMagicMenuCloseSound);
+	
+	this->SetPause(false);
+	const FInputModeGameOnly GameOnly;
+	this->SetInputMode(GameOnly);
+}
 
 void ACountess_PlayerController::Ability_BackDash()
 {
@@ -306,11 +357,51 @@ void ACountess_PlayerController::Populate_Skill_Acquired_Widget(TSubclassOf<UCou
 			// #TODO Populate border, image, stamina/mana cost etc
 			if (AbilityToAcquireCDO->AbilityData.Get(false))
 			{
-				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetTitle(AbilityToAcquireCDO->AbilityData.Get(false)->Title);
-				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetDescription(AbilityToAcquireCDO->AbilityData.Get(false)->Description);
-				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetAbilityIcon(AbilityToAcquireCDO->AbilityData.Get(false)->AbilityIcon);
-				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetScreenShotImage(AbilityToAcquireCDO->AbilityData.Get(false)->AbilityImage);
+				const UAbilityData* AbilityData = AbilityToAcquireCDO->AbilityData.Get(false);
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetTitle(AbilityData->Title);
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetDescription(AbilityData->Description);
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetAbilityIcon(AbilityData->AbilityIcon);
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetScreenShotImage(AbilityData->AbilityImage);
+				const FString ContextString;
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+				const EAbilityCostType CostType = AbilityData->AbilityCostType;
+				const FName CostName = AbilityData->AbilityCostString[CostType];
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetCostName(CostName);
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetCooldown(AbilityData->CoolDownRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(),ContextString));
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetDamage(AbilityData->DamageRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(),ContextString));
 			}
+		}
+	}
+}
+
+void ACountess_PlayerController::Populate_BMagicMenu_Widget(UCountess_BMagic_Menu_Widget* BMagic_Menu_Widget)
+{
+	BMagic_Menu_Widget->SetCurrentMana(PlayerStateInterface->GetCurrentMana());
+	BMagic_Menu_Widget->SetManaPercentage(PlayerStateInterface->GetCurrentMana()/PlayerStateInterface->GetMaxMana());
+
+	//Populate ElectroSpark
+	if(PlayerStateInterface->CanESpark(BlackMagicAbility))
+	{
+		UCountess_GameplayAbility_Base* BlackMagicAbilityCDO = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
+		UAbilityData* AbilityData = BlackMagicAbilityCDO->AbilityData.Get();
+		if(BlackMagicAbilityCDO && AbilityData)
+		{
+			BMagic_Menu_Widget->SetESparkAbilityName(AbilityData->Title);
+			const FString ContextString;
+			BMagic_Menu_Widget->SetESparkAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(),ContextString));
+		}
+	}
+
+	//Populate Fireball
+	if(PlayerStateInterface->CanFireball(BlackMagicAbility))
+	{
+		UCountess_GameplayAbility_Base* BlackMagicAbilityCDO = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
+		UAbilityData* AbilityData = BlackMagicAbilityCDO->AbilityData.Get();
+		if(BlackMagicAbilityCDO && AbilityData)
+		{
+			BMagic_Menu_Widget->SetFireballAbilityName(AbilityData->Title);
+			const FString ContextString;
+			BMagic_Menu_Widget->SetFireballAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
 		}
 	}
 }
@@ -400,7 +491,7 @@ void ACountess_PlayerController::OnAbilityAcquired(TSubclassOf<UCountess_Gamepla
 	if (SkillAcquiredSound)
 		UGameplayStatics::PlaySound2D(this, SkillAcquiredSound, 3.f);
 	this->SetPause(true);
-	FInputModeGameAndUI GameAndUI;
+	const FInputModeGameAndUI GameAndUI;
 	this->SetInputMode(GameAndUI);
 	Countess_HUD->CreateSkillAcquiredWidget(this);
 	Populate_Skill_Acquired_Widget(AbilityAcquiredClass);

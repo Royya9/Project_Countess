@@ -28,6 +28,6 @@
 		{
 			"Name": "FieldSystemPlugin",
 			"Enabled": true
-		},
+		}
 	]
 }

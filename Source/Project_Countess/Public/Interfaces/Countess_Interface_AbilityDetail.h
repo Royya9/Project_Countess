@@ -87,7 +87,7 @@ public:
 
 	virtual bool CanFireball(TSubclassOf<UGameplayAbility>& OUTFireballAbility) const = 0;
 
-	virtual bool CanESpark(TSubclassOf<UGameplayAbility>& OUTFireballAbility) const = 0;
+	virtual bool CanESpark(TSubclassOf<UGameplayAbility>& OUTESparkAbility) const = 0;
 
 	virtual bool CanPrimary(TSubclassOf<UGameplayAbility>& OUTPrimaryAbility) const = 0;
 
