@@ -72,5 +72,17 @@ public:
 	/*Events to handle Player Abilities' UI */
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetWMagicAbilityIcon(FSlateBrush AbilityIcon);
+	void SetWMagicAbilityImage(FSlateBrush AbilityImage);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetBMagicAbilityImage(FSlateBrush AbilityImage);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetWMagicAbilityCost(float WMagicAbilityCost);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetBMagicAbilityCost(float BMagicAbilityCost);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void PlayAnimOnBMagicSlotted();
 };

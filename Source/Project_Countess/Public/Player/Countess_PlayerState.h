@@ -111,23 +111,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	virtual bool CanJump(TSubclassOf<UGameplayAbility>& OUTJumpAbility) const override;
 
-	/*Checks our list of acquired abilities whether we have the ability to BackDash and if yes, populates the BackDashAbility class with corresponding Countess_Ability_BDash*/
-	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	virtual bool CanBackDash(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const override;
-
-	/*Checks our list of acquired abilities whether we have the ability to BackDash and if yes, populates the BackDashAbility class with corresponding Countess_Ability_BDash*/
-	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	virtual bool CanFireball(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const override;
-
-	/*Checks our list of acquired abilities whether we have the ability to BackDash and if yes, populates the BackDashAbility class with corresponding Countess_Ability_BDash*/
-	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
-	virtual bool CanESpark(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const override;
-
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	virtual bool CanPrimary(TSubclassOf<UGameplayAbility>& OUTPrimaryAbility) const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	virtual bool CanActivateAbilityByTagGeneric(const FGameplayTag& AbilityTag, TSubclassOf<UGameplayAbility>& OUTAbility) const override;
+
+	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	virtual int32 GetPlayerLevel() const override;
+
+	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
+	virtual int32 GetPlayerMaxLevel() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Countess | Getters")
 	virtual float GetCurrentHealth() const override;

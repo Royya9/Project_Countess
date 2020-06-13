@@ -56,6 +56,8 @@ public:
 	virtual FCountessAbilityAcquiredDelegate& GetCountessAbilityAcquiredDelegate() = 0;
 
 	virtual int32 GetPlayerLevel() const = 0;
+
+	virtual int32 GetPlayerMaxLevel() const = 0;
 	 
 	virtual float GetCurrentHealth() const = 0;
 	 
@@ -83,13 +85,9 @@ public:
 
 	virtual bool CanJump(TSubclassOf<UGameplayAbility>& OUTJumpAbility) const = 0;
 
-	virtual bool CanBackDash(TSubclassOf<UGameplayAbility>& OUTJumpAbility) const = 0;
-
-	virtual bool CanFireball(TSubclassOf<UGameplayAbility>& OUTFireballAbility) const = 0;
-
-	virtual bool CanESpark(TSubclassOf<UGameplayAbility>& OUTESparkAbility) const = 0;
-
 	virtual bool CanPrimary(TSubclassOf<UGameplayAbility>& OUTPrimaryAbility) const = 0;
+
+	virtual bool CanActivateAbilityByTagGeneric(const FGameplayTag& AbilityTag, TSubclassOf<UGameplayAbility>& OUTAbility) const = 0;
 
 	virtual bool IsAlive() const = 0;
 

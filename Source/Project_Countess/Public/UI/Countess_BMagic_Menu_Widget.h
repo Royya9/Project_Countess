@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Globals/Project_Countess.h"
 #include "Blueprint/UserWidget.h"
 #include "Countess_BMagic_Menu_Widget.generated.h"
 
@@ -23,14 +23,14 @@ public:
 	void SetManaPercentage(float ManaPercentage);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetESparkAbilityName(const FText& ESparkAbilityText);
+	void SelectedAbility(E_BMagic BMagicAbility);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetESparkAbilityCost(float Cost);
+	void SetAbilityName(E_BMagic BMagicAbility, const FText& AbilityName);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetFireballAbilityName(const FText& FireballAbilityText);
+	void SetAbilityCost(E_BMagic BMagicAbility, float Cost);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetFireballAbilityCost(float Cost);
+	void SetAbilityImage(E_BMagic BMagicAbility, FSlateBrush AbilityIcon);
 };

@@ -18,6 +18,7 @@
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
 #include "Interfaces/Countess_Interface_AbilityDetail.h"
 #include "Camera/Countess_CameraManager.h"
+#include "Globals/Countess_AbilityTypes.h"
 
 ACountess_PlayerController::ACountess_PlayerController()
 {
@@ -67,14 +68,14 @@ void ACountess_PlayerController::OnPossess(APawn* aPawn)
 			InputComponent->BindAction("Jump", IE_Pressed, this, &ACountess_PlayerController::Ability_Jump);
 			//InputComponent->BindAction("Jump", IE_Released, this, &ACountess_PlayerController::Ability_StopJumping);
 			InputComponent->BindAxis("MoveRight", this, &ACountess_PlayerController::MoveRight);
+			InputComponent->BindAction("MenuOps", IE_Pressed, this, &ACountess_PlayerController::MenuOp).bExecuteWhenPaused = true;
 			InputComponent->BindAction("Interact", IE_Pressed, this, &ACountess_PlayerController::Interact);
 			/*InputComponent->BindAction("EndInteract", IE_Pressed, this, &ACountess_PlayerController::EndInteract).bExecuteWhenPaused = true;*/
 			FInputActionBinding& EndInteractBinding = InputComponent->BindAction("EndInteract", IE_Pressed, this, &ACountess_PlayerController::EndInteract);
 			EndInteractBinding.bConsumeInput = false;
 			EndInteractBinding.bExecuteWhenPaused = true;
 			InputComponent->BindAction("BackDash", IE_Pressed, this, &ACountess_PlayerController::Ability_BackDash);
-			InputComponent->BindAction("Fireball", IE_Pressed, this, &ACountess_PlayerController::Ability_Fireball);
-			InputComponent->BindAction("ElectroSpark", IE_Pressed, this, &ACountess_PlayerController::Ability_ESpark);
+			InputComponent->BindAction("ActivateBlackMagicAbility", IE_Pressed, this, &ACountess_PlayerController::ActivateBMagicAbility);
 			InputComponent->BindAction("Primary", IE_Pressed, this, &ACountess_PlayerController::Ability_Primary);
 			FInputActionBinding& OpenBMagicMenuBinding = InputComponent->BindAction("BMagicMenu", IE_Pressed, this, &ACountess_PlayerController::OpenBMagicMenu);
 			OpenBMagicMenuBinding.bExecuteWhenPaused = true;
@@ -106,81 +107,16 @@ void ACountess_PlayerController::Ability_Jump()
 	}
 }
 
-void ACountess_PlayerController::OpenBMagicMenu()
-{
-	if(Countess_HUD->Get_Countess_HUDWidget())
-		Countess_HUD->Get_Countess_HUDWidget()->RemoveFromParent();
-	
-	if(!Countess_HUD->Get_Countess_BMagic_Menu_Widget())
-		Countess_HUD->CreateBMagicMenuWidget(this);
-
-	//Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SetCurrentMana(PlayerStateInterface->GetCurrentMana());
-	//Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SetManaPercentage(PlayerStateInterface->GetCurrentMana()/PlayerStateInterface->GetMaxMana());
-	Populate_BMagicMenu_Widget(Countess_HUD->Get_Countess_BMagic_Menu_Widget());
-	
-	if(!Countess_HUD->Get_Countess_BMagic_Menu_Widget()->IsInViewport())
-		Countess_HUD->Get_Countess_BMagic_Menu_Widget()->AddToViewport();
-	
-	this->SetPause(true);
-	FInputModeGameAndUI GameAndUI;
-
-	if(BMagicMenuOpenSound)
-		UGameplayStatics::PlaySound2D(this, BMagicMenuOpenSound);
-	
-	GameAndUI.SetWidgetToFocus(Countess_HUD->Get_Countess_BMagic_Menu_Widget()->TakeWidget());
-	this->SetInputMode(GameAndUI);
-}
-
-void ACountess_PlayerController::CloseBMagicMenu()
-{
-	if(Countess_HUD->Get_Countess_BMagic_Menu_Widget())
-		Countess_HUD->Get_Countess_BMagic_Menu_Widget()->RemoveFromParent();
-
-	if(!Countess_HUD->Get_Countess_HUDWidget()->IsInViewport())
-		Countess_HUD->Get_Countess_HUDWidget()->AddToViewport();
-
-	if(BMagicMenuCloseSound)
-		UGameplayStatics::PlaySound2D(this, BMagicMenuCloseSound);
-	
-	this->SetPause(false);
-	const FInputModeGameOnly GameOnly;
-	this->SetInputMode(GameOnly);
-}
-
 void ACountess_PlayerController::Ability_BackDash()
 {
 	/*Check with PlayerState whether we have the ability to BackDash*/
-	if (PlayerStateInterface->CanBackDash(BackDashAbility)) /* Ref sent to CanBackDash. This is OUT Param */
+	if (PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::SkillTag[E_Skill::BackDash], SkillAbility)) /* Ref sent to CanBackDash. This is OUT Param */
 	{
 		//UE_LOG(Countess_Log, Warning, TEXT("Can Back Dash. from %s"), TEXT(__FUNCTION__));
-		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BackDashAbility);
+		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), SkillAbility);
 	}
 	//else
 	//	UE_LOG(Countess_Log, Warning, TEXT("Can't Back Dash yet. Check if it is acquired. From %s"), TEXT(__FUNCTION__));
-}
-
-
-void ACountess_PlayerController::Ability_Fireball()
-{
-	/*Check with PlayerState whether we have the ability to Fireball*/
-	// #TODO /*Actually check with PlayerState which blackmagic ability is slotted right and return that ability. For testing we are asking about fireball ability*/
-	if (PlayerStateInterface->CanFireball(BlackMagicAbility))
-	{
-		//UE_LOG(Countess_Log, Warning, TEXT("Can Fireball. from %s"), TEXT(__FUNCTION__));
-		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BlackMagicAbility);
-	}
-}
-
-
-void ACountess_PlayerController::Ability_ESpark()
-{
-	/*Check with PlayerState whether we have the ability to Fireball*/
-// #TODO /*Actually check with PlayerState which blackmagic ability is slotted right and return that ability. For testing we are asking about fireball ability*/
-	if (PlayerStateInterface->CanESpark(BlackMagicAbility))
-	{
-		//UE_LOG(Countess_Log, Warning, TEXT("Can ESpark. from %s"), TEXT(__FUNCTION__));
-		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BlackMagicAbility);
-	}
 }
 
 void ACountess_PlayerController::Ability_Primary()
@@ -189,6 +125,15 @@ void ACountess_PlayerController::Ability_Primary()
 	{
 		//UE_LOG(Countess_Log, Warning, TEXT("Can do Primary Attack. from %s"), TEXT(__FUNCTION__));
 		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), PrimaryAbility);
+	}
+}
+
+void ACountess_PlayerController::ActivateBMagicAbility()
+{
+	//Get the tag of our slotted ability (can be None) and check whether we did acquire it. If we have it then try to activate it.
+	if(PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[BMagicSlotted], BlackMagicAbility))
+	{
+		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BlackMagicAbility);
 	}
 }
 
@@ -257,10 +202,10 @@ void ACountess_PlayerController::BeginPlay()
 
 	BMagicSlotted = E_BMagic::None;
 	WMagicSlotted = E_WMagic::None;
-	SkillAcquired = E_Skills::None;
+	SkillAcquired = E_Skill::None;
 
 	bHandlingAbilityAcquire = false;
-
+	bBlackMagicMenuOpened = false;
 	//PlayerCharacter->LandedDelegate.AddDynamic(this, &ACountess_PlayerController::Ability_StopJumping);
 }
 
@@ -362,16 +307,75 @@ void ACountess_PlayerController::Populate_Skill_Acquired_Widget(TSubclassOf<UCou
 				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetDescription(AbilityData->Description);
 				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetAbilityIcon(AbilityData->AbilityIcon);
 				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetWidgetScreenShotImage(AbilityData->AbilityImage);
-				const FString ContextString;
-				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+
 				const EAbilityCostType CostType = AbilityData->AbilityCostType;
 				const FName CostName = AbilityData->AbilityCostString[CostType];
 				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetCostName(CostName);
-				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetCooldown(AbilityData->CoolDownRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(),ContextString));
-				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetDamage(AbilityData->DamageRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(),ContextString));
+
+				const int32 PlayerLevel = PlayerStateInterface->GetPlayerLevel();
+				const int32 PlayerNextLevel = (PlayerLevel == PlayerStateInterface->GetPlayerMaxLevel()) ? PlayerLevel : (PlayerLevel + 1);
+				const FString ContextString;
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetCost(AbilityData->CostRowHandle.Eval(PlayerLevel, ContextString));
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetNextLevelCost(AbilityData->CostRowHandle.Eval(PlayerNextLevel, ContextString));
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetCooldown(AbilityData->CoolDownRowHandle.Eval(PlayerLevel,ContextString));
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetNextLevelCooldown(AbilityData->CoolDownRowHandle.Eval(PlayerNextLevel,ContextString));
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetDamage(AbilityData->DamageRowHandle.Eval(PlayerLevel,ContextString));
+				Countess_HUD->Get_Countess_Skill_Acquired_Widget()->SetNextLevelDamage(AbilityData->DamageRowHandle.Eval(PlayerNextLevel,ContextString));
 			}
 		}
 	}
+}
+
+void ACountess_PlayerController::OpenBMagicMenu()
+{
+	if(Countess_HUD->Get_Countess_Skill_Acquired_Widget()) // End Skill Acquire Interaction if we are handling Skill Acquire and Player wanted to Open BMagic Menu
+	{
+		if(Countess_HUD->Get_Countess_Skill_Acquired_Widget()->IsInViewport())
+			EndInteract();
+	}
+	
+	if(Countess_HUD->Get_Countess_HUDWidget())
+		Countess_HUD->Get_Countess_HUDWidget()->RemoveFromParent();
+	
+	if(!Countess_HUD->Get_Countess_BMagic_Menu_Widget())
+		Countess_HUD->CreateBMagicMenuWidget(this);
+
+	Populate_BMagicMenu_Widget(Countess_HUD->Get_Countess_BMagic_Menu_Widget());
+	
+	if(!Countess_HUD->Get_Countess_BMagic_Menu_Widget()->IsInViewport())
+		Countess_HUD->Get_Countess_BMagic_Menu_Widget()->AddToViewport();
+
+	bBlackMagicMenuOpened = true;
+	
+	this->SetPause(true);
+	FInputModeGameAndUI GameAndUI;
+
+	if(BMagicMenuOpenSound)
+		UGameplayStatics::PlaySound2D(this, BMagicMenuOpenSound);
+	
+	GameAndUI.SetWidgetToFocus(Countess_HUD->Get_Countess_BMagic_Menu_Widget()->TakeWidget());
+	this->SetInputMode(GameAndUI);
+}
+
+void ACountess_PlayerController::CloseBMagicMenu()
+{
+	if(Countess_HUD->Get_Countess_BMagic_Menu_Widget())
+		Countess_HUD->Get_Countess_BMagic_Menu_Widget()->RemoveFromParent();
+
+	if(!Countess_HUD->Get_Countess_HUDWidget()->IsInViewport())
+		Countess_HUD->Get_Countess_HUDWidget()->AddToViewport();
+
+	bBlackMagicMenuOpened = false;
+	
+	if(BMagicMenuCloseSound)
+		UGameplayStatics::PlaySound2D(this, BMagicMenuCloseSound);
+	
+	this->SetPause(false);
+	const FInputModeGameOnly GameOnly;
+	this->SetInputMode(GameOnly);
+
+	if(BMagicSlotted != E_BMagic::None)
+		Countess_HUD->Get_Countess_HUDWidget()->PlayAnimOnBMagicSlotted();
 }
 
 void ACountess_PlayerController::Populate_BMagicMenu_Widget(UCountess_BMagic_Menu_Widget* BMagic_Menu_Widget)
@@ -380,28 +384,30 @@ void ACountess_PlayerController::Populate_BMagicMenu_Widget(UCountess_BMagic_Men
 	BMagic_Menu_Widget->SetManaPercentage(PlayerStateInterface->GetCurrentMana()/PlayerStateInterface->GetMaxMana());
 
 	//Populate ElectroSpark
-	if(PlayerStateInterface->CanESpark(BlackMagicAbility))
+	if(PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[E_BMagic::ElectroSpark],BlackMagicAbility))
 	{
 		UCountess_GameplayAbility_Base* BlackMagicAbilityCDO = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
 		UAbilityData* AbilityData = BlackMagicAbilityCDO->AbilityData.Get();
 		if(BlackMagicAbilityCDO && AbilityData)
 		{
-			BMagic_Menu_Widget->SetESparkAbilityName(AbilityData->Title);
 			const FString ContextString;
-			BMagic_Menu_Widget->SetESparkAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(),ContextString));
+			BMagic_Menu_Widget->SetAbilityName(E_BMagic::ElectroSpark, AbilityData->Title);
+			BMagic_Menu_Widget->SetAbilityCost(E_BMagic::ElectroSpark, AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			BMagic_Menu_Widget->SetAbilityImage(E_BMagic::ElectroSpark, AbilityData->AbilityMenuImage);
 		}
 	}
 
 	//Populate Fireball
-	if(PlayerStateInterface->CanFireball(BlackMagicAbility))
+	if(PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[E_BMagic::FireBall],BlackMagicAbility))
 	{
 		UCountess_GameplayAbility_Base* BlackMagicAbilityCDO = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
 		UAbilityData* AbilityData = BlackMagicAbilityCDO->AbilityData.Get();
 		if(BlackMagicAbilityCDO && AbilityData)
 		{
-			BMagic_Menu_Widget->SetFireballAbilityName(AbilityData->Title);
 			const FString ContextString;
-			BMagic_Menu_Widget->SetFireballAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			BMagic_Menu_Widget->SetAbilityName(E_BMagic::FireBall, AbilityData->Title);
+			BMagic_Menu_Widget->SetAbilityCost(E_BMagic::FireBall, AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			BMagic_Menu_Widget->SetAbilityImage(E_BMagic::FireBall, AbilityData->AbilityMenuImage);
 		}
 	}
 }
@@ -487,7 +493,6 @@ void ACountess_PlayerController::OnArmorChanged(float NewArmorValue)
 void ACountess_PlayerController::OnAbilityAcquired(TSubclassOf<UCountess_GameplayAbility_Base> AbilityAcquiredClass, FSlateBrush AbilityIcon, float Cooldown)
 {
 	UE_LOG(Countess_Log, Warning, TEXT("Success! Handling UI Ability Icons now. From %s. Coolddown for this abillity is %f"), TEXT(__FUNCTION__), Cooldown);
-	Countess_HUD_Widget->SetWMagicAbilityIcon(AbilityIcon);
 	if (SkillAcquiredSound)
 		UGameplayStatics::PlaySound2D(this, SkillAcquiredSound, 3.f);
 	this->SetPause(true);
@@ -502,4 +507,55 @@ void ACountess_PlayerController::OnAbilityAcquired(TSubclassOf<UCountess_Gamepla
 void ACountess_PlayerController::OnPlayerLevelIncreased(int32 NewPlayerLevel)
 {
 	Countess_HUD_Widget->SetPlayerLevel(NewPlayerLevel);
+}
+
+void ACountess_PlayerController::MenuOp()
+{
+	if(!bBlackMagicMenuOpened)
+		return;
+
+	//Function to Handle Menu. For black magic: Right->Fireball; Left->ElectroSpark; Up->Bloodlust; Down->ArcticBlast;
+
+	//Equip that skill
+
+	if(this->IsInputKeyDown(FKey(FName("Right"))))
+	{
+		//UE_LOG(Countess_Log, Warning, TEXT("From %s. Right key was pressed."), TEXT(__FUNCTION__));
+		if(!PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[E_BMagic::FireBall],BlackMagicAbility)) // Do Nothing if we don't have Fireball Ability
+			return;
+
+		Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SelectedAbility(E_BMagic::FireBall);
+		BMagicSlotted = E_BMagic::FireBall;
+		const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
+		const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+		if(AbilityData)
+		{
+			Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityImage(AbilityData->AbilityMenuImage);
+			const FString ContextString;
+			Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+		}
+	}
+	if(this->IsInputKeyDown(FKey(FName("Left"))))
+	{
+		//UE_LOG(Countess_Log, Warning, TEXT("From %s. Left key was pressed."), TEXT(__FUNCTION__));
+		if(!PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[E_BMagic::ElectroSpark],BlackMagicAbility)) // Do Nothing if we don't have ElectroSpark Ability
+			return;
+
+		Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SelectedAbility(E_BMagic::ElectroSpark);
+		BMagicSlotted = E_BMagic::ElectroSpark;
+		const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
+		const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+		if(AbilityData)
+		{
+			Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityImage(AbilityData->AbilityMenuImage);
+			const FString ContextString;
+			Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+		}
+	}
+	
+	if(this->IsInputKeyDown(FKey(FName("Up"))))
+		UE_LOG(Countess_Log, Warning, TEXT("From %s. Up key was pressed."), TEXT(__FUNCTION__));
+	if(this->IsInputKeyDown(FKey(FName("Down"))))
+		UE_LOG(Countess_Log, Warning, TEXT("From %s. Down key was pressed."), TEXT(__FUNCTION__));
+
 }

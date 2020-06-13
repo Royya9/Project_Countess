@@ -256,47 +256,6 @@ bool ACountess_PlayerState::CanJump(TSubclassOf<UGameplayAbility>& OUTJumpAbilit
 	return false;
 }
 
-bool ACountess_PlayerState::CanBackDash(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const
-{
-	for (auto Ability : AcquiredAbilities)
-	{
-		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(CountessTags::FAbilityTags::BackDashAbilityTag))
-		{
-			OUTBackDashAbility = Ability;
-			return true;
-		}
-	}
-	return false;
-}
-
-
-bool ACountess_PlayerState::CanFireball(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const
-{
-	for (auto Ability : AcquiredAbilities)
-	{
-		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(CountessTags::FAbilityTags::FireballAbilityTag))
-		{
-			OUTBackDashAbility = Ability;
-			return true;
-		}
-	}
-	return false;
-}
-
-
-bool ACountess_PlayerState::CanESpark(TSubclassOf<UGameplayAbility>& OUTBackDashAbility) const
-{
-	for (auto Ability : AcquiredAbilities)
-	{
-		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(CountessTags::FAbilityTags::ElectroSparkAbilityTag))
-		{
-			OUTBackDashAbility = Ability;
-			return true;
-		}
-	}
-	return false;
-}
-
 bool ACountess_PlayerState::CanPrimary(TSubclassOf<UGameplayAbility>& OUTPrimaryAbility) const
 {
 	for (auto Ability : AcquiredAbilities)
@@ -310,9 +269,27 @@ bool ACountess_PlayerState::CanPrimary(TSubclassOf<UGameplayAbility>& OUTPrimary
 	return false;
 }
 
+bool ACountess_PlayerState::CanActivateAbilityByTagGeneric(const FGameplayTag& AbilityTag, TSubclassOf<UGameplayAbility>& OUTAbility) const
+{
+	for (auto Ability : AcquiredAbilities)
+	{
+		if (Ability.GetDefaultObject()->AbilityTags.HasTagExact(AbilityTag))
+		{
+			OUTAbility = Ability;
+			return true;
+		}
+	}
+	return false;
+}
+
 int32 ACountess_PlayerState::GetPlayerLevel() const
 {
 	return PlayerLevel;
+}
+
+int32 ACountess_PlayerState::GetPlayerMaxLevel() const
+{
+	return AttributeSet->GetPlayerMaxLevel();
 }
 
 float ACountess_PlayerState::GetCurrentHealth() const

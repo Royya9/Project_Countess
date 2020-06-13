@@ -25,15 +25,12 @@ enum class E_WMagic : uint8
 };
 
 UENUM(BlueprintType)
-enum class E_Skills : uint8
+enum class E_Skill : uint8
 {
 	None			UMETA(DisplayName = "None"),
+	Jump			UMETA(DisplayName = "Jump"),
 	DoubleJump		UMETA(DisplayName = "DoubleJump"),
 	BackDash		UMETA(DisplayName = "BackDash"),
-	FireBall		UMETA(DisplayName = "FireBall"),
-	ElectroSpark	UMETA(DisplayName = "ElectroSpark"),
-	LensOfTruth		UMETA(DisplayName = "LensOfTruth"),
-	Mist			UMETA(DisplayName = "Mist")
 };
 
 
@@ -46,6 +43,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCountessAbilityAcquiredDelegate,
 
 namespace CountessTags
 {
+
+	inline static const FGameplayTag InvalidTag = FGameplayTag::RequestGameplayTag(FName("Invalid"));
+
 	struct FAbilityTags
 	{
 		inline static const FGameplayTag PrimaryAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Primary"));
@@ -106,5 +106,18 @@ namespace CountessTags
 		inline static const FGameplayTag FireballAbilityDamageTag = FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Damage"));
 		inline static const FGameplayTag ElectroSparkAbilityDamageTag = FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Damage"));
 		inline static const FGameplayTag PrimaryAbilityDamageTag = FGameplayTag::RequestGameplayTag(FName("Ability.Primary.Damage"));
+	};
+
+	inline static const TMap<E_BMagic, FGameplayTag> BMagicTag = {
+		{E_BMagic::None, InvalidTag},
+		{E_BMagic::FireBall, FAbilityTags::FireballAbilityTag},
+		{E_BMagic::ElectroSpark, FAbilityTags::ElectroSparkAbilityTag}
+	};
+
+	inline static const TMap<E_Skill, FGameplayTag> SkillTag = {
+		{E_Skill::None, InvalidTag},
+		{E_Skill::Jump, FAbilityTags::JumpAbilityTag},
+		{E_Skill::DoubleJump, FAbilityTags::DoubleJumpAbilityTag},
+		{E_Skill::BackDash, FAbilityTags::BackDashAbilityTag}
 	};
 }

@@ -97,6 +97,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Ability Image"))
 	FSlateBrush AbilityImage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Ability Menu Image"))
+	FSlateBrush AbilityMenuImage;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Ability Border Color"))
 	FSlateBrush AbilityBorderColor;
 
@@ -104,18 +107,18 @@ public:
 	FSlateColor AbilityFontColor;
 
 	/* Data Related to Ability such as Cost, Damage, Cooldown, RegenRate etc*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Is Magic Ability"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | Data", meta = (DisplayName = "Is Magic Ability"))
 	bool bIsMagicAbility;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Ability Cost Data Table"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | Data", meta = (DisplayName = "Ability Cost Data Table"))
 	FCurveTableRowHandle CostRowHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Ability Cost Type"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | Data", meta = (DisplayName = "Ability Cost Type"))
 	EAbilityCostType AbilityCostType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Ability Cooldown Data Table"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | Data", meta = (DisplayName = "Ability Cooldown Data Table"))
 	FCurveTableRowHandle CoolDownRowHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | UI", meta = (DisplayName = "Ability Damage Data Table"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | Data", meta = (DisplayName = "Ability Damage Data Table"))
 	FCurveTableRowHandle DamageRowHandle;
 };

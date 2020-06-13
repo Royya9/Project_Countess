@@ -35,6 +35,8 @@ public:
 	/*Bound function to move player right/left */
 	void MoveRight(float value);
 
+	void MenuOp();
+	
 	/*Bound function to make player jump on button press*/
 	void Ability_Jump();
 
@@ -44,11 +46,10 @@ public:
 
 	void Ability_BackDash();
 
-	void Ability_Fireball();
-
-	void Ability_ESpark();
-
 	void Ability_Primary();
+
+	//Generic function to activate Slotted BMagic Ability. Will replace specific Ability function calls.
+	void ActivateBMagicAbility();
 
 	virtual void BeginPlay() override;
 
@@ -144,6 +145,7 @@ private:
 	TSubclassOf<UCountess_GameplayAbility_Base> m_AbilityToAcquire;
 	TSubclassOf<UGameplayAbility> BlackMagicAbility;
 	TSubclassOf<UGameplayAbility> PrimaryAbility;
+	TSubclassOf<UGameplayAbility> SkillAbility;
 
 	bool bHandlingAbilityAcquire;
 	bool bAbilityAcquired;
@@ -166,5 +168,7 @@ private:
 	E_WMagic WMagicSlotted;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities, meta = (AllowPrivateAccess = "true"))
-	E_Skills SkillAcquired;
+	E_Skill SkillAcquired;
+
+	bool bBlackMagicMenuOpened;
 };
