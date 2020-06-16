@@ -81,6 +81,10 @@ class ACountess_Character_Player : public ACountess_Character_Base
 
 	USoundCue* BeginPlaySoundCue;
 
+	USoundCue* CooldownSoundCue;
+
+	USoundCue* CostSoundCue;
+
 	FGenericTeamId PlayerTeamId;
 
 	UFUNCTION()
@@ -128,13 +132,20 @@ private:
 	/**/
 	bool bIsDoubleJumping;
 
-	
+	bool bIsSoundPlaying;
+
 public:
 	/* Ability functions*/
 	UFUNCTION(BlueprintCallable)
 	bool GetIsDoubleJumping() const;
 
 	void SetIsDoubleJumping(bool bNewState);
+
+	UFUNCTION()
+	void AbilityFailedCallback(const UGameplayAbility* FailedAbility, const FGameplayTagContainer& TagContainer);
+
+	UFUNCTION()
+	void ClearTimer(FTimerHandle& TimerHandle, bool bSetIsSoundPlaying = true);
 
 public:
 	/*VFX*/

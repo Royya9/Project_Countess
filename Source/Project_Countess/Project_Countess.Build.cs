@@ -6,7 +6,9 @@ public class Project_Countess : ModuleRules
 {
 	public Project_Countess(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		//PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		//PCHUsage = PCHUsageMode.NoSharedPCHs;
+		PrivatePCHHeaderFile = "Public/Globals/Project_Countess.h";
 
 		PublicDependencyModuleNames.AddRange(new string[] 
 		{ "Core", "CoreUObject", "Engine", "InputCore", "GameplayAbilities", "GameplayTasks", "GameplayTags", "Slate", "SlateCore", "AIModule" });

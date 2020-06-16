@@ -1,6 +1,7 @@
 // Free to play. By SoNa Games.
 
 #pragma once
+
 #include "GameplayTagContainer.h"
 #include "Countess_AbilityTypes.generated.h"
 
@@ -36,10 +37,11 @@ enum class E_Skill : uint8
 
 /*Delegates*/
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAbilityAcquired_Interface_Delegate, TSubclassOf<UCountess_GameplayAbility_Base>, AcquiredGameplayAbilityClass);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAbilityAcquired_Interface_Delegate, TSubclassOf<class UCountess_GameplayAbility_Base>, AcquiredGameplayAbilityClass);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAttributeChangedDelegate, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessLevelChangedDelegate, int32, PlayerLevel);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCountessAbilityAcquiredDelegate, TSubclassOf<UCountess_GameplayAbility_Base>, AcquiredGameplayAbilityClass, FSlateBrush, AbilityIcon, float, Cooldown); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCountessAbilityAcquiredDelegate, TSubclassOf<class UCountess_GameplayAbility_Base>, AcquiredGameplayAbilityClass, FSlateBrush, AbilityIcon, float, Cooldown); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
+
 
 namespace CountessTags
 {
@@ -119,5 +121,59 @@ namespace CountessTags
 		{E_Skill::Jump, FAbilityTags::JumpAbilityTag},
 		{E_Skill::DoubleJump, FAbilityTags::DoubleJumpAbilityTag},
 		{E_Skill::BackDash, FAbilityTags::BackDashAbilityTag}
+	};
+
+	inline static const TArray<FGameplayTag> AbilityTagsArray = { 
+		FAbilityTags::BackDashAbilityTag ,
+		FAbilityTags::DoubleJumpAbilityTag,
+		FAbilityTags::ElectroSparkAbilityTag,
+		FAbilityTags::FireballAbilityTag,
+		FAbilityTags::JumpAbilityTag,
+		FAbilityTags::PrimaryAbilityTag,
+		FAbilityTags::RegenAbilityTag
+	};
+	
+	inline static const TArray<FGameplayTag> StatusTagsArray = {
+		FStatusTags::DeadTag ,
+		FStatusTags::ExpNotFullTag,
+		FStatusTags::HealthNotFullTag,
+		FStatusTags::JumpingTag,
+		FStatusTags::ManaNotFullTag,
+		FStatusTags::StaminaNotFullTag,
+		FStatusTags::StunTag
+	};
+
+	inline static const TArray<FGameplayTag> CooldownTagsArray = {
+		FCooldownTags::BackDashAbilityCooldownTag,
+		FCooldownTags::DoubleJumpAbilityCooldownTag,
+		FCooldownTags::ElectroSparkAbilityCooldownTag,
+		FCooldownTags::FireballAbilityCooldownTag,
+		FCooldownTags::JumpAbilityCooldownTag,
+		FCooldownTags::PrimaryAbilityCooldownTag
+	};
+
+	inline static const TArray<FGameplayTag> CostTagsArray = {
+		FCostTags::BackDashAbilityCostTag,
+		FCostTags::DoubleJumpAbilityCostTag,
+		FCostTags::ElectroSparkAbilityCostTag,
+		FCostTags::FireballAbilityCostTag,
+		FCostTags::JumpAbilityCostTag
+	};
+
+	inline static const TArray<FGameplayTag> EffectTagsArray = {
+		FEffectTags::HealthRegenTag,
+		FEffectTags::ManaRegenTag,
+		FEffectTags::StaminaRegenTag
+	};
+
+	inline static const TArray<FGameplayTag> EventTagsArray = {
+		FEventTags::ElectroSparkCastEventTag,
+		FEventTags::FireballCastEventTag
+	};
+
+	inline static const TArray<FGameplayTag> DamageTagsArray = {
+		FDamageTags::ElectroSparkAbilityDamageTag,
+		FDamageTags::FireballAbilityDamageTag,
+		FDamageTags::PrimaryAbilityDamageTag
 	};
 }

@@ -128,6 +128,23 @@ void UCountess_GameplayAbility_ESpark::ApplyCooldown(const FGameplayAbilitySpecH
 	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
 }
 
+bool UCountess_GameplayAbility_ESpark::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+
+	if (ASC)
+	{
+		if (ASC->HasMatchingGameplayTag(CountessTags::FCooldownTags::ElectroSparkAbilityCooldownTag)) // Our ASC has cooldown tag. so Ability is still in CD
+			OptionalRelevantTags->AddTag(CountessTags::FCooldownTags::ElectroSparkAbilityCooldownTag);
+		
+		if (!this->CheckCost(Handle, ActorInfo, OptionalRelevantTags)) // Check if we have enough mana. 
+			OptionalRelevantTags->AddTag(CountessTags::FCostTags::ElectroSparkAbilityCostTag);
+	}
+	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+}
+
 void UCountess_GameplayAbility_ESpark::OnCompleted(FGameplayTag EventTag, FGameplayEventData EventData)
 {
 	EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), false, false);

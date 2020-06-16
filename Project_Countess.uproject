@@ -28,6 +28,10 @@
 		{
 			"Name": "FieldSystemPlugin",
 			"Enabled": true
+		},
+		{
+			"Name": "RiderLink",
+			"Enabled": true
 		}
 	]
 }

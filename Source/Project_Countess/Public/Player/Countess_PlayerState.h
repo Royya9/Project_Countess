@@ -212,4 +212,5 @@ public:
 	virtual void OnArmorChanged(const FOnAttributeChangeData& Data);
 	virtual void OnExpChanged(const FOnAttributeChangeData& Data);
 	virtual void OnMaxExpChanged(const FOnAttributeChangeData& Data);
+
 };

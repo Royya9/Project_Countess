@@ -4,6 +4,7 @@
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Fball.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
 #include "Characters/Player/Countess_Character_Player.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
@@ -118,6 +119,21 @@ void UCountess_GameplayAbility_Fball::EndAbility(const FGameplayAbilitySpecHandl
 void UCountess_GameplayAbility_Fball::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
 	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
+}
+
+bool UCountess_GameplayAbility_Fball::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags /* = nullptr */, const FGameplayTagContainer* TargetTags /* = nullptr */, OUT FGameplayTagContainer* OptionalRelevantTags /* = nullptr */) const
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+
+	if (ASC)
+	{
+		if (ASC->HasMatchingGameplayTag(CountessTags::FCooldownTags::FireballAbilityCooldownTag)) // Our ASC has cooldown tag. so Ability is still in CD
+			OptionalRelevantTags->AddTag(CountessTags::FCooldownTags::FireballAbilityCooldownTag);
+		
+		if (!this->CheckCost(Handle, ActorInfo, OptionalRelevantTags)) // Check if we have enough mana. 
+			OptionalRelevantTags->AddTag(CountessTags::FCostTags::FireballAbilityCostTag);
+	}
+	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
 void UCountess_GameplayAbility_Fball::OnCompleted(FGameplayTag EventTag, FGameplayEventData EventData)

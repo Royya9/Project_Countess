@@ -29,6 +29,13 @@ void ACountess_Character_Player::TimeLineProgress(float Value)
 	GetCapsuleComponent()->SetRelativeLocation(NewLocation);
 }
 
+
+void ACountess_Character_Player::ClearTimer(FTimerHandle& TimerHandle, bool bSetIsSoundPlaying /*= true*/)
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+	bIsSoundPlaying = bSetIsSoundPlaying;
+}
+
 void ACountess_Character_Player::BeginBackDash()
 {
 	if(CurveFloat)
@@ -117,6 +124,44 @@ bool ACountess_Character_Player::GetIsDoubleJumping() const
 void ACountess_Character_Player::SetIsDoubleJumping(bool bNewState)
 {
 	bIsDoubleJumping = bNewState;
+}
+
+
+void ACountess_Character_Player::AbilityFailedCallback(const UGameplayAbility* FailedAbility, const FGameplayTagContainer& TagContainer)
+{
+	if (bIsSoundPlaying)
+		return;
+
+	TArray<FGameplayTag> FailedTags;
+	TagContainer.GetGameplayTagArray(FailedTags);
+	//UE_LOG(Countess_Log, Warning, TEXT("From %s. Ability %s failed to activate. Failed Tags size = %d"), TEXT(__FUNCTION__), *FailedAbility->GetFName().ToString(), FailedTags.Num());
+
+	USoundCue* SoundToPlay = nullptr;
+	for (FGameplayTag& FailTag : FailedTags)
+	{
+		//UE_LOG(Countess_Log, Warning, TEXT("From %s. Ability %s failed to activate due to %s"), TEXT(__FUNCTION__), *FailedAbility->GetFName().ToString(), *FailTag.ToString());
+		if (CountessTags::CooldownTagsArray.Contains(FailTag)) // Ability Failed due to cooldown
+		{
+			SoundToPlay = CooldownSoundCue;
+			break;
+		}
+		else if (CountessTags::CostTagsArray.Contains(FailTag)) // Ability Failed due to Cost
+		{
+			SoundToPlay = CostSoundCue;
+			break;
+		}
+	}
+
+	if (SoundToPlay)
+	{
+		UGameplayStatics::PlaySound2D(this, SoundToPlay);
+		bIsSoundPlaying = true;
+		FTimerHandle SoundToPlayHandle;
+		// Delegate to function which clears this TimerHandle and also sets bIsSoundPlaying to false
+		FTimerDelegate SoundToPlayTimerDelegate;
+		SoundToPlayTimerDelegate.BindUFunction(this, FName("ClearTimer"), SoundToPlayHandle, false);
+		GetWorldTimerManager().SetTimer(SoundToPlayHandle, SoundToPlayTimerDelegate, SoundToPlay->GetDuration(), false);
+	}
 }
 
 void ACountess_Character_Player::Landed(const FHitResult& Hit)
@@ -229,6 +274,7 @@ ACountess_Character_Player::ACountess_Character_Player()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 	bIsDoubleJumping = false;
+	bIsSoundPlaying = false;
 
 	BackDashLeftVector= FVector(-350.f, 0.f, 0.f);
 	BackDashRightVector = FVector(350.f, 0.f, 0.f);
@@ -244,6 +290,18 @@ ACountess_Character_Player::ACountess_Character_Player()
 		BeginPlaySoundCue = BeginPlaySoundCueObject.Object;
 	else
 		UE_LOG(Countess_Log, Warning, TEXT("Can't find BeingPlay Sound Cue in %s. Check if it is moved."), TEXT(__FUNCTION__));
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> CooldownSoundCueObject(TEXT("SoundCue'/Game/MyProjectMain/Audio/Countess_Ability_OnCooldown.Countess_Ability_OnCooldown'"));
+	if (CooldownSoundCueObject.Succeeded())
+		CooldownSoundCue = CooldownSoundCueObject.Object;
+	else
+		UE_LOG(Countess_Log, Warning, TEXT("Can't find Cooldwon Sound Cue in %s. Check if it is moved."), TEXT(__FUNCTION__));
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> CostSoundCueObject(TEXT("SoundCue'/Game/MyProjectMain/Audio/Countess_Ability_LowMana.Countess_Ability_LowMana'"));
+	if (CostSoundCueObject.Succeeded())
+		CostSoundCue = CostSoundCueObject.Object;
+	else
+		UE_LOG(Countess_Log, Warning, TEXT("Can't find Cost Sound Cue in %s. Check if it is moved."), TEXT(__FUNCTION__));
 	
 }
 
@@ -271,6 +329,8 @@ void ACountess_Character_Player::BeginPlay()
 
 	CapsuleSwordCollisionLeft->OnComponentBeginOverlap.AddDynamic(this, &ACountess_Character_Player::OnLeftSwordBeginOverlap);
 
+	if (AbilitySystemComponent.Get(false))
+		AbilitySystemComponent.Get()->AbilityFailedCallbacks.AddUObject(this, &ACountess_Character_Player::AbilityFailedCallback);
 }
 
 void ACountess_Character_Player::PossessedBy(AController* NewController)
