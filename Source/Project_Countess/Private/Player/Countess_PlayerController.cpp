@@ -20,6 +20,7 @@
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
 #include "Interfaces/Countess_Interface_AbilityDetail.h"
 #include "Camera/Countess_CameraManager.h"
+#include "Components/Countess_Timer_Component.h"
 
 
 ACountess_PlayerController::ACountess_PlayerController()
@@ -154,8 +155,42 @@ void ACountess_PlayerController::ActivateWMagicAbility()
 	//Get the tag of our slotted ability (can be None) and check whether we did acquire it. If we have it then try to activate it.
 	if(PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::WMagicTag[WMagicSlotted], WhiteMagicAbility))
 	{
-		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), WhiteMagicAbility);
+		const bool bWhiteMagicActivated = PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), WhiteMagicAbility);
+		if(bWhiteMagicActivated) // Our WhiteMagic Ability is activated now
+		{
+			//Get Cooldown of this ability
+			UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
+			if(Ability_Base)
+			{
+				UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+				if(AbilityData)
+				{
+					const FString ContextString;
+					const float Cooldown = AbilityData->CoolDownRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString);
+
+					// Create a Timer Component which linearly interpolates b/w Start and End float value
+					UCountess_Timer_Component* TimerComponent = NewObject<UCountess_Timer_Component>(this, UCountess_Timer_Component::StaticClass());
+					if (TimerComponent)
+					{
+						TimerComponent->RegisterComponent();
+						TimerComponent->CountessTimerDelegate.AddDynamic(this, &ACountess_PlayerController::SetWMagicAbilityCooldown);
+						TimerComponent->StartLerp(0, Cooldown);
+					}
+				}
+			}
+
+		}
 	}
+}
+
+void ACountess_PlayerController::SetWMagicAbilityCooldown(float StartValue, float EndValue, float LerpedValue)
+{
+	const float PercentageRemaining = 1 - (LerpedValue) / (EndValue - StartValue);
+
+	//UE_LOG(Countess_Log, Warning, TEXT("From %s. Cooldown Percentage is %f"), TEXT(__FUNCTION__), PercentageRemaining);
+
+	if (Countess_HUD->Get_Countess_HUDWidget())
+		Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityCooldownPercentage(PercentageRemaining);
 }
 
 void ACountess_PlayerController::BeginPlay()

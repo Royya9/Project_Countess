@@ -59,9 +59,12 @@ public:
 	//Generic function to activate Slotted WMagic Ability.
 	void ActivateWMagicAbility();
 
+	// Function which registers for CountessTimerComponent and updates CooldownPercentage for this ability
+	UFUNCTION()
+	void SetWMagicAbilityCooldown(float StartValue, float EndValue, float LerpedValue);
+
 	virtual void BeginPlay() override;
-
-
+	
 	void Interact();
 
 	UFUNCTION(BlueprintCallable)
@@ -83,6 +86,7 @@ public:
 	void ShowDamageNumber(float Damage, ACountess_Character_Base* TargetCharacter);
 
 	void ShowTimerBarWidget(const FText& AbilityText, const float Duration);
+
 	//Timers
 
 	FTimerHandle NotifyWidgetDelayHandle;
