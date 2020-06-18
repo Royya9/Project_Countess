@@ -12,6 +12,7 @@ class UCountess_HUD_Widget;
 class UCountess_Notify_Widget;
 class UCountess_SkillAcquired_Widget;
 class UCountess_BMagic_Menu_Widget;
+class UCountess_WMagic_Menu_Widget;
 
 /**
  * 
@@ -36,6 +37,8 @@ public:
 
 	FORCEINLINE UCountess_BMagic_Menu_Widget* Get_Countess_BMagic_Menu_Widget() { return BMagic_Menu_Widget; }
 
+	FORCEINLINE UCountess_WMagic_Menu_Widget* Get_Countess_WMagic_Menu_Widget() { return WMagic_Menu_Widget; }
+
 	/*This creates all necessary widgets. However this function is called from Player Controller which is the master of HUD*/
 	void CreateWidgets(APlayerController* PlayerController, ESlateVisibility Visibility = ESlateVisibility::Visible);
 
@@ -44,6 +47,8 @@ public:
 	bool CreateSkillAcquiredWidget(APlayerController* PlayerController, ESlateVisibility Visibility = ESlateVisibility::Visible);
 
 	bool CreateBMagicMenuWidget(APlayerController* PlayerController, ESlateVisibility Visibility = ESlateVisibility::Visible);
+
+	bool CreateWMagicMenuWidget(APlayerController* PlayerController, ESlateVisibility Visibility = ESlateVisibility::Visible);
 
 private:
 	UPROPERTY()
@@ -58,6 +63,9 @@ private:
 	UPROPERTY()
 	UCountess_BMagic_Menu_Widget* BMagic_Menu_Widget;
 
+	UPROPERTY()
+	UCountess_WMagic_Menu_Widget* WMagic_Menu_Widget;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UCountess_HUD_Widget> Countess_HUD_Widget_Class;
 
@@ -69,5 +77,8 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UCountess_BMagic_Menu_Widget> Countess_BMagic_Menu_Widget_Class;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCountess_WMagic_Menu_Widget> Countess_WMagic_Menu_Widget_Class;
 	
 };

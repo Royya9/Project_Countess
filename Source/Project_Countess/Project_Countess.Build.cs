@@ -11,7 +11,11 @@ public class Project_Countess : ModuleRules
 		PrivatePCHHeaderFile = "Public/Globals/Project_Countess.h";
 
 		PublicDependencyModuleNames.AddRange(new string[] 
-		{ "Core", "CoreUObject", "Engine", "InputCore", "GameplayAbilities", "GameplayTasks", "GameplayTags", "Slate", "SlateCore", "AIModule" });
+			{ "Core", "CoreUObject", "Engine" });
+		
+		PrivateDependencyModuleNames.AddRange(new string[] 
+			{ "InputCore", "GameplayAbilities", "GameplayTasks", "GameplayTags", "Slate", "SlateCore", "AIModule"});
+		
 		CppStandard = CppStandardVersion.Cpp17;
 	}
 }

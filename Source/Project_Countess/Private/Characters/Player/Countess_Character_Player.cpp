@@ -139,6 +139,10 @@ void ACountess_Character_Player::AbilityFailedCallback(const UGameplayAbility* F
 	USoundCue* SoundToPlay = nullptr;
 	for (FGameplayTag& FailTag : FailedTags)
 	{
+		// Do Nothing if player wants to activate the ability while it is already active. For eg., make no sounds when player wants to activate LensAbility when it is already active.
+		if(CountessTags::StatusTagsArray.Contains(FailTag)) 
+			return;
+		
 		//UE_LOG(Countess_Log, Warning, TEXT("From %s. Ability %s failed to activate due to %s"), TEXT(__FUNCTION__), *FailedAbility->GetFName().ToString(), *FailTag.ToString());
 		if (CountessTags::CooldownTagsArray.Contains(FailTag)) // Ability Failed due to cooldown
 		{

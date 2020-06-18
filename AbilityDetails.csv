@@ -13,6 +13,9 @@ FireballAbilityDamage,8,9,10
 ElectroSparkAbilityCooldown,5,4.75,4.5
 ElectroSparkAbilityCost,10,12,14
 ElectroSparkAbilityDamage,15,18,21
+LensAbilityCost,5,6,7
+LensAbilityCooldown,8,8.5,9
+LensAbilityDuration,5,6,7
 StaminaRegenRate,0.1,0.5,1
 HealthRegenRate,0.5,0.75,1
 ManaRegenRate,0.5,0.75,1

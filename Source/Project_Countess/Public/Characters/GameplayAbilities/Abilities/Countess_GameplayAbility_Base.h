@@ -121,4 +121,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | Data", meta = (DisplayName = "Ability Damage Data Table"))
 	FCurveTableRowHandle DamageRowHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilityDetails | Data", meta = (DisplayName = "Ability Duration Data Table"))
+	FCurveTableRowHandle AbilityDurationHandle;
 };

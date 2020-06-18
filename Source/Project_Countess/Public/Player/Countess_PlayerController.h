@@ -12,6 +12,7 @@ class ACountess_PlayerState;
 class ACountess_HUD;
 class UCountess_HUD_Widget;
 class UCountess_BMagic_Menu_Widget;
+class UCountess_WMagic_Menu_Widget;
 class UCountess_GameplayAbility_Base;
 class USoundBase;
 class ICountess_Interface_AbilityDetail;
@@ -44,12 +45,19 @@ public:
 
 	void CloseBMagicMenu();
 
+	void OpenWMagicMenu();
+
+	void CloseWMagicMenu();
+
 	void Ability_BackDash();
 
 	void Ability_Primary();
 
 	//Generic function to activate Slotted BMagic Ability. Will replace specific Ability function calls.
 	void ActivateBMagicAbility();
+
+	//Generic function to activate Slotted WMagic Ability.
+	void ActivateWMagicAbility();
 
 	virtual void BeginPlay() override;
 
@@ -70,9 +78,11 @@ public:
 
 	void Populate_BMagicMenu_Widget(UCountess_BMagic_Menu_Widget* BMagic_Menu_Widget);
 
+	void Populate_WMagicMenu_Widget(UCountess_WMagic_Menu_Widget* WMagic_Menu_Widget);
+
 	void ShowDamageNumber(float Damage, ACountess_Character_Base* TargetCharacter);
 
-
+	void ShowTimerBarWidget(const FText& AbilityText, const float Duration);
 	//Timers
 
 	FTimerHandle NotifyWidgetDelayHandle;
@@ -144,6 +154,7 @@ private:
 	TSubclassOf<UGameplayAbility> BackDashAbility;
 	TSubclassOf<UCountess_GameplayAbility_Base> m_AbilityToAcquire;
 	TSubclassOf<UGameplayAbility> BlackMagicAbility;
+	TSubclassOf<UGameplayAbility> WhiteMagicAbility;
 	TSubclassOf<UGameplayAbility> PrimaryAbility;
 	TSubclassOf<UGameplayAbility> SkillAbility;
 
@@ -171,4 +182,6 @@ private:
 	E_Skill SkillAcquired;
 
 	bool bBlackMagicMenuOpened;
+
+	bool bWhiteMagicMenuOpened;
 };

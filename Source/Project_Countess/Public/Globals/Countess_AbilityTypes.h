@@ -57,6 +57,7 @@ namespace CountessTags
 		inline static const FGameplayTag BackDashAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.BDash"));
 		inline static const FGameplayTag FireballAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Fireball"));
 		inline static const FGameplayTag ElectroSparkAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.ESpark"));
+		inline static const FGameplayTag LensOfTruthAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Lens"));
 		
 	};
 
@@ -69,6 +70,7 @@ namespace CountessTags
 		inline static const FGameplayTag HealthNotFullTag = FGameplayTag::RequestGameplayTag(FName("State.Health.NotFull"));
 		inline static const FGameplayTag ManaNotFullTag = FGameplayTag::RequestGameplayTag(FName("State.Mana.NotFull"));
 		inline static const FGameplayTag StaminaNotFullTag = FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull"));
+		inline static const FGameplayTag LensAbilityOnTag = FGameplayTag::RequestGameplayTag(FName("State.Lens.On"));
 	};
 
 	struct FCooldownTags
@@ -79,6 +81,7 @@ namespace CountessTags
 		inline static const FGameplayTag DoubleJumpAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.DJump.Cooldown"));
 		inline static const FGameplayTag FireballAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Cooldown"));
 		inline static const FGameplayTag ElectroSparkAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Cooldown"));
+		inline static const FGameplayTag LensAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.Lens.Cooldown"));
 	};  
 
 	struct FCostTags
@@ -88,6 +91,7 @@ namespace CountessTags
 		inline static const FGameplayTag DoubleJumpAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.DJump.Cost"));
 		inline static const FGameplayTag FireballAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Cost"));
 		inline static const FGameplayTag ElectroSparkAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Cost"));
+		inline static const FGameplayTag LensAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.Lens.Cost"));
 	};
 
 	struct FEffectTags
@@ -116,6 +120,11 @@ namespace CountessTags
 		{E_BMagic::ElectroSpark, FAbilityTags::ElectroSparkAbilityTag}
 	};
 
+	inline static const TMap<E_WMagic, FGameplayTag> WMagicTag = {
+		{E_WMagic::None, InvalidTag},
+		{E_WMagic::LensOfTruth, FAbilityTags::LensOfTruthAbilityTag}
+	};
+
 	inline static const TMap<E_Skill, FGameplayTag> SkillTag = {
 		{E_Skill::None, InvalidTag},
 		{E_Skill::Jump, FAbilityTags::JumpAbilityTag},
@@ -140,7 +149,8 @@ namespace CountessTags
 		FStatusTags::JumpingTag,
 		FStatusTags::ManaNotFullTag,
 		FStatusTags::StaminaNotFullTag,
-		FStatusTags::StunTag
+		FStatusTags::StunTag,
+		FStatusTags::LensAbilityOnTag
 	};
 
 	inline static const TArray<FGameplayTag> CooldownTagsArray = {
@@ -149,7 +159,8 @@ namespace CountessTags
 		FCooldownTags::ElectroSparkAbilityCooldownTag,
 		FCooldownTags::FireballAbilityCooldownTag,
 		FCooldownTags::JumpAbilityCooldownTag,
-		FCooldownTags::PrimaryAbilityCooldownTag
+		FCooldownTags::PrimaryAbilityCooldownTag,
+		FCooldownTags::LensAbilityCooldownTag
 	};
 
 	inline static const TArray<FGameplayTag> CostTagsArray = {
@@ -157,7 +168,8 @@ namespace CountessTags
 		FCostTags::DoubleJumpAbilityCostTag,
 		FCostTags::ElectroSparkAbilityCostTag,
 		FCostTags::FireballAbilityCostTag,
-		FCostTags::JumpAbilityCostTag
+		FCostTags::JumpAbilityCostTag,
+		FCostTags::LensAbilityCostTag
 	};
 
 	inline static const TArray<FGameplayTag> EffectTagsArray = {

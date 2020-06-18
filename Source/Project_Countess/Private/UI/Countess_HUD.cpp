@@ -6,6 +6,7 @@
 #include "UI/Countess_Notify_Widget.h"
 #include "UI/Countess_SkillAcquired_Widget.h"
 #include "UI/Countess_BMagic_Menu_Widget.h"
+#include "UI/Countess_WMagic_Menu_Widget.h"
 
 ACountess_HUD::ACountess_HUD()
 {
@@ -32,6 +33,12 @@ ACountess_HUD::ACountess_HUD()
 	if(Countess_BMagicMenu_Widget_Class_Getter.Succeeded())
 	{
 		Countess_BMagic_Menu_Widget_Class = Countess_BMagicMenu_Widget_Class_Getter.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<UCountess_WMagic_Menu_Widget> Countess_WMagicMenu_Widget_Class_Getter(TEXT("'/Game/MyProjectMain/Widgets/BP_Countess_WMagicMenu_Widget'"));
+	if(Countess_WMagicMenu_Widget_Class_Getter.Succeeded())
+	{
+		Countess_WMagic_Menu_Widget_Class = Countess_WMagicMenu_Widget_Class_Getter.Class;
 	}
 }
 
@@ -78,6 +85,17 @@ bool ACountess_HUD::CreateBMagicMenuWidget(APlayerController* PlayerController, 
 		return true;
 	BMagic_Menu_Widget = CreateWidget<UCountess_BMagic_Menu_Widget>(PlayerController, Countess_BMagic_Menu_Widget_Class);
 	if(BMagic_Menu_Widget)
+		return true;
+
+	return false;
+}
+
+bool ACountess_HUD::CreateWMagicMenuWidget(APlayerController* PlayerController, ESlateVisibility Visibility)
+{
+	if(WMagic_Menu_Widget)
+		return true;
+	WMagic_Menu_Widget = CreateWidget<UCountess_WMagic_Menu_Widget>(PlayerController, Countess_WMagic_Menu_Widget_Class);
+	if(WMagic_Menu_Widget)
 		return true;
 
 	return false;

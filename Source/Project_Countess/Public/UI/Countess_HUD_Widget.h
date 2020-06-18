@@ -85,4 +85,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void PlayAnimOnBMagicSlotted();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void PlayAnimOnWMagicSlotted();
 };
