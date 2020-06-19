@@ -72,6 +72,7 @@ void ACountess_PlayerController::OnPossess(APawn* aPawn)
 			InputComponent->BindAction("Jump", IE_Pressed, this, &ACountess_PlayerController::Ability_Jump);
 			//InputComponent->BindAction("Jump", IE_Released, this, &ACountess_PlayerController::Ability_StopJumping);
 			InputComponent->BindAxis("MoveRight", this, &ACountess_PlayerController::MoveRight);
+			InputComponent->BindAxis("MoveUp", this, &ACountess_PlayerController::MoveUp);
 			InputComponent->BindAction("MenuOps", IE_Pressed, this, &ACountess_PlayerController::MenuOp).bExecuteWhenPaused = true;
 			InputComponent->BindAction("Interact", IE_Pressed, this, &ACountess_PlayerController::Interact);
 			/*InputComponent->BindAction("EndInteract", IE_Pressed, this, &ACountess_PlayerController::EndInteract).bExecuteWhenPaused = true;*/
@@ -108,6 +109,13 @@ void ACountess_PlayerController::MoveRight(float value)
 {
 	if (PlayerCharacter)
 		PlayerCharacter->AddMovementInput(FVector(1.f, 0.f, 0.f), value);
+}
+
+
+void ACountess_PlayerController::MoveUp(float value)
+{
+	if (PlayerCharacter)
+		PlayerCharacter->AddMovementInput(FVector(0.f, 0.f, 1.f), value);
 }
 
 void ACountess_PlayerController::Ability_Jump()
@@ -548,6 +556,18 @@ void ACountess_PlayerController::Populate_WMagicMenu_Widget(UCountess_WMagic_Men
 		}
 	}
 	//Populate Mist
+	if (PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::WMagicTag[E_WMagic::Mist], WhiteMagicAbility))
+	{
+		UCountess_GameplayAbility_Base* WhiteMagicAbilityCDO = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
+		UAbilityData* AbilityData = WhiteMagicAbilityCDO->AbilityData.Get();
+		if (WhiteMagicAbilityCDO && AbilityData)
+		{
+			const FString ContextString;
+			WMagic_Menu_Widget->SetAbilityName(E_WMagic::Mist, AbilityData->Title);
+			WMagic_Menu_Widget->SetAbilityCost(E_WMagic::Mist, AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			WMagic_Menu_Widget->SetAbilityImage(E_WMagic::Mist, AbilityData->AbilityMenuImage);
+		}
+	}
 }
 
 
@@ -718,7 +738,7 @@ void ACountess_PlayerController::MenuOp()
 		if(this->IsInputKeyDown(FKey(FName("Right")))) //Lens of Truth
 		{
 			//UE_LOG(Countess_Log, Warning, TEXT("From %s. Right key was pressed."), TEXT(__FUNCTION__));
-			if(!PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::WMagicTag[E_WMagic::LensOfTruth],WhiteMagicAbility)) // Do Nothing if we don't have Fireball Ability
+			if(!PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::WMagicTag[E_WMagic::LensOfTruth],WhiteMagicAbility)) // Do Nothing if we don't have LensOfTruth Ability
 				return;
 
 			Countess_HUD->Get_Countess_WMagic_Menu_Widget()->SelectedAbility(E_WMagic::LensOfTruth);
@@ -734,7 +754,19 @@ void ACountess_PlayerController::MenuOp()
 		}
 		else if(this->IsInputKeyDown(FKey(FName("Left")))) // Mist
 		{
-			
+			if (!PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::WMagicTag[E_WMagic::Mist], WhiteMagicAbility)) // Do Nothing if we don't have Mist Ability
+				return;
+
+			Countess_HUD->Get_Countess_WMagic_Menu_Widget()->SelectedAbility(E_WMagic::Mist);
+			WMagicSlotted = E_WMagic::Mist;
+			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
+			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			if (AbilityData)
+			{
+				Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityImage(AbilityData->AbilityMenuImage);
+				const FString ContextString;
+				Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			}
 		}
 		else if(this->IsInputKeyDown(FKey(FName("Up")))) //Shield
 		{

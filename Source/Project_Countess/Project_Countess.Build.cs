@@ -14,7 +14,7 @@ public class Project_Countess : ModuleRules
 			{ "Core", "CoreUObject", "Engine" });
 		
 		PrivateDependencyModuleNames.AddRange(new string[] 
-			{ "InputCore", "GameplayAbilities", "GameplayTasks", "GameplayTags", "Slate", "SlateCore", "AIModule"});
+			{ "InputCore", "GameplayAbilities", "GameplayTasks", "GameplayTags", "Slate", "SlateCore", "AIModule", "Niagara"});
 		
 		CppStandard = CppStandardVersion.Cpp17;
 	}

@@ -13,6 +13,8 @@ class USpringArmComponent;
 class UArrowComponent;
 class USoundWave;
 class UParticleSystem;
+class UNiagaraComponent;
+class UNiagaraSystem;
 class ACountess_PlayerState;
 class ACountess_PlayerController;
 class UCountess_AbilitySystemComponent;
@@ -51,6 +53,18 @@ class ACountess_Character_Player : public ACountess_Character_Base
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* ParticleSystemOnLanding;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* MistTransformParticleSystem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
+	UNiagaraSystem* MistOnParticleSystem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* MistParticleSystemComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
+	USoundCue* SoundToPlayOnMist;
+
 	/*Floating Pawn Movement enabled during ElectroSparkVFX*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	UFloatingPawnMovement* FloatingPawnMovement;
@@ -85,6 +99,8 @@ class ACountess_Character_Player : public ACountess_Character_Base
 
 	USoundCue* CostSoundCue;
 
+	FTimerHandle AbilityFailedSoundHandle;
+
 	FGenericTeamId PlayerTeamId;
 
 	UFUNCTION()
@@ -101,8 +117,12 @@ public:
 
 	/*Handled by ElectroSpark Ability*/
 	void ElectroSparkOff();
-	/*Reference to our Countesss PlayerState*/
 
+	void MistAbilityOn();
+
+	void MistAbilityOff();
+
+	/*Reference to our Countesss PlayerState*/
 	ACountess_PlayerState* Countess_PlayerState;
 
 public:
@@ -145,7 +165,7 @@ public:
 	void AbilityFailedCallback(const UGameplayAbility* FailedAbility, const FGameplayTagContainer& TagContainer);
 
 	UFUNCTION()
-	void ClearTimer(FTimerHandle& TimerHandle, bool bSetIsSoundPlaying = true);
+	void ClearAbilityFailedTimer(bool bSetIsSoundPlaying = true);
 
 public:
 	/*VFX*/

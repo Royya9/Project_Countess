@@ -36,6 +36,9 @@ public:
 	/*Bound function to move player right/left */
 	void MoveRight(float value);
 
+	/*Bound function to move player right/left */
+	void MoveUp(float value);
+
 	void MenuOp();
 	
 	/*Bound function to make player jump on button press*/

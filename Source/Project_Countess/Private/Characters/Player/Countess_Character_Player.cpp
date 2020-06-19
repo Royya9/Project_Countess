@@ -13,6 +13,8 @@
 #include "Sound/SoundBase.h"
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystem.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 #include "Components/TimelineComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
@@ -30,9 +32,9 @@ void ACountess_Character_Player::TimeLineProgress(float Value)
 }
 
 
-void ACountess_Character_Player::ClearTimer(FTimerHandle& TimerHandle, bool bSetIsSoundPlaying /*= true*/)
+void ACountess_Character_Player::ClearAbilityFailedTimer(bool bSetIsSoundPlaying /*= true*/)
 {
-	GetWorldTimerManager().ClearTimer(TimerHandle);
+	GetWorldTimerManager().ClearTimer(AbilityFailedSoundHandle);
 	bIsSoundPlaying = bSetIsSoundPlaying;
 }
 
@@ -73,6 +75,49 @@ void ACountess_Character_Player::ElectroSparkOff()
 	Countess_PlayerController->EnableInput(Countess_PlayerController);
 	FloatingPawnMovement->Deactivate();
 	GetCharacterMovement()->Activate();
+}
+
+
+void ACountess_Character_Player::MistAbilityOn()
+{
+	FloatingPawnMovement->Activate();
+	GetCharacterMovement()->Deactivate();
+
+	GetMesh()->SetVisibility(false);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (MistTransformParticleSystem)
+		UGameplayStatics::SpawnEmitterAttached(MistTransformParticleSystem, RootComponent);
+
+// 	if (SoundToPlayOnMist)
+// 		UGameplayStatics::PlaySound2D(this, SoundToPlayOnMist, 3.f);
+
+	MistParticleSystemComponent = NewObject<UNiagaraComponent>(this, UNiagaraComponent::StaticClass());
+	if (MistParticleSystemComponent)
+	{
+		MistParticleSystemComponent->RegisterComponent();
+		MistParticleSystemComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+		if (MistOnParticleSystem)
+			MistParticleSystemComponent->SetAsset(MistOnParticleSystem);
+		MistParticleSystemComponent->Activate();
+	}
+}
+
+
+void ACountess_Character_Player::MistAbilityOff()
+{
+	if (MistParticleSystemComponent)
+	{
+		MistParticleSystemComponent->Deactivate();
+		MistParticleSystemComponent->DestroyComponent();
+	}
+	if (MistTransformParticleSystem)
+		UGameplayStatics::SpawnEmitterAttached(MistTransformParticleSystem, RootComponent);
+
+	FloatingPawnMovement->Deactivate();
+	GetCharacterMovement()->Activate();
+	GetMesh()->SetVisibility(true);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 bool ACountess_Character_Player::GiveAbilityOnOverlap_Implementation(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGive)
@@ -160,11 +205,10 @@ void ACountess_Character_Player::AbilityFailedCallback(const UGameplayAbility* F
 	{
 		UGameplayStatics::PlaySound2D(this, SoundToPlay);
 		bIsSoundPlaying = true;
-		FTimerHandle SoundToPlayHandle;
 		// Delegate to function which clears this TimerHandle and also sets bIsSoundPlaying to false
 		FTimerDelegate SoundToPlayTimerDelegate;
-		SoundToPlayTimerDelegate.BindUFunction(this, FName("ClearTimer"), SoundToPlayHandle, false);
-		GetWorldTimerManager().SetTimer(SoundToPlayHandle, SoundToPlayTimerDelegate, SoundToPlay->GetDuration(), false);
+		SoundToPlayTimerDelegate.BindUFunction(this, FName("ClearAbilityFailedTimer"), false);
+		GetWorldTimerManager().SetTimer(AbilityFailedSoundHandle, SoundToPlayTimerDelegate, SoundToPlay->GetDuration(), false);
 	}
 }
 
@@ -262,11 +306,23 @@ ACountess_Character_Player::ACountess_Character_Player()
 	static ConstructorHelpers::FObjectFinder<USoundWave> SoundToPlayOnLandingObject(TEXT("SoundWave'/Game/ParagonCountess/Characters/Heroes/Vamp/Sounds/SoundWaves/Countess_Effort_Land_03.Countess_Effort_Land_03'"));
 	if (SoundToPlayOnLandingObject.Succeeded())
 		SoundToPlayOnLanding = SoundToPlayOnLandingObject.Object;
-
+	
 	//Load ParticleSystem
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleSystemOnLandingObject(TEXT("ParticleSystem'/Game/InfinityBladeEffects/Effects/FX_Monsters/FX_Monster_Gruntling/Master/P_MasterGrunt_Drag_Dust.P_MasterGrunt_Drag_Dust'"));
 	if (ParticleSystemOnLandingObject.Succeeded())
 		ParticleSystemOnLanding = ParticleSystemOnLandingObject.Object;
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> MistTransformParticleSystemObject(TEXT("ParticleSystem'/Game/MyProjectMain/Particles/P_MistTransform.P_MistTransform'"));
+	if (MistTransformParticleSystemObject.Succeeded())
+		MistTransformParticleSystem = MistTransformParticleSystemObject.Object;
+
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> MistOnParticleSystemObject(TEXT("NiagaraSystem'/Game/MyProjectMain/Particles/P_NS_Smoke.P_NS_Smoke'"));
+	if (MistOnParticleSystemObject.Succeeded())
+		MistOnParticleSystem = MistOnParticleSystemObject.Object;
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> SoundToPlayOnMistObject(TEXT("SoundCue'/Game/MyProjectMain/Audio/WMagic_MistActive_Cue.WMagic_MistActive_Cue'"));
+	if (SoundToPlayOnMistObject.Succeeded())
+		SoundToPlayOnMist = SoundToPlayOnMistObject.Object;
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> AnimMontageToPlayOnGameBeginObject(TEXT("AnimMontage'/Game/MyProjectMain/Animations/LevelStart_Montage.LevelStart_Montage'"));
 	if(AnimMontageToPlayOnGameBeginObject.Succeeded())
