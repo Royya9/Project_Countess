@@ -193,8 +193,8 @@ void ACountess_PlayerController::ActivateWMagicAbility()
 
 void ACountess_PlayerController::SetWMagicAbilityCooldown(float StartValue, float EndValue, float LerpedValue)
 {
-	const float PercentageRemaining = 1 - (LerpedValue) / (EndValue - StartValue);
-
+	//const float PercentageRemaining = 1 - (LerpedValue) / (EndValue - StartValue);
+	const float PercentageRemaining = 1 - LerpedValue;
 	//UE_LOG(Countess_Log, Warning, TEXT("From %s. Cooldown Percentage is %f"), TEXT(__FUNCTION__), PercentageRemaining);
 
 	if (Countess_HUD->Get_Countess_HUDWidget())
@@ -315,7 +315,10 @@ bool ACountess_PlayerController::Handle_Acquire_Ability_OnOverlap(TSubclassOf<UC
 	bAbilityAcquired = false;
 	if (Countess_HUD->CreateNotifyWidget(this))
 	{
-		Countess_HUD->Get_Countess_Notify_Widget()->AddToViewport();
+		if (Countess_HUD->Get_Countess_Notify_Widget())
+			if (!Countess_HUD->Get_Countess_Notify_Widget()->IsInViewport())
+				Countess_HUD->Get_Countess_Notify_Widget()->AddToViewport();
+
 		UGameplayStatics::PlaySound2D(this, NotifyWidgetOpenSound, 3.f);
 		m_AbilityToAcquire = AbilityToAcquire;
 		UCountess_GameplayAbility_Base* AbilityToAcquireCDO = Cast<UCountess_GameplayAbility_Base>(AbilityToAcquire->GetDefaultObject(false));

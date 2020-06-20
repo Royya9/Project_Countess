@@ -40,6 +40,6 @@ private:
 	float VignetteIntensity;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float FieldOfView;
+	float BlurAmount;
 	
 };

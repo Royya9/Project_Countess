@@ -28,6 +28,7 @@ void UCountess_Timer_Component::StartLerp(const float StartValue, const float En
 void UCountess_Timer_Component::DestroyCountessTimerComponent()
 {
 	GetWorld()->GetTimerManager().ClearTimer(CountessTimerComponentHandle);
+	CountessTimerDelegate.RemoveAll(this);
 	this->DestroyComponent();
 	//UE_LOG(Countess_Log, Warning, TEXT("From %s: Destroyed %s."), TEXT(__FUNCTION__), *this->GetFName().ToString());
 }
@@ -50,7 +51,7 @@ void UCountess_Timer_Component::TickComponent(float DeltaTime, ELevelTick TickTy
 	{
 		LerpedValue += LerpStartValue + DeltaTime;
 		LerpedValue = FMath::Clamp<float>(LerpedValue, LerpStartValue, LerpEndValue);
-		CountessTimerDelegate.Broadcast(LerpStartValue, LerpEndValue, LerpedValue);
+		CountessTimerDelegate.Broadcast(LerpStartValue, LerpEndValue, (LerpedValue - LerpStartValue) / (LerpEndValue - LerpStartValue));
 		if (LerpedValue == LerpEndValue)
 		{
 			GetWorld()->GetTimerManager().SetTimer(CountessTimerComponentHandle, CountessTimerComponentDestroyDelegate, ComponentDestroyDelay, false);

@@ -4,6 +4,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Player/Countess_PlayerState.h"
@@ -81,17 +82,30 @@ void ACountess_Character_Player::ElectroSparkOff()
 void ACountess_Character_Player::MistAbilityOn()
 {
 	FloatingPawnMovement->Activate();
+	FloatingPawnMovement->MaxSpeed = 300.f;
 	GetCharacterMovement()->Deactivate();
 
 	GetMesh()->SetVisibility(false);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCapsuleHalfHeight(48.f); // Reduce our collision capsule size to half (original is 96.f)
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel2); // New Collision Object Type is "Mist".
 
 	if (MistTransformParticleSystem)
-		UGameplayStatics::SpawnEmitterAttached(MistTransformParticleSystem, RootComponent);
+		UGameplayStatics::SpawnEmitterAttached(MistTransformParticleSystem, RootComponent, NAME_None, FVector(ForceInit), FRotator::ZeroRotator, FVector(0.5f));
 
-// 	if (SoundToPlayOnMist)
-// 		UGameplayStatics::PlaySound2D(this, SoundToPlayOnMist, 3.f);
+	// Mist Active SFX
+	if (SoundToPlayOnMist)
+	{
+		AudioComponent = NewObject<UAudioComponent>(this, UAudioComponent::StaticClass());
+		if (AudioComponent)
+		{
+			AudioComponent->RegisterComponent();
+			AudioComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			AudioComponent->SetSound(SoundToPlayOnMist);
+			AudioComponent->Activate();
+		}
+	}
 
+	// Mist Active VFX
 	MistParticleSystemComponent = NewObject<UNiagaraComponent>(this, UNiagaraComponent::StaticClass());
 	if (MistParticleSystemComponent)
 	{
@@ -106,18 +120,38 @@ void ACountess_Character_Player::MistAbilityOn()
 
 void ACountess_Character_Player::MistAbilityOff()
 {
+	//Fade SFX and destroy AudioComponent and VFX Component onAudioFinish
+	if (AudioComponent)
+	{
+		AudioComponent->FadeOut(1.2f, 0.f); // Fade Out in 1.2 seconds
+		AudioComponent->OnAudioFinished.AddDynamic(this, &ACountess_Character_Player::AudioFinished); // And destroy audio component here after fading out
+	}
+
+	if (MistTransformParticleSystem)
+		UGameplayStatics::SpawnEmitterAttached(MistTransformParticleSystem, RootComponent, NAME_None, FVector(ForceInit), FRotator::ZeroRotator, FVector(0.5f));
+
+	FloatingPawnMovement->Deactivate();
+	GetCharacterMovement()->Activate();
+	GetMesh()->SetVisibility(true);
+	GetCapsuleComponent()->SetCapsuleHalfHeight(96.f); // Restore our collision capsule size
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn); // Restore our CollisionType to Pawn from Mist (ECC_GameTraceChannel2). Channel1 is BlackMagic
+}
+
+
+void ACountess_Character_Player::AudioFinished()
+{
+	//Stop SFX
+	if (AudioComponent)
+	{
+		AudioComponent->Deactivate();
+		AudioComponent->DestroyComponent();
+	}
+	//Stop VFX
 	if (MistParticleSystemComponent)
 	{
 		MistParticleSystemComponent->Deactivate();
 		MistParticleSystemComponent->DestroyComponent();
 	}
-	if (MistTransformParticleSystem)
-		UGameplayStatics::SpawnEmitterAttached(MistTransformParticleSystem, RootComponent);
-
-	FloatingPawnMovement->Deactivate();
-	GetCharacterMovement()->Activate();
-	GetMesh()->SetVisibility(true);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 bool ACountess_Character_Player::GiveAbilityOnOverlap_Implementation(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToGive)
@@ -232,7 +266,7 @@ ACountess_Character_Player::ACountess_Character_Player()
 	PrimaryActorTick.bCanEverTick = true;
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore); // Ignore BlackMagic (ie stop colliding with our fireballs :D)
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 

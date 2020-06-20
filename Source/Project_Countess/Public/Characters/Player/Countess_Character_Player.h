@@ -24,6 +24,7 @@ class UCurveFloat;
 class UFloatingPawnMovement;
 class UAnimMontage;
 class UCapsuleComponent;
+class UAudioComponent;
 class USoundCue;
 
 UCLASS(config=Game)
@@ -64,6 +65,9 @@ class ACountess_Character_Player : public ACountess_Character_Base
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
 	USoundCue* SoundToPlayOnMist;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VFX, meta = (AllowPrivateAccess = "true"))
+	UAudioComponent* AudioComponent;
 
 	/*Floating Pawn Movement enabled during ElectroSparkVFX*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
@@ -121,6 +125,9 @@ public:
 	void MistAbilityOn();
 
 	void MistAbilityOff();
+
+	UFUNCTION()
+	void AudioFinished();
 
 	/*Reference to our Countesss PlayerState*/
 	ACountess_PlayerState* Countess_PlayerState;

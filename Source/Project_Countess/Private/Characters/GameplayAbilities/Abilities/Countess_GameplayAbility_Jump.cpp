@@ -18,6 +18,7 @@ UCountess_GameplayAbility_Jump::UCountess_GameplayAbility_Jump()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
+	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::MistAbilityOnTag);
 
 	AbilityTags.AddTag(CountessTags::FAbilityTags::JumpAbilityTag);
 

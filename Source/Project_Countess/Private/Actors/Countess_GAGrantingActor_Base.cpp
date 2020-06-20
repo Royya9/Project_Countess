@@ -75,4 +75,5 @@ void ACountess_GAGrantingActor_Base::BeginPlay()
 	Super::BeginPlay();
 	GetBoxComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACountess_GAGrantingActor_Base::BeginOverlap);
 	GetBoxComponent()->OnComponentEndOverlap.AddDynamic(this, &ACountess_GAGrantingActor_Base::EndOverlap);
+	GetBoxComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECollisionResponse::ECR_Overlap); // Don't Block Mist. 
 }

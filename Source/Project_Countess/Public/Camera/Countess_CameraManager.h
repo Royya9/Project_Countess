@@ -28,10 +28,17 @@ public:
 
     void ResetVignetteAndFOV();
 
+    void SetVignetteAndBlur(const float& NewVignette, const float& NewBlur, const float& StartTime, const float& EndTime);
+
+    void ResetVignetteAndBlur(const float& StartTime, const float& EndTime);
+
     UCameraComponent* GetPlayerCameraComponentFromViewTarget();
 
     UFUNCTION()
     void TimelineProgress(float Value);
+
+    UFUNCTION()
+    void CountessTimerProgress(float StartTime, float EndTime, float LerpValue);
 
     FTimeline CameraZoomTimeline;
 
@@ -46,4 +53,8 @@ private:
     float CameraOldVignette;
 
     float CameraNewVignette;
+
+    float CameraOldBlur;
+
+    float CameraNewBlur;
 };

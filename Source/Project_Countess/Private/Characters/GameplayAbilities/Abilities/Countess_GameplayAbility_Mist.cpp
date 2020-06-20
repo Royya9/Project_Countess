@@ -10,6 +10,7 @@
 #include "Player/Countess_PlayerController.h"
 #include "Player/Countess_PlayerState.h"
 #include "Characters/Player/Countess_Character_Player.h"
+#include "Camera/Countess_CameraManager.h"
 
 UCountess_GameplayAbility_Mist::UCountess_GameplayAbility_Mist()
 {
@@ -36,6 +37,9 @@ UCountess_GameplayAbility_Mist::UCountess_GameplayAbility_Mist()
 
 	CostGameplayEffectClass = UCountess_GE_Mist_Cost::StaticClass();
 	CooldownGameplayEffectClass = UCountess_GE_Mist_CoolDown::StaticClass();
+
+	VignetteIntensity = 1.f;
+	BlurAmount = 30.f;
 }
 
 void UCountess_GameplayAbility_Mist::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -73,11 +77,11 @@ void UCountess_GameplayAbility_Mist::ActivateAbility(const FGameplayAbilitySpecH
 			const FString ContextString;
 			const float Duration = AbilityData.Get()->AbilityDurationHandle.Eval(Countess_PlayerState->GetPlayerLevel(), ContextString);
 			Countess_PlayerController->ShowTimerBarWidget(AbilityText, Duration);
-// 			ACountess_CameraManager* Countess_CameraManager = Cast<ACountess_CameraManager>(Countess_PlayerController->PlayerCameraManager);
-// 			if (Countess_CameraManager)
-// 			{
-// 				Countess_CameraManager->SetVignetteAndFOV(VignetteIntensity, FieldOfView);
-// 			}
+			ACountess_CameraManager* Countess_CameraManager = Cast<ACountess_CameraManager>(Countess_PlayerController->PlayerCameraManager);
+			if (Countess_CameraManager)
+			{
+				Countess_CameraManager->SetVignetteAndBlur(VignetteIntensity, BlurAmount, 0, 0.15f);
+			}
 
 			FTimerDelegate MistAbilityTimerDelegate = FTimerDelegate::CreateUObject(this, &UCountess_GameplayAbility_Mist::OnMistAbilityDurationCompleted);
 			GetWorld()->GetTimerManager().SetTimer(MistAbilityTimerHandle, MistAbilityTimerDelegate, Duration, false);
@@ -88,6 +92,20 @@ void UCountess_GameplayAbility_Mist::ActivateAbility(const FGameplayAbilitySpecH
 void UCountess_GameplayAbility_Mist::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
 {
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+
+	// Play Ability Sound
+	if (SoundToPlay.Get())
+		UGameplayStatics::PlaySound2D(this, SoundToPlay.Get(), 3.f);
+
+	ACountess_PlayerController* Countess_PlayerController = Cast<ACountess_PlayerController>(ActorInfo->PlayerController.Get());
+	if (Countess_PlayerController)
+	{
+		ACountess_CameraManager* Countess_CameraManager = Cast<ACountess_CameraManager>(Countess_PlayerController->PlayerCameraManager);
+		if (Countess_CameraManager)
+		{
+			Countess_CameraManager->ResetVignetteAndBlur(0, 0.15f);
+		}
+	}
 
 	ACountess_Character_Player* Countess_PlayerCharacter = Cast<ACountess_Character_Player>(ActorInfo->AvatarActor.Get());
 	if (Countess_PlayerCharacter)
@@ -101,6 +119,20 @@ void UCountess_GameplayAbility_Mist::CancelAbility(const FGameplayAbilitySpecHan
 void UCountess_GameplayAbility_Mist::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	// Play Ability Sound
+	if (SoundToPlay.Get())
+		UGameplayStatics::PlaySound2D(this, SoundToPlay.Get(), 3.f);
+
+	ACountess_PlayerController* Countess_PlayerController = Cast<ACountess_PlayerController>(ActorInfo->PlayerController.Get());
+	if (Countess_PlayerController)
+	{
+		ACountess_CameraManager* Countess_CameraManager = Cast<ACountess_CameraManager>(Countess_PlayerController->PlayerCameraManager);
+		if (Countess_CameraManager)
+		{
+			Countess_CameraManager->ResetVignetteAndBlur(0, 0.15f);
+		}
+	}
 
 	ACountess_Character_Player* Countess_PlayerCharacter = Cast<ACountess_Character_Player>(ActorInfo->AvatarActor.Get());
 	if (Countess_PlayerCharacter)
