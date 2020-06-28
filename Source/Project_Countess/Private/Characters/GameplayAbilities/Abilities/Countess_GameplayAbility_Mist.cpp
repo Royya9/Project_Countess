@@ -23,7 +23,7 @@ UCountess_GameplayAbility_Mist::UCountess_GameplayAbility_Mist()
 	if (SoundToPlayObject.Succeeded())
 		SoundToPlay = SoundToPlayObject.Object;
 	else
-		UE_LOG(Countess_Log, Error, TEXT("Lens Sound is not found in %s. Check if it is moved."), TEXT(__FUNCTION__));
+		UE_LOG(Countess_Log, Error, TEXT("Mist Sound is not found in %s. Check if it is moved."), TEXT(__FUNCTION__));
 
 	/*Find AbilityData from our Content Folder that describe this Ability as Class and get CDO from it*/
 	static ConstructorHelpers::FClassFinder<UAbilityData> AbilityDataObject(TEXT("'/Game/MyProjectMain/Blueprints/Characters/Abilities/MistAbility/BP_AbilityData_Mist'"));

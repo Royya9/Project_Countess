@@ -3,6 +3,7 @@
 
 #include "Components/Countess_Timer_Component.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 UCountess_Timer_Component::UCountess_Timer_Component()
@@ -49,12 +50,12 @@ void UCountess_Timer_Component::TickComponent(float DeltaTime, ELevelTick TickTy
 	// ...
 	if (bStartLerp)
 	{
-		LerpedValue += LerpStartValue + DeltaTime;
+		LerpedValue += LerpStartValue + DeltaTime / (UGameplayStatics::GetGlobalTimeDilation(this));
 		LerpedValue = FMath::Clamp<float>(LerpedValue, LerpStartValue, LerpEndValue);
 		CountessTimerDelegate.Broadcast(LerpStartValue, LerpEndValue, (LerpedValue - LerpStartValue) / (LerpEndValue - LerpStartValue));
 		if (LerpedValue == LerpEndValue)
 		{
-			GetWorld()->GetTimerManager().SetTimer(CountessTimerComponentHandle, CountessTimerComponentDestroyDelegate, ComponentDestroyDelay, false);
+			GetWorld()->GetTimerManager().SetTimer(CountessTimerComponentHandle, CountessTimerComponentDestroyDelegate, ComponentDestroyDelay * (UGameplayStatics::GetGlobalTimeDilation(this)), false);
 			bStartLerp = false;
 		}
 	}

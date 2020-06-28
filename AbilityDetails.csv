@@ -19,6 +19,9 @@ LensAbilityDuration,5,6,7
 MistAbilityCost,10,11,12
 MistAbilityCooldown,15,16,17
 MistAbilityDuration,8,9,10
+TimeSlowAbilityCost,12,13,14
+TimeSlowAbilityCooldown,10,11,12
+TimeSlowAbilityDuration,10,11,12
 StaminaRegenRate,0.1,0.5,1
 HealthRegenRate,0.5,0.75,1
 ManaRegenRate,0.5,0.75,1
@@ -27,8 +30,8 @@ HealthRegenTickInterval,1,0.75,0.5
 ManaRegenTickInterval,1,0.75,0.5
 Health,24,30,40
 MaxHealth,24,30,40
-Mana,36,50,60
-MaxMana,36,50,60
+Mana,1000,1000,1000
+MaxMana,1000,1000,1000
 Stamina,9,15,20
 MaxStamina,9,15,20
 Armor,0,1,2

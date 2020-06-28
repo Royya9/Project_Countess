@@ -2,6 +2,7 @@
 
 
 #include "Characters/GameplayAbilities/Effects/Countess_GE_DJump_CoolDown.h"
+#include "Characters/GameplayAbilities/Calculations/Countess_CooldownModCalculation.h"
 
 UCountess_GE_DJump_CoolDown::UCountess_GE_DJump_CoolDown()
 {
@@ -9,7 +10,6 @@ UCountess_GE_DJump_CoolDown::UCountess_GE_DJump_CoolDown()
 
 	if (AbilityDetailsTable)
 	{
-
 		FScalableFloat ScalableFloat = FScalableFloat(1.f);
 		FCurveTableRowHandle CurveTableRowHandle;
 
@@ -17,17 +17,15 @@ UCountess_GE_DJump_CoolDown::UCountess_GE_DJump_CoolDown()
 		CurveTableRowHandle.RowName = FName("DoubleJumpAbilityCooldown");
 
 		ScalableFloat.Curve = CurveTableRowHandle;
-
-		DurationMagnitude = FGameplayEffectModifierMagnitude(ScalableFloat);
-
+		FCustomCalculationBasedFloat CustomCalculationBasedFloat;
+		CustomCalculationBasedFloat.CalculationClassMagnitude = UCountess_CooldownModCalculation::StaticClass();
+		CustomCalculationBasedFloat.Coefficient = ScalableFloat;
+		//CustomCalculationBasedFloat.FinalLookupCurve = CurveTableRowHandle;
+		DurationMagnitude = FGameplayEffectModifierMagnitude(CustomCalculationBasedFloat);
 	}
-
-
-
-	//Our Data table not found. So defaulting to a hardcoded value.
-	if (!AbilityDetailsTable)
+	else
 	{
-		//UE_LOG(Countess_Log, Warning, TEXT("AbilityDetails curve table not found in /Game/MyProjectMain/Blueprints/Characters/Abilities/AbilityDetails. Check if it is moved. From %s"), TEXT(__FUNCTION__));
+		//Our Data table not found. So defaulting to a hardcoded value.
 		DurationMagnitude = FGameplayEffectModifierMagnitude(3.f);
 	}
 

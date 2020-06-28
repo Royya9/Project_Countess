@@ -108,16 +108,27 @@ void ACountess_Actor_Fireball::OnOverlap(UPrimitiveComponent* OverlappedComponen
 			{
 				//UE_LOG(Countess_Log, Warning, TEXT("From %s. Hit Actor ASC is %s"), TEXT(__FUNCTION__), *ASC->GetFName().ToString());
 				ASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
-				if (FireballImpactVFX)
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireballImpactVFX, SweepResult.Location);
-				if (FireballImpactSoundCue)
-					UGameplayStatics::PlaySoundAtLocation(this, FireballImpactSoundCue, SweepResult.Location);
-
-				UGameplayStatics::PlayWorldCameraShake(this, UCountess_Fireball_CameraShake::StaticClass(), SweepResult.Location, 0, 1000.f);
-				Destroy();
+				OnFireballImpact(SweepResult.Location);
 			}
 		}
 	}
+}
+
+void ACountess_Actor_Fireball::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (OtherActor)
+		OnFireballImpact(Hit.Location);
+}
+
+void ACountess_Actor_Fireball::OnFireballImpact(const FVector& ImpactLocation)
+{
+	if (FireballImpactVFX)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireballImpactVFX, ImpactLocation);
+	if (FireballImpactSoundCue)
+		UGameplayStatics::PlaySoundAtLocation(this, FireballImpactSoundCue, ImpactLocation);
+
+	UGameplayStatics::PlayWorldCameraShake(this, UCountess_Fireball_CameraShake::StaticClass(), ImpactLocation, 0, 1000.f);
+	Destroy();
 }
 
 // Called when the game starts or when spawned
@@ -125,6 +136,7 @@ void ACountess_Actor_Fireball::BeginPlay()
 {
 	Super::BeginPlay();
 	FireballCollision->OnComponentBeginOverlap.AddDynamic(this, &ACountess_Actor_Fireball::OnOverlap);
+	FireballCollision->OnComponentHit.AddDynamic(this, &ACountess_Actor_Fireball::OnHit);
 	SetLifeSpan(Range / FireballProjectileMovementComponent->InitialSpeed);
 }
 

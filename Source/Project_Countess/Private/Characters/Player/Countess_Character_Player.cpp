@@ -213,7 +213,6 @@ void ACountess_Character_Player::AbilityFailedCallback(const UGameplayAbility* F
 
 	TArray<FGameplayTag> FailedTags;
 	TagContainer.GetGameplayTagArray(FailedTags);
-	//UE_LOG(Countess_Log, Warning, TEXT("From %s. Ability %s failed to activate. Failed Tags size = %d"), TEXT(__FUNCTION__), *FailedAbility->GetFName().ToString(), FailedTags.Num());
 
 	USoundCue* SoundToPlay = nullptr;
 	for (FGameplayTag& FailTag : FailedTags)

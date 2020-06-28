@@ -1,10 +1,10 @@
 // Free to play. By SoNa Games.
 
 
-#include "Characters/GameplayAbilities/Effects/Countess_GE_ESpark_CoolDown.h"
+#include "Characters/GameplayAbilities/Effects/Countess_GE_TimeSlow_CoolDown.h"
 #include "Characters/GameplayAbilities/Calculations/Countess_CooldownModCalculation.h"
 
-UCountess_GE_ESpark_CoolDown::UCountess_GE_ESpark_CoolDown()
+UCountess_GE_TimeSlow_CoolDown::UCountess_GE_TimeSlow_CoolDown()
 {
 	DurationPolicy = EGameplayEffectDurationType::HasDuration;
 
@@ -14,7 +14,7 @@ UCountess_GE_ESpark_CoolDown::UCountess_GE_ESpark_CoolDown()
 		FCurveTableRowHandle CurveTableRowHandle;
 
 		CurveTableRowHandle.CurveTable = AbilityDetailsTable;
-		CurveTableRowHandle.RowName = FName("ElectroSparkAbilityCooldown");
+		CurveTableRowHandle.RowName = FName("TimeSlowAbilityCooldown");
 
 		ScalableFloat.Curve = CurveTableRowHandle;
 		FCustomCalculationBasedFloat CustomCalculationBasedFloat;
@@ -29,6 +29,6 @@ UCountess_GE_ESpark_CoolDown::UCountess_GE_ESpark_CoolDown()
 		DurationMagnitude = FGameplayEffectModifierMagnitude(3.f);
 	}
 
-	InheritableOwnedTagsContainer.AddTag(CountessTags::FCooldownTags::ElectroSparkAbilityCooldownTag);
-	InheritableGameplayEffectTags.AddTag(CountessTags::FCooldownTags::ElectroSparkAbilityCooldownTag);
+	InheritableOwnedTagsContainer.AddTag(CountessTags::FCooldownTags::TimeSlowAbilityCooldownTag);
+	InheritableGameplayEffectTags.AddTag(CountessTags::FCooldownTags::TimeSlowAbilityCooldownTag);
 }

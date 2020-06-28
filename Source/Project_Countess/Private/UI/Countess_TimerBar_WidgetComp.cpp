@@ -4,6 +4,7 @@
 #include "UI/Countess_TimerBar_WidgetComp.h"
 #include "UI/Countess_TimerBar_Widget.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 
 UCountess_TimerBar_WidgetComp::UCountess_TimerBar_WidgetComp()
 {
@@ -30,7 +31,7 @@ void UCountess_TimerBar_WidgetComp::SetAbilityTextAndDuration_Implementation(con
         TimerBar_Widget->SetTimerBarDuration(Duration);
     }
     FTimerDelegate TimerBarWidgetDelegate = FTimerDelegate::CreateUObject(this, &UCountess_TimerBar_WidgetComp::DestroyTimerBarWidgetComponent);
-    GetWorld()->GetTimerManager().SetTimer(TimerBarWidgetHandle, TimerBarWidgetDelegate, Duration, false);
+    GetWorld()->GetTimerManager().SetTimer(TimerBarWidgetHandle, TimerBarWidgetDelegate, Duration * (UGameplayStatics::GetGlobalTimeDilation(this)), false);
 }
 
 void UCountess_TimerBar_WidgetComp::DestroyTimerBarWidgetComponent()

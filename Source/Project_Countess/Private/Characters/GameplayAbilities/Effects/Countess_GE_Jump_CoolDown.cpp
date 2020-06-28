@@ -2,21 +2,14 @@
 
 
 #include "Characters/GameplayAbilities/Effects/Countess_GE_Jump_CoolDown.h"
+#include "Characters/GameplayAbilities/Calculations/Countess_CooldownModCalculation.h"
 
 UCountess_GE_Jump_CoolDown::UCountess_GE_Jump_CoolDown()
 {
 	DurationPolicy = EGameplayEffectDurationType::HasDuration;
 
-	if(AbilityDetailsTable)
+	if (AbilityDetailsTable)
 	{
-		//FString ContextString;
-		//FSimpleCurve* myCurve = AbilityDetailsTable->FindSimpleCurve(FName("JumpAbilityCooldown"),ContextString);
-
-		//if(myCurve)
-		//	UE_LOG(LogTemp, Warning, TEXT("curve found"));
-		//float val = myCurve->Eval(0.f);
-		//UE_LOG(LogTemp, Warning, TEXT("key value is %f"), val);
-
 		FScalableFloat ScalableFloat = FScalableFloat(1.f);
 		FCurveTableRowHandle CurveTableRowHandle;
 
@@ -24,18 +17,15 @@ UCountess_GE_Jump_CoolDown::UCountess_GE_Jump_CoolDown()
 		CurveTableRowHandle.RowName = FName("JumpAbilityCooldown");
 
 		ScalableFloat.Curve = CurveTableRowHandle;
-
-		DurationMagnitude = FGameplayEffectModifierMagnitude(ScalableFloat);
-
-		//UE_LOG(Countess_Log, Warning, TEXT("Value reading from curve table in %s is %f"), TEXT(__FUNCTION__), ScalableFloat.GetValueAtLevel(2.f));
+		FCustomCalculationBasedFloat CustomCalculationBasedFloat;
+		CustomCalculationBasedFloat.CalculationClassMagnitude = UCountess_CooldownModCalculation::StaticClass();
+		CustomCalculationBasedFloat.Coefficient = ScalableFloat;
+		//CustomCalculationBasedFloat.FinalLookupCurve = CurveTableRowHandle;
+		DurationMagnitude = FGameplayEffectModifierMagnitude(CustomCalculationBasedFloat);
 	}
-
-	
-
-	//Our Data table not found. So defaulting to a hardcoded value.
-	if(!AbilityDetailsTable)
+	else
 	{
-		//UE_LOG(Countess_Log, Warning, TEXT("AbilityDetails curve table not found in /Game/MyProjectMain/Blueprints/Characters/Abilities/AbilityDetails. Check if it is moved. From %s"), TEXT(__FUNCTION__));
+		//Our Data table not found. So defaulting to a hardcoded value.
 		DurationMagnitude = FGameplayEffectModifierMagnitude(3.f);
 	}
 

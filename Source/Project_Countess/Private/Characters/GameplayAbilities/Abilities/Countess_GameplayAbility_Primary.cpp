@@ -34,6 +34,8 @@ void UCountess_GameplayAbility_Primary::ActivateAbility(const FGameplayAbilitySp
         EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
     }
     CommitAbility(Handle, ActorInfo, ActivationInfo);
+// 	float cooldownduration = this->GetCooldownTimeRemaining(ActorInfo);
+// 	UE_LOG(Countess_Log, Warning, TEXT("From %s. Cooldown remaining is %f"), TEXT(__FUNCTION__), cooldownduration);
 
     ACountess_Character_Base* Character = Cast<ACountess_Character_Base>(ActorInfo->AvatarActor.Get());
 

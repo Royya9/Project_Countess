@@ -169,6 +169,7 @@ void UCountess_GameplayAbility_Fball::OnEventReceived(FGameplayTag EventTag, FGa
 	Fireball->Range = 4500.f;
 	Fireball->DamageEffectSpecHandle = SpecHandle;
 	Fireball->FinishSpawning(ProjectileSpawnTransform);
+	Fireball->CustomTimeDilation = 1 / UGameplayStatics::GetGlobalTimeDilation(this);
 
 	if (SoundToPlay.IsValid(false))
 		UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay.Get(false), ProjectileSpawnTransform.GetLocation());
