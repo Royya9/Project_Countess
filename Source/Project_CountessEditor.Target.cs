@@ -10,5 +10,6 @@ public class Project_CountessEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		ExtraModuleNames.Add("Project_Countess");
+		ExtraModuleNames.Add("EditorUtilities");
 	}
 }
