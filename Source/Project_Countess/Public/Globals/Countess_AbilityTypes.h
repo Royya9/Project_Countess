@@ -59,6 +59,7 @@ namespace CountessTags
 		inline static const FGameplayTag LensOfTruthAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Lens"));
 		inline static const FGameplayTag MistAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Mist"));
 		inline static const FGameplayTag TimeSlowAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.TimeSlow"));
+		inline static const FGameplayTag ShieldAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Shield"));
 	};
 
 	struct FStatusTags
@@ -73,6 +74,8 @@ namespace CountessTags
 		inline static const FGameplayTag LensAbilityOnTag = FGameplayTag::RequestGameplayTag(FName("State.Lens.On"));
 		inline static const FGameplayTag MistAbilityOnTag = FGameplayTag::RequestGameplayTag(FName("State.Mist.On"));
 		inline static const FGameplayTag TimeSlowAbilityOnTag = FGameplayTag::RequestGameplayTag(FName("State.TimeSlow.On"));
+		inline static const FGameplayTag ShieldAbilityOnTag = FGameplayTag::RequestGameplayTag(FName("State.Shield.On"));
+
 	};
 
 	struct FCooldownTags
@@ -86,6 +89,7 @@ namespace CountessTags
 		inline static const FGameplayTag LensAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.Lens.Cooldown"));
 		inline static const FGameplayTag MistAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.Mist.Cooldown"));
 		inline static const FGameplayTag TimeSlowAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.TimeSlow.Cooldown"));
+		inline static const FGameplayTag ShieldAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.Shield.Cooldown"));
 	};  
 
 	struct FCostTags
@@ -98,6 +102,7 @@ namespace CountessTags
 		inline static const FGameplayTag LensAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.Lens.Cost"));
 		inline static const FGameplayTag MistAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.Mist.Cost"));
 		inline static const FGameplayTag TimeSlowAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.TimeSlow.Cost"));
+		inline static const FGameplayTag ShieldAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.Shield.Cost"));
 	};
 
 	struct FEffectTags
@@ -130,7 +135,8 @@ namespace CountessTags
 		{E_WMagic::None, InvalidTag},
 		{E_WMagic::LensOfTruth, FAbilityTags::LensOfTruthAbilityTag},
 		{E_WMagic::Mist, FAbilityTags::MistAbilityTag},
-		{E_WMagic::TimeSlow, FAbilityTags::TimeSlowAbilityTag}
+		{E_WMagic::TimeSlow, FAbilityTags::TimeSlowAbilityTag},
+		{E_WMagic::Shield, FAbilityTags::ShieldAbilityTag}
 	};
 
 	inline static const TMap<E_Skill, FGameplayTag> SkillTag = {
@@ -150,7 +156,8 @@ namespace CountessTags
 		FAbilityTags::RegenAbilityTag,
 		FAbilityTags::LensOfTruthAbilityTag,
 		FAbilityTags::MistAbilityTag,
-		FAbilityTags::TimeSlowAbilityTag
+		FAbilityTags::TimeSlowAbilityTag,
+		FAbilityTags::ShieldAbilityTag
 	};
 	
 	inline static const TArray<FGameplayTag> StatusTagsArray = {
@@ -163,7 +170,8 @@ namespace CountessTags
 		FStatusTags::StunTag,
 		FStatusTags::LensAbilityOnTag,
 		FStatusTags::MistAbilityOnTag,
-		FStatusTags::TimeSlowAbilityOnTag
+		FStatusTags::TimeSlowAbilityOnTag,
+		FStatusTags::ShieldAbilityOnTag
 	};
 
 	inline static const TArray<FGameplayTag> CooldownTagsArray = {
@@ -175,7 +183,8 @@ namespace CountessTags
 		FCooldownTags::PrimaryAbilityCooldownTag,
 		FCooldownTags::LensAbilityCooldownTag,
 		FCooldownTags::MistAbilityCooldownTag,
-		FCooldownTags::TimeSlowAbilityCooldownTag
+		FCooldownTags::TimeSlowAbilityCooldownTag,
+		FCooldownTags::ShieldAbilityCooldownTag
 	};
 
 	inline static const TArray<FGameplayTag> CostTagsArray = {
@@ -186,7 +195,8 @@ namespace CountessTags
 		FCostTags::JumpAbilityCostTag,
 		FCostTags::LensAbilityCostTag,
 		FCostTags::MistAbilityCostTag,
-		FCostTags::TimeSlowAbilityCostTag
+		FCostTags::TimeSlowAbilityCostTag,
+		FCostTags::ShieldAbilityCostTag
 	};
 
 	inline static const TArray<FGameplayTag> EffectTagsArray = {

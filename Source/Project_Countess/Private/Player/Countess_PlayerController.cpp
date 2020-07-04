@@ -589,6 +589,19 @@ void ACountess_PlayerController::Populate_WMagicMenu_Widget(UCountess_WMagic_Men
 			WMagic_Menu_Widget->SetAbilityImage(E_WMagic::TimeSlow, AbilityData->AbilityMenuImage);
 		}
 	}
+	//Populate Shield
+	if (PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::WMagicTag[E_WMagic::Shield], WhiteMagicAbility))
+	{
+		UCountess_GameplayAbility_Base* WhiteMagicAbilityCDO = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
+		UAbilityData* AbilityData = WhiteMagicAbilityCDO->AbilityData.Get();
+		if (WhiteMagicAbilityCDO && AbilityData)
+		{
+			const FString ContextString;
+			WMagic_Menu_Widget->SetAbilityName(E_WMagic::Shield, AbilityData->Title);
+			WMagic_Menu_Widget->SetAbilityCost(E_WMagic::Shield, AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			WMagic_Menu_Widget->SetAbilityImage(E_WMagic::Shield, AbilityData->AbilityMenuImage);
+		}
+	}
 }
 
 
@@ -791,7 +804,19 @@ void ACountess_PlayerController::MenuOp()
 		}
 		else if(this->IsInputKeyDown(FKey(FName("Up")))) //Shield
 		{
-			UE_LOG(Countess_Log, Warning, TEXT("From %s : WhiteMagicMenu. Up key was pressed."), TEXT(__FUNCTION__));
+			if (!PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::WMagicTag[E_WMagic::Shield], WhiteMagicAbility)) // Do Nothing if we don't have Mist Ability
+				return;
+
+			Countess_HUD->Get_Countess_WMagic_Menu_Widget()->SelectedAbility(E_WMagic::Shield);
+			WMagicSlotted = E_WMagic::Shield;
+			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
+			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			if (AbilityData)
+			{
+				Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityImage(AbilityData->AbilityMenuImage);
+				const FString ContextString;
+				Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			}
 		}
 		else if(this->IsInputKeyDown(FKey(FName("Down")))) //TimeSlow
 		{

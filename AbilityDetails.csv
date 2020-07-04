@@ -19,6 +19,10 @@ LensAbilityDuration,5,6,7
 MistAbilityCost,10,11,12
 MistAbilityCooldown,15,16,17
 MistAbilityDuration,8,9,10
+ShieldAbilityCost,10,11,12
+ShieldAbilityCooldown,15,16,17
+ShieldAbilityDuration,8,9,10
+ShieldBonusArmor,100,100,100
 TimeSlowAbilityCost,12,13,14
 TimeSlowAbilityCooldown,10,11,12
 TimeSlowAbilityDuration,10,11,12

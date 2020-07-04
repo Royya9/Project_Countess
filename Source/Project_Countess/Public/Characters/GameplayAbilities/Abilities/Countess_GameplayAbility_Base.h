@@ -12,6 +12,7 @@ class UParticleSystem;
 class UAbilityData;
 class USoundCue;
 class UCurveTable;
+class UNiagaraSystem;
 
 /**
  *  Base class for all our Abilities. Holds important details for each ability such as title, description, icon, cost etc.
@@ -52,6 +53,10 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AbilityDetails, meta = (DisplayName = "Ability Data"))
 	TWeakObjectPtr<UAbilityData> AbilityData;
+
+	/*Niagara particle emitter to spawn when ability is activated*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = VFX)
+	TWeakObjectPtr<UNiagaraSystem> NiagaraSystemToSpawn;
 };
 
 UENUM(BlueprintType)
