@@ -9,33 +9,21 @@ struct Countess_DamageStatics_ESpark
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(MagicResistance);
 
-	DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageMultiplier);
 
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Damage);
 
-	DECLARE_ATTRIBUTE_CAPTUREDEF(FireballDamage);
-
 	DECLARE_ATTRIBUTE_CAPTUREDEF(ElectroSparkDamage);
-
-	DECLARE_ATTRIBUTE_CAPTUREDEF(Armor);
-
-	DECLARE_ATTRIBUTE_CAPTUREDEF(PrimaryAbilityDamage);
 
 	Countess_DamageStatics_ESpark()
 	{
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, MagicResistance, Target, false); // capture Armor of defender and don't snapshot it (don't capture at the time of Spec creation. we want this value at the time of Spec application) 
 
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, Health, Target, false); // capture Health of defender and don't snapshot it 
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, DamageMultiplier, Source, true); 
 
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, Damage, Source, true);
 
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, FireballDamage, Source, true);
-
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, ElectroSparkDamage, Source, true);
-
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, PrimaryAbilityDamage, Source, true);
-
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UCountess_AttributeSet_Base, Armor, Target, false);
 	}
 };
 
@@ -50,6 +38,7 @@ UCountess_GE_ESpark_Dmg_Execution::UCountess_GE_ESpark_Dmg_Execution()
 	RelevantAttributesToCapture.Add(Countess_Statics_ESpark().MagicResistanceDef);
 	RelevantAttributesToCapture.Add(Countess_Statics_ESpark().ElectroSparkDamageDef);
 	RelevantAttributesToCapture.Add(Countess_Statics_ESpark().DamageDef);
+	RelevantAttributesToCapture.Add(Countess_Statics_ESpark().DamageMultiplierDef);
 }
 
 void UCountess_GE_ESpark_Dmg_Execution::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -74,9 +63,11 @@ void UCountess_GE_ESpark_Dmg_Execution::Execute_Implementation(const FGameplayEf
 	(ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Countess_Statics_ESpark().ElectroSparkDamageDef, EvaluationParameters, ElectroSparkDamage)); // Get Health Snapshot from AttributeSet
 	//UE_LOG(Countess_Log, Warning, TEXT("Captured Health value from %s is %f"), TEXT(__FUNCTION__), Health);
 
+	float DamageMultiplierValue = 1.f;
+	(ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Countess_Statics_ESpark().DamageMultiplierDef, EvaluationParameters, DamageMultiplierValue)); // Get Health Snapshot from AttributeSet
 
 	//float UnMitigatedDamage = Spec.GetModifierMagnitude(0, true); // Getting our Damage from Fireball Damage CurveTable in Countess_GE_Fireball_Damage Effect
-	float UnMitigatedDamage = ElectroSparkDamage;
+	float UnMitigatedDamage = ElectroSparkDamage * DamageMultiplierValue;
 	//UE_LOG(Countess_Log, Warning, TEXT("UnMitigated Damage value from %s is %f"), TEXT(__FUNCTION__), UnMitigatedDamage);
 
 	float MitigatedDamage = UnMitigatedDamage * (1 - (MagicResistance / 100)); // Damage is reduced by Magic Resistance Attribute Percentage

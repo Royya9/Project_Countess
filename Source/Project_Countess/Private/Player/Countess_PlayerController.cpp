@@ -155,7 +155,11 @@ void ACountess_PlayerController::ActivateBMagicAbility()
 	//Get the tag of our slotted ability (can be None) and check whether we did acquire it. If we have it then try to activate it.
 	if(PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[BMagicSlotted], BlackMagicAbility))
 	{
-		PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BlackMagicAbility);
+		const bool bBlackMagicActivated = PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), BlackMagicAbility);
+		if (bBlackMagicActivated)
+		{
+			StartCooldownTimer(BlackMagicAbility, false);
+		}
 	}
 }
 
@@ -172,6 +176,9 @@ void ACountess_PlayerController::ActivateWMagicAbility()
 
 			//ASC->
 
+			StartCooldownTimer(WhiteMagicAbility, true);
+
+/*
 			UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
 			if(Ability_Base)
 			{
@@ -190,8 +197,35 @@ void ACountess_PlayerController::ActivateWMagicAbility()
 						TimerComponent->StartLerp(0, Cooldown);
 					}
 				}
-			}
+			}*/
 
+		}
+	}
+}
+
+
+void ACountess_PlayerController::StartCooldownTimer(TSubclassOf<UGameplayAbility> Ability, bool bIsAbilityWMagic)
+{
+	UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(Ability.GetDefaultObject());
+	if (Ability_Base)
+	{
+		UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+		if (AbilityData)
+		{
+			const FString ContextString;
+			if (!AbilityData->CoolDownRowHandle.IsValid(ContextString))
+				return;
+
+			const float Cooldown = AbilityData->CoolDownRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString);
+
+			// Create a Timer Component which linearly interpolates b/w Start and End float value
+			UCountess_Timer_Component* TimerComponent = NewObject<UCountess_Timer_Component>(this, UCountess_Timer_Component::StaticClass());
+			if (TimerComponent)
+			{
+				TimerComponent->RegisterComponent();
+				TimerComponent->CountessTimerDelegate.AddDynamic(this, bIsAbilityWMagic? &ACountess_PlayerController::SetWMagicAbilityCooldown : &ACountess_PlayerController::SetBMagicAbilityCooldown);
+				TimerComponent->StartLerp(0, Cooldown);
+			}
 		}
 	}
 }
@@ -204,6 +238,14 @@ void ACountess_PlayerController::SetWMagicAbilityCooldown(float StartValue, floa
 
 	if (Countess_HUD->Get_Countess_HUDWidget())
 		Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityCooldownPercentage(PercentageRemaining);
+}
+
+
+void ACountess_PlayerController::SetBMagicAbilityCooldown(float StartValue, float EndValue, float LerpedValue)
+{
+	const float PercentageRemaining = 1 - LerpedValue;
+	if (Countess_HUD->Get_Countess_HUDWidget())
+		Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityCooldownPercentage(PercentageRemaining);
 }
 
 void ACountess_PlayerController::BeginPlay()
@@ -498,7 +540,7 @@ void ACountess_PlayerController::CloseWMagicMenu()
 	if(!Countess_HUD->Get_Countess_HUDWidget()->IsInViewport())
 		Countess_HUD->Get_Countess_HUDWidget()->AddToViewport();
 
-	bWhiteMagicMenuOpened = false;
+	bWhiteMagicMenuOpened = false; 
 	
 	if(BMagicMenuCloseSound)
 		UGameplayStatics::PlaySound2D(this, BMagicMenuCloseSound);
@@ -541,6 +583,20 @@ void ACountess_PlayerController::Populate_BMagicMenu_Widget(UCountess_BMagic_Men
 			BMagic_Menu_Widget->SetAbilityName(E_BMagic::FireBall, AbilityData->Title);
 			BMagic_Menu_Widget->SetAbilityCost(E_BMagic::FireBall, AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
 			BMagic_Menu_Widget->SetAbilityImage(E_BMagic::FireBall, AbilityData->AbilityMenuImage);
+		}
+	}
+
+	//Populate BloodLust
+	if (PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[E_BMagic::BloodLust], BlackMagicAbility))
+	{
+		UCountess_GameplayAbility_Base* BlackMagicAbilityCDO = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
+		UAbilityData* AbilityData = BlackMagicAbilityCDO->AbilityData.Get();
+		if (BlackMagicAbilityCDO && AbilityData)
+		{
+			const FString ContextString;
+			BMagic_Menu_Widget->SetAbilityName(E_BMagic::BloodLust, AbilityData->Title);
+			BMagic_Menu_Widget->SetAbilityCost(E_BMagic::BloodLust, AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			BMagic_Menu_Widget->SetAbilityImage(E_BMagic::BloodLust, AbilityData->AbilityMenuImage);
 		}
 	}
 }
@@ -762,7 +818,20 @@ void ACountess_PlayerController::MenuOp()
 		}
 		else if(this->IsInputKeyDown(FKey(FName("Up")))) //Bloodlust
 		{
-			UE_LOG(Countess_Log, Warning, TEXT("From %s : BlackMagicMenu. Up key was pressed."), TEXT(__FUNCTION__));
+			//UE_LOG(Countess_Log, Warning, TEXT("From %s : BlackMagicMenu. Up key was pressed."), TEXT(__FUNCTION__));
+			if (!PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[E_BMagic::BloodLust], BlackMagicAbility)) // Do Nothing if we don't have ElectroSpark Ability
+				return;
+
+			Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SelectedAbility(E_BMagic::BloodLust);
+			BMagicSlotted = E_BMagic::BloodLust;
+			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
+			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			if (AbilityData)
+			{
+				Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityImage(AbilityData->AbilityMenuImage);
+				const FString ContextString;
+				Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			}
 		}
 		else if(this->IsInputKeyDown(FKey(FName("Down")))) //ArcticBurn
 			UE_LOG(Countess_Log, Warning, TEXT("From %s : BlackMagicMenu. Down key was pressed."), TEXT(__FUNCTION__));

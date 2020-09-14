@@ -84,6 +84,11 @@ public:
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, Damage)
 
+	//Temporary Attribute to calculate Damage
+	UPROPERTY(BlueprintReadOnly, Category = "DamageMultiplier", meta = (HideFromLevelInfos))
+	FGameplayAttributeData DamageMultiplier;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, DamageMultiplier)
+
 	UPROPERTY(BlueprintReadOnly, Category = "FireballDamage")
 	FGameplayAttributeData FireballDamage;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, FireballDamage)

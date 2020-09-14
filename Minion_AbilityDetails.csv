@@ -5,8 +5,8 @@ ManaRegenRate,0,0,0
 StaminaRegenTickInterval,1,0.75,0.5
 HealthRegenTickInterval,1,0.75,0.5
 ManaRegenTickInterval,1,0.75,0.5
-Health,50,60,70
-MaxHealth,50,60,70
+Health,1000,1000,1000
+MaxHealth,1000,1000,1000
 Mana,10,15,20
 MaxMana,10,15,20
 Stamina,20,25,30

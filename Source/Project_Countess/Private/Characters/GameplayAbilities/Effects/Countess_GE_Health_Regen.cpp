@@ -21,6 +21,7 @@ UCountess_GE_Health_Regen::UCountess_GE_Health_Regen()
 		
 
 		//FScalableFloat ScalableFloat = FScalableFloat(Countess_AttributeSet->GetHealthRegenRate());
+/*
 		if (Countess_AttributeSet)
 		{
 			FGameplayModifierInfo ModifierInfo;
@@ -28,6 +29,21 @@ UCountess_GE_Health_Regen::UCountess_GE_Health_Regen()
 			ModifierInfo.ModifierOp = EGameplayModOp::Additive;
 			ModifierInfo.ModifierMagnitude = FGameplayEffectModifierMagnitude(ScalableFloat);
 			//ModifierInfo.SourceTags.IgnoreTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Stamina.NotFull")));
+			Modifiers.Add(ModifierInfo);
+		}*/
+
+		if(Countess_AttributeSet)
+		{
+			FGameplayModifierInfo ModifierInfo;
+			ModifierInfo.Attribute = Countess_AttributeSet->GetHealthAttribute();
+			ModifierInfo.ModifierOp = EGameplayModOp::Additive;
+			FAttributeBasedFloat HealthRegenRateBasedFloat;
+			FGameplayEffectAttributeCaptureDefinition HealthRegenRateCaptureDefinition = FGameplayEffectAttributeCaptureDefinition
+							(Countess_AttributeSet->GetHealthRegenRateAttribute(), EGameplayEffectAttributeCaptureSource::Source, false);
+
+			HealthRegenRateBasedFloat.BackingAttribute = HealthRegenRateCaptureDefinition;
+			UE_LOG(Countess_Log, Warning, TEXT("From %s. HealthRegenRate is %f"), TEXT(__FUNCTION__), Countess_AttributeSet->GetHealthRegenRate());
+			ModifierInfo.ModifierMagnitude = FGameplayEffectModifierMagnitude(HealthRegenRateBasedFloat);
 			Modifiers.Add(ModifierInfo);
 		}
 

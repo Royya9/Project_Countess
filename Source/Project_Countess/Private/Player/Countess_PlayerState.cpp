@@ -48,13 +48,13 @@ void ACountess_PlayerState::BeginPlay()
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaRegenRateAttribute()).AddUObject(this, &ACountess_PlayerState::OnStaminaRegenRateChanged);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetArmorAttribute()).AddUObject(this, &ACountess_PlayerState::OnArmorChanged);
 
-	GiveStartupAbilities();
+	GiveAbilities(StartupAbilities);
 
 	AbilitySystemComponent->AddLooseGameplayTag(CountessTags::FStatusTags::ExpNotFullTag);
 
 }
 
-bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire)
+bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire, bool bIsAbilityRefreshed)
 {
 	if (!AbilitySystemComponent)
 	{
@@ -94,10 +94,13 @@ bool ACountess_PlayerState::AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbilit
 	
 	if(AbilityToAcquireCDO->AbilityData->IsValidLowLevel())
 	{
-		//Broadcasting our acquired ability details to listeners.
-		// #TODO Combine all these details to decrease the number of params getting broadcasted. Turn them to a global struct maybe? 
-		Countess_Ability_Acquired_Delegate.Broadcast(AbilityToAcquire, AbilityToAcquireCDO->AbilityData->AbilityIcon, Duration);
-		//UE_LOG(Countess_Log, Warning, TEXT("Acquired Ability is %s and Description is %s"), *AbilityToAcquire->GetName(), *AbilityToAcquireCDO->AbilityData->Description.ToString());
+		if(!bIsAbilityRefreshed)
+		{
+			//Broadcasting our acquired ability details to listeners.
+			// #TODO Combine all these details to decrease the number of params getting broadcasted. Turn them to a global struct maybe? 
+			Countess_Ability_Acquired_Delegate.Broadcast(AbilityToAcquire, AbilityToAcquireCDO->AbilityData->AbilityIcon, Duration);
+			//UE_LOG(Countess_Log, Warning, TEXT("Acquired Ability is %s and Description is %s"), *AbilityToAcquire->GetName(), *AbilityToAcquireCDO->AbilityData->Description.ToString());
+		}
 	}
 	else
 	{
@@ -117,18 +120,19 @@ void ACountess_PlayerState::SetStartupAbilities(TSubclassOf<UCountess_GameplayAb
 	StartupAbilities.Add(StartupAbility);
 }
 
-void ACountess_PlayerState::GiveStartupAbilities()
+void ACountess_PlayerState::GiveAbilities(const TArray<TSubclassOf<UCountess_GameplayAbility_Base>>& Abilities, bool bRefreshingAbilitiesOnLevelIncrease)
 {
 	check(AbilitySystemComponent);
 
 	if (!bAbilitiesInitialized)
 	{
-		for (auto& StartupAbility : StartupAbilities)
+		for (auto& Ability : Abilities)
 		{
-			if (AcquireAbilitiy(StartupAbility))
+			if (AcquireAbilitiy(Ability, bRefreshingAbilitiesOnLevelIncrease))
 			{
-				UE_LOG(Countess_Log, Warning, TEXT("Activating Startup Ability From %s"), TEXT(__FUNCTION__));
-				AbilitySystemComponent->TryActivateAbilityByClass(StartupAbility);
+				UE_LOG(Countess_Log, Warning, TEXT("Activating Ability From %s"), TEXT(__FUNCTION__));
+				if(StartupAbilities.Contains(Ability))
+					AbilitySystemComponent->TryActivateAbilityByClass(Ability);
 			}
 		}
 
@@ -145,18 +149,20 @@ void ACountess_PlayerState::GiveStartupAbilities()
 	}
 }
 
-void ACountess_PlayerState::RemoveStartupAbilities()
+TArray<TSubclassOf<UCountess_GameplayAbility_Base>> ACountess_PlayerState::RemoveAbilities(bool bOnlyStartup)
 {
 	check(AbilitySystemComponent);
-
+	TArray<TSubclassOf<UCountess_GameplayAbility_Base>> RemovedAbilities;
 	if (bAbilitiesInitialized)
 	{
+		TArray<TSubclassOf<UCountess_GameplayAbility_Base>> Abilities = bOnlyStartup ? StartupAbilities : AcquiredAbilities;
 		TArray<FGameplayAbilitySpecHandle> AbilitiesToRemove;
 		for (const FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
 		{
-			if (Spec.SourceObject == this && StartupAbilities.Contains(Spec.Ability->GetClass()))
+			if (Spec.SourceObject == this && Abilities.Contains(Spec.Ability->GetClass()))
 			{
 				AbilitiesToRemove.Add(Spec.Handle);
+				RemovedAbilities.Add(Spec.Ability->GetClass());
 				AcquiredAbilities.RemoveSingle(Spec.Ability->GetClass());
 			}
 		}
@@ -175,14 +181,8 @@ void ACountess_PlayerState::RemoveStartupAbilities()
 // 		AbilitySystemComponent->RemoveActiveEffects(Query);
  		bAbilitiesInitialized = false;
 	}
+	return RemovedAbilities;
 }
-
-void ACountess_PlayerState::RefreshStartupAbilities()
-{
-	RemoveStartupAbilities();
-	GiveStartupAbilities();
-}
-
 
 void ACountess_PlayerState::PlayerLevelIncreased(int32 NewLevel)
 {
@@ -192,9 +192,9 @@ void ACountess_PlayerState::PlayerLevelIncreased(int32 NewLevel)
 	}
 	else
 	{
-		RemoveStartupAbilities();
+		const TArray<TSubclassOf<UCountess_GameplayAbility_Base>>& RemovedAbilities = RemoveAbilities(false);
 		PlayerLevel = NewLevel;
-		GiveStartupAbilities();
+		GiveAbilities(RemovedAbilities, true);
 	}
 }
 

@@ -62,9 +62,14 @@ public:
 	//Generic function to activate Slotted WMagic Ability.
 	void ActivateWMagicAbility();
 
+	void StartCooldownTimer(TSubclassOf<UGameplayAbility> Ability, bool bIsAbilityWMagic);
+
 	// Function which registers for CountessTimerComponent and updates CooldownPercentage for this ability
 	UFUNCTION()
 	void SetWMagicAbilityCooldown(float StartValue, float EndValue, float LerpedValue);
+
+	UFUNCTION()
+	void SetBMagicAbilityCooldown(float StartValue, float EndValue, float LerpedValue);
 
 	virtual void BeginPlay() override;
 	

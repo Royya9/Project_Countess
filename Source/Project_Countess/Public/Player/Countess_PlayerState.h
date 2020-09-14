@@ -56,7 +56,7 @@ public:
 
 	/*Give this Ability to our PlayerState*/
 	
-	bool AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire);
+	bool AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base> AbilityToAcquire, bool bIsAbilityRefreshed = false);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Broadcast)
 	bool Countess_Interface_AcquireAbilitiy(TSubclassOf<UCountess_GameplayAbility_Base>& AbilityToAcquire);
@@ -73,14 +73,9 @@ public:
 
 	void SetStartupAbilities(TSubclassOf<UCountess_GameplayAbility_Base>& StartupAbility);
 
-	void GiveStartupAbilities();
+	void GiveAbilities(const TArray<TSubclassOf<UCountess_GameplayAbility_Base>>& Abilities, bool bRefreshingAbilitiesOnLevelIncrease = false);
 
-	void RemoveStartupAbilities();
-
-	void RefreshStartupAbilities();
-
-// 	UFUNCTION(BlueprintCallable, Category = "Countess | Test")
-// 	void SetPlayerLevel(int32 NewLevel);
+	TArray<TSubclassOf<UCountess_GameplayAbility_Base>> RemoveAbilities(bool bOnlyStartup = true);
 
 	UFUNCTION()
 	void PlayerLevelIncreased(int32 NewLevel);

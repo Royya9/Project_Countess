@@ -46,6 +46,7 @@ namespace CountessTags
 {
 
 	inline static const FGameplayTag InvalidTag = FGameplayTag::RequestGameplayTag(FName("Invalid"));
+	
 
 	struct FAbilityTags
 	{
@@ -60,6 +61,7 @@ namespace CountessTags
 		inline static const FGameplayTag MistAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Mist"));
 		inline static const FGameplayTag TimeSlowAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.TimeSlow"));
 		inline static const FGameplayTag ShieldAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.Shield"));
+		inline static const FGameplayTag BloodLustAbilityTag = FGameplayTag::RequestGameplayTag(FName("Ability.BloodLust"));
 	};
 
 	struct FStatusTags
@@ -75,6 +77,7 @@ namespace CountessTags
 		inline static const FGameplayTag MistAbilityOnTag = FGameplayTag::RequestGameplayTag(FName("State.Mist.On"));
 		inline static const FGameplayTag TimeSlowAbilityOnTag = FGameplayTag::RequestGameplayTag(FName("State.TimeSlow.On"));
 		inline static const FGameplayTag ShieldAbilityOnTag = FGameplayTag::RequestGameplayTag(FName("State.Shield.On"));
+		inline static const FGameplayTag BloodLustAbilityOnTag = FGameplayTag::RequestGameplayTag(FName("State.BloodLust.On"));
 
 	};
 
@@ -90,6 +93,7 @@ namespace CountessTags
 		inline static const FGameplayTag MistAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.Mist.Cooldown"));
 		inline static const FGameplayTag TimeSlowAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.TimeSlow.Cooldown"));
 		inline static const FGameplayTag ShieldAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.Shield.Cooldown"));
+		inline static const FGameplayTag BloodLustAbilityCooldownTag = FGameplayTag::RequestGameplayTag(FName("Ability.BloodLust.Cooldown"));
 	};  
 
 	struct FCostTags
@@ -103,6 +107,7 @@ namespace CountessTags
 		inline static const FGameplayTag MistAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.Mist.Cost"));
 		inline static const FGameplayTag TimeSlowAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.TimeSlow.Cost"));
 		inline static const FGameplayTag ShieldAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.Shield.Cost"));
+		inline static const FGameplayTag BloodLustAbilityCostTag = FGameplayTag::RequestGameplayTag(FName("Ability.BloodLust.Cost"));
 	};
 
 	struct FEffectTags
@@ -123,12 +128,14 @@ namespace CountessTags
 		inline static const FGameplayTag FireballAbilityDamageTag = FGameplayTag::RequestGameplayTag(FName("Ability.Fireball.Damage"));
 		inline static const FGameplayTag ElectroSparkAbilityDamageTag = FGameplayTag::RequestGameplayTag(FName("Ability.ESpark.Damage"));
 		inline static const FGameplayTag PrimaryAbilityDamageTag = FGameplayTag::RequestGameplayTag(FName("Ability.Primary.Damage"));
+		inline static const FGameplayTag BloodLustAbilityDamageTag = FGameplayTag::RequestGameplayTag(FName("Ability.BloodLust.DamageMul"));
 	};
 
 	inline static const TMap<E_BMagic, FGameplayTag> BMagicTag = {
 		{E_BMagic::None, InvalidTag},
 		{E_BMagic::FireBall, FAbilityTags::FireballAbilityTag},
-		{E_BMagic::ElectroSpark, FAbilityTags::ElectroSparkAbilityTag}
+		{E_BMagic::ElectroSpark, FAbilityTags::ElectroSparkAbilityTag},
+		{E_BMagic::BloodLust, FAbilityTags::BloodLustAbilityTag}
 	};
 
 	inline static const TMap<E_WMagic, FGameplayTag> WMagicTag = {
@@ -157,7 +164,8 @@ namespace CountessTags
 		FAbilityTags::LensOfTruthAbilityTag,
 		FAbilityTags::MistAbilityTag,
 		FAbilityTags::TimeSlowAbilityTag,
-		FAbilityTags::ShieldAbilityTag
+		FAbilityTags::ShieldAbilityTag,
+		FAbilityTags::BloodLustAbilityTag
 	};
 	
 	inline static const TArray<FGameplayTag> StatusTagsArray = {
@@ -171,7 +179,8 @@ namespace CountessTags
 		FStatusTags::LensAbilityOnTag,
 		FStatusTags::MistAbilityOnTag,
 		FStatusTags::TimeSlowAbilityOnTag,
-		FStatusTags::ShieldAbilityOnTag
+		FStatusTags::ShieldAbilityOnTag,
+		FStatusTags::BloodLustAbilityOnTag
 	};
 
 	inline static const TArray<FGameplayTag> CooldownTagsArray = {
@@ -184,7 +193,8 @@ namespace CountessTags
 		FCooldownTags::LensAbilityCooldownTag,
 		FCooldownTags::MistAbilityCooldownTag,
 		FCooldownTags::TimeSlowAbilityCooldownTag,
-		FCooldownTags::ShieldAbilityCooldownTag
+		FCooldownTags::ShieldAbilityCooldownTag,
+		FCooldownTags::BloodLustAbilityCooldownTag
 	};
 
 	inline static const TArray<FGameplayTag> CostTagsArray = {
@@ -196,7 +206,8 @@ namespace CountessTags
 		FCostTags::LensAbilityCostTag,
 		FCostTags::MistAbilityCostTag,
 		FCostTags::TimeSlowAbilityCostTag,
-		FCostTags::ShieldAbilityCostTag
+		FCostTags::ShieldAbilityCostTag,
+		FCostTags::BloodLustAbilityCostTag
 	};
 
 	inline static const TArray<FGameplayTag> EffectTagsArray = {
@@ -213,6 +224,7 @@ namespace CountessTags
 	inline static const TArray<FGameplayTag> DamageTagsArray = {
 		FDamageTags::ElectroSparkAbilityDamageTag,
 		FDamageTags::FireballAbilityDamageTag,
-		FDamageTags::PrimaryAbilityDamageTag
+		FDamageTags::PrimaryAbilityDamageTag,
+		FDamageTags::BloodLustAbilityDamageTag
 	};
 }

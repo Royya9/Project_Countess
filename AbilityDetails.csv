@@ -13,6 +13,11 @@ FireballAbilityDamage,8,9,10
 ElectroSparkAbilityCooldown,5,4.75,4.5
 ElectroSparkAbilityCost,10,12,14
 ElectroSparkAbilityDamage,15,18,21
+BloodLustAbilityHealthCostPercentage,50,45,40
+BloodLustAbilityCooldown,15,15,15
+BloodLustAbilityDuration,15,15,15
+BloodLustAbilityHealthRegenPenaltyPercentage,100,90,80
+BloodLustAbilityBonusDamageMultiplier,1.5,2,2.5
 LensAbilityCost,5,6,7
 LensAbilityCooldown,8,8.5,9
 LensAbilityDuration,5,6,7
@@ -32,8 +37,8 @@ ManaRegenRate,0.5,0.75,1
 StaminaRegenTickInterval,1,0.75,0.5
 HealthRegenTickInterval,1,0.75,0.5
 ManaRegenTickInterval,1,0.75,0.5
-Health,24,30,40
-MaxHealth,24,30,40
+Health,24,30,36
+MaxHealth,24,30,36
 Mana,1000,1000,1000
 MaxMana,1000,1000,1000
 Stamina,9,15,20

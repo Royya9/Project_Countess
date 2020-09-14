@@ -84,6 +84,9 @@ public:
 	void SetWMagicAbilityCooldownPercentage(float Percentage);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetBMagicAbilityCooldownPercentage(float Percentage);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetBMagicAbilityCost(float BMagicAbilityCost);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
