@@ -599,6 +599,20 @@ void ACountess_PlayerController::Populate_BMagicMenu_Widget(UCountess_BMagic_Men
 			BMagic_Menu_Widget->SetAbilityImage(E_BMagic::BloodLust, AbilityData->AbilityMenuImage);
 		}
 	}
+
+	//Populate ArcticBlast
+	if (PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[E_BMagic::ArcticBlast], BlackMagicAbility))
+	{
+		UCountess_GameplayAbility_Base* BlackMagicAbilityCDO = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
+		UAbilityData* AbilityData = BlackMagicAbilityCDO->AbilityData.Get();
+		if (BlackMagicAbilityCDO && AbilityData)
+		{
+			const FString ContextString;
+			BMagic_Menu_Widget->SetAbilityName(E_BMagic::ArcticBlast, AbilityData->Title);
+			BMagic_Menu_Widget->SetAbilityCost(E_BMagic::ArcticBlast, AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			BMagic_Menu_Widget->SetAbilityImage(E_BMagic::ArcticBlast, AbilityData->AbilityMenuImage);
+		}
+	}
 }
 
 void ACountess_PlayerController::Populate_WMagicMenu_Widget(UCountess_WMagic_Menu_Widget* WMagic_Menu_Widget)
@@ -833,8 +847,23 @@ void ACountess_PlayerController::MenuOp()
 				Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
 			}
 		}
-		else if(this->IsInputKeyDown(FKey(FName("Down")))) //ArcticBurn
-			UE_LOG(Countess_Log, Warning, TEXT("From %s : BlackMagicMenu. Down key was pressed."), TEXT(__FUNCTION__));
+		else if(this->IsInputKeyDown(FKey(FName("Down")))) //ArcticBlast
+		{
+			//UE_LOG(Countess_Log, Warning, TEXT("From %s : BlackMagicMenu. Up key was pressed."), TEXT(__FUNCTION__));
+			if (!PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[E_BMagic::ArcticBlast], BlackMagicAbility)) // Do Nothing if we don't have ElectroSpark Ability
+				return;
+
+			Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SelectedAbility(E_BMagic::ArcticBlast);
+			BMagicSlotted = E_BMagic::ArcticBlast;
+			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
+			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			if (AbilityData)
+			{
+				Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityImage(AbilityData->AbilityMenuImage);
+				const FString ContextString;
+				Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+			}
+		}
 	}
 	else if(!bBlackMagicMenuOpened && bWhiteMagicMenuOpened)
 	{

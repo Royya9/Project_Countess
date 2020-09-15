@@ -25,6 +25,7 @@ UCountess_AttributeSet_Base::UCountess_AttributeSet_Base()
 	DamageMultiplier(1.f),
 	FireballDamage(0.f),
 	ElectroSparkDamage(0.f),
+	ArcticBlastDamagePerSec(0.f),
 	PrimaryAbilityDamage(0.f),
 	Exp(0.f),
 	MaxExp(100.f),

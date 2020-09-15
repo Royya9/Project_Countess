@@ -4,21 +4,23 @@
 
 #include "Globals/Project_Countess.h"
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Base.h"
-#include "Countess_GameplayAbility_Blood.generated.h"
+#include "Countess_GameplayAbility_ArcBlas.generated.h"
 
-class UNiagaraComponent;
+class ACountess_Actor_ArcBlast;
+class UAnimMontage;
+class UGameplayEffect;
 
 /**
- *  Our BloodLust Ability. Sacrifices a percentage of current health and health regen rate to gain bonus damage
+ *  Our ArcticBlast Ability. Stuns and damages enemy for some duration
  */
 UCLASS()
-class PROJECT_COUNTESS_API UCountess_GameplayAbility_Blood : public UCountess_GameplayAbility_Base
+class PROJECT_COUNTESS_API UCountess_GameplayAbility_ArcBlas : public UCountess_GameplayAbility_Base
 {
 	GENERATED_BODY()
 
 public:
 
-	UCountess_GameplayAbility_Blood();
+	UCountess_GameplayAbility_ArcBlas();
 
 	/*Overrides*/
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
@@ -31,19 +33,32 @@ public:
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags /* = nullptr */, const FGameplayTagContainer* TargetTags /* = nullptr */, OUT FGameplayTagContainer* OptionalRelevantTags /* = nullptr */) const override;
 
+	TSubclassOf<ACountess_Actor_ArcBlast> ArcticBlastClass;
+
+	UAnimMontage* ArcticBlastAnimMontage;
+
 	UFUNCTION()
-	void OnBloodLustAbilityDurationCompleted();
+	void OnCompleted(FGameplayTag EventTag, FGameplayEventData EventData);
+
+	UFUNCTION()
+	void OnEventReceived(FGameplayTag EventTag, FGameplayEventData EventData);
+
+
+	TSubclassOf<UGameplayEffect> ArcticBlastDamageEffectClass;
+
+/*
+	UFUNCTION()
+	void OnArcticBlastAbilityDurationCompleted();
 
 private:
 
-	/*Effect to be applied when BloodLust Ability is Active*/
+	/ *Effect to be applied when ArcticBlast Ability is Active* /
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UGameplayEffect> BloodLustOnEffectClass;
+	TSubclassOf<UGameplayEffect> ArcticBlastOnEffectClass;
 
-	FActiveGameplayEffectHandle BloodLustAbilityOnEffectHandle;
+	FActiveGameplayEffectHandle ArcticBlastAbilityOnEffectHandle;
 
-	FTimerHandle BloodLustAbilityTimerHandle;
+	FTimerHandle ArcticBlastAbilityTimerHandle;
 
-	UNiagaraComponent* BloodLustNiagaraComponent;
-	
+	UNiagaraComponent* ArcticBlastNiagaraComponent;*/
 };

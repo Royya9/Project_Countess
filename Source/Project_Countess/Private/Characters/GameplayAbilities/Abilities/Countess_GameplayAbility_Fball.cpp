@@ -147,6 +147,9 @@ void UCountess_GameplayAbility_Fball::OnEventReceived(FGameplayTag EventTag, FGa
 	// We received Event.Ability.Fireball.Cast Tag at the correct instant in montage which we setup in
 	// FireballAnimMontage:notify -> AnimBP:make event data & send to actor
 	// We can check for matching that exact tag but we are sending only one tag to actor at the moment. So we can afford to skip this check for now.
+	//if(EventTag != CountessTags::FEventTags::FireballCastEventTag)
+	//	return;
+
 	ACountess_Character_Player* Player = Cast<ACountess_Character_Player>(GetCurrentActorInfo()->AvatarActor.Get());
 	ACountess_PlayerState* Countess_PlayerState = Cast<ACountess_PlayerState>(GetCurrentActorInfo()->OwnerActor.Get());
 	if (!Player || !Countess_PlayerState)

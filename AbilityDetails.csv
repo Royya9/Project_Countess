@@ -18,6 +18,10 @@ BloodLustAbilityCooldown,15,15,15
 BloodLustAbilityDuration,15,15,15
 BloodLustAbilityHealthRegenPenaltyPercentage,100,90,80
 BloodLustAbilityBonusDamageMultiplier,1.5,2,2.5
+ArcticBlastCooldown,20,19,18
+ArcticBlastCost,50,60,70
+ArcticBlastDamagePerSec,10,12,14
+ArcticBlastDuration,1,2,3
 LensAbilityCost,5,6,7
 LensAbilityCooldown,8,8.5,9
 LensAbilityDuration,5,6,7

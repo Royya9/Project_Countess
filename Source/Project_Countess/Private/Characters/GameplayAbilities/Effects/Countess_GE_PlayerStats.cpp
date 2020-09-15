@@ -10,7 +10,7 @@ UCountess_GE_PlayerStats::UCountess_GE_PlayerStats()
 
 	if (AbilityDetailsTable)
 	{
-		const uint32 NumOfPlayerStatsToCapture = 13;
+		const uint32 NumOfPlayerStatsToCapture = 14;
 
 		TArray<FScalableFloat> ScalableFloats;
 		ScalableFloats.SetNum(NumOfPlayerStatsToCapture);
@@ -61,6 +61,9 @@ UCountess_GE_PlayerStats::UCountess_GE_PlayerStats()
 
 			CurveTableRowHandles[12].RowName = FName("PrimaryAbilityDamage");
 			ModifierInfos[12].Attribute = Countess_AttributeSet->GetPrimaryAbilityDamageAttribute();
+
+			CurveTableRowHandles[13].RowName = FName("ArcticBlastDamagePerSec");
+			ModifierInfos[13].Attribute = Countess_AttributeSet->GetArcticBlastDamagePerSecAttribute();
 		}
 
 		for (uint32 i = 0; i < NumOfPlayerStatsToCapture; i++)

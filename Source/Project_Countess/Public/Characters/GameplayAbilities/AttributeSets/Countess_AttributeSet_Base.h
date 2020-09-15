@@ -97,6 +97,10 @@ public:
 	FGameplayAttributeData ElectroSparkDamage;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, ElectroSparkDamage)
 
+	UPROPERTY(BlueprintReadOnly, Category = "ArcticBlastDamagePerSec")
+	FGameplayAttributeData ArcticBlastDamagePerSec;
+	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, ArcticBlastDamagePerSec)
+
 	UPROPERTY(BlueprintReadOnly, Category = "PrimaryAbilityDamage")
 	FGameplayAttributeData PrimaryAbilityDamage;
 	ATTRIBUTE_ACCESSORS(UCountess_AttributeSet_Base, PrimaryAbilityDamage)
