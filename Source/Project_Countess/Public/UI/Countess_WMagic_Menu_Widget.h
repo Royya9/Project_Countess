@@ -33,4 +33,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
     void SetAbilityImage(E_WMagic WMagicAbility, FSlateBrush AbilityIcon);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetSlottedBMagicAbilityImage(E_BMagic BMagicAbility, FSlateBrush AbilityIcon);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetSlottedBMagicAbilityCost(E_BMagic BMagicAbility, float Cost);
 };

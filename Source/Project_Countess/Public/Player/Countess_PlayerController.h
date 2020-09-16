@@ -17,6 +17,7 @@ class UCountess_GameplayAbility_Base;
 class USoundBase;
 class ICountess_Interface_AbilityDetail;
 class UGameplayAbility;
+class UAbilityData;
 
 /**
  *  Player Controller Base Class for Project_Countess Player
@@ -66,10 +67,10 @@ public:
 
 	// Function which registers for CountessTimerComponent and updates CooldownPercentage for this ability
 	UFUNCTION()
-	void SetWMagicAbilityCooldown(float StartValue, float EndValue, float LerpedValue);
+	void SetWMagicAbilityCooldown(float LerpedValue, E_WMagic WMagic);
 
 	UFUNCTION()
-	void SetBMagicAbilityCooldown(float StartValue, float EndValue, float LerpedValue);
+	void SetBMagicAbilityCooldown(float LerpedValue, E_BMagic BMagic);
 
 	virtual void BeginPlay() override;
 	
@@ -192,6 +193,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities, meta = (AllowPrivateAccess = "true"))
 	E_Skill SkillAcquired;
+
+	UPROPERTY()
+	TWeakObjectPtr<UAbilityData> SlottedWMagicAbilityData_WeakPtr;
+	UPROPERTY()
+	TWeakObjectPtr<UAbilityData> SlottedBMagicAbilityData_WeakPtr;
 
 	bool bBlackMagicMenuOpened;
 

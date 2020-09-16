@@ -38,7 +38,7 @@ public:
     void TimelineProgress(float Value);
 
     UFUNCTION()
-    void CountessTimerProgress(float StartTime, float EndTime, float LerpValue);
+    void CountessTimerProgress(float LerpValue);
 
     FTimeline CameraZoomTimeline;
 

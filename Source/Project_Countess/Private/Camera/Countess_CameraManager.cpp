@@ -84,7 +84,7 @@ void ACountess_CameraManager::SetVignetteAndBlur(const float& NewVignette, const
 
 		UCountess_Timer_Component* CountessTimerComponent = NewObject<UCountess_Timer_Component>(this, UCountess_Timer_Component::StaticClass());
 		CountessTimerComponent->RegisterComponent();
-		CountessTimerComponent->CountessTimerDelegate.AddDynamic(this, &ACountess_CameraManager::CountessTimerProgress);
+		CountessTimerComponent->CountessTimerDelegate.AddUObject(this, &ACountess_CameraManager::CountessTimerProgress);
 		CountessTimerComponent->StartLerp(StartTime, EndTime);
 	}
 }
@@ -104,7 +104,7 @@ void ACountess_CameraManager::ResetVignetteAndBlur(const float& StartTime, const
 
 		UCountess_Timer_Component* CountessTimerComponent = NewObject<UCountess_Timer_Component>(this, UCountess_Timer_Component::StaticClass());
 		CountessTimerComponent->RegisterComponent();
-		CountessTimerComponent->CountessTimerDelegate.AddDynamic(this, &ACountess_CameraManager::CountessTimerProgress);
+		CountessTimerComponent->CountessTimerDelegate.AddUObject(this, &ACountess_CameraManager::CountessTimerProgress);
 		CountessTimerComponent->StartLerp(StartTime, EndTime);
 	}
 }
@@ -135,7 +135,7 @@ void ACountess_CameraManager::TimelineProgress(float Value)
 	}
 }
 
-void ACountess_CameraManager::CountessTimerProgress(float StartTime, float EndTime, float LerpValue)
+void ACountess_CameraManager::CountessTimerProgress(float LerpValue)
 {
 	float ProgressVignette = FMath::LerpStable<float>(CameraOldVignette, CameraNewVignette, LerpValue);
 	float ProgressBlur = FMath::LerpStable<float>(CameraOldBlur, CameraNewBlur, LerpValue); 

@@ -171,34 +171,7 @@ void ACountess_PlayerController::ActivateWMagicAbility()
 		const bool bWhiteMagicActivated = PlayerStateInterface->Execute_Countess_Interface_TryActivateAbilityByClass(GetPlayerState<APlayerState>(), WhiteMagicAbility);
 		if(bWhiteMagicActivated) // Our WhiteMagic Ability is activated now
 		{
-			//PlayerCharacter->AbilitySystemComponent.Get()->MonitoredTagChanged(WhiteMagicAbility.GetDefaultObject()->GetCooldownGameplayEffect()->InheritableGameplayEffectTags.CombinedTags.First(), 1);
-			//UAbilitySystemComponent* ASC = Cast<UAbilitySystemComponent>(PlayerCharacter->AbilitySystemComponent.Get());
-
-			//ASC->
-
 			StartCooldownTimer(WhiteMagicAbility, true);
-
-/*
-			UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
-			if(Ability_Base)
-			{
-				UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
-				if(AbilityData)
-				{
-					const FString ContextString;
-					const float Cooldown = AbilityData->CoolDownRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString);
-
-					// Create a Timer Component which linearly interpolates b/w Start and End float value
-					UCountess_Timer_Component* TimerComponent = NewObject<UCountess_Timer_Component>(this, UCountess_Timer_Component::StaticClass());
-					if (TimerComponent)
-					{
-						TimerComponent->RegisterComponent();
-						TimerComponent->CountessTimerDelegate.AddDynamic(this, &ACountess_PlayerController::SetWMagicAbilityCooldown);
-						TimerComponent->StartLerp(0, Cooldown);
-					}
-				}
-			}*/
-
 		}
 	}
 }
@@ -223,29 +196,39 @@ void ACountess_PlayerController::StartCooldownTimer(TSubclassOf<UGameplayAbility
 			if (TimerComponent)
 			{
 				TimerComponent->RegisterComponent();
-				TimerComponent->CountessTimerDelegate.AddDynamic(this, bIsAbilityWMagic? &ACountess_PlayerController::SetWMagicAbilityCooldown : &ACountess_PlayerController::SetBMagicAbilityCooldown);
+				if(bIsAbilityWMagic)
+				{
+					TimerComponent->CountessTimerDelegate.AddUObject(this, &ACountess_PlayerController::SetWMagicAbilityCooldown, WMagicSlotted);
+					//TimerComponent->CountessTestDelegate.BindUObject(this, &ACountess_PlayerController::DelegateTestFunction1, WMagicSlotted);
+					//TimerComponent->CountessTestDelegate1.AddUObject(this, &ACountess_PlayerController::DelegateTestFunction1, WMagicSlotted);
+				}
+				else
+				{
+					TimerComponent->CountessTimerDelegate.AddUObject(this, &ACountess_PlayerController::SetBMagicAbilityCooldown, BMagicSlotted);
+					//TimerComponent->CountessTestDelegate.BindUObject(this, &ACountess_PlayerController::DelegateTestFunction, BMagicSlotted);
+					//TimerComponent->CountessTestDelegate1.AddUObject(this, &ACountess_PlayerController::DelegateTestFunction, BMagicSlotted);
+				}
+
 				TimerComponent->StartLerp(0, Cooldown);
 			}
 		}
 	}
 }
 
-void ACountess_PlayerController::SetWMagicAbilityCooldown(float StartValue, float EndValue, float LerpedValue)
+void ACountess_PlayerController::SetWMagicAbilityCooldown(float LerpedValue, E_WMagic WMagic)
 {
-	//const float PercentageRemaining = 1 - (LerpedValue) / (EndValue - StartValue);
 	const float PercentageRemaining = 1 - LerpedValue;
-	//UE_LOG(Countess_Log, Warning, TEXT("From %s. Cooldown Period is %f and Current Percentage is %f"), TEXT(__FUNCTION__), EndValue, PercentageRemaining);
-
 	if (Countess_HUD->Get_Countess_HUDWidget())
-		Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityCooldownPercentage(PercentageRemaining);
+		Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityCooldownPercentage(WMagic, PercentageRemaining);
+		
 }
 
 
-void ACountess_PlayerController::SetBMagicAbilityCooldown(float StartValue, float EndValue, float LerpedValue)
+void ACountess_PlayerController::SetBMagicAbilityCooldown(float LerpedValue, E_BMagic BMagic)
 {
-	const float PercentageRemaining = 1 - LerpedValue;
-	if (Countess_HUD->Get_Countess_HUDWidget())
-		Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityCooldownPercentage(PercentageRemaining);
+	 const float PercentageRemaining = 1 - LerpedValue;
+	 if (Countess_HUD->Get_Countess_HUDWidget())
+	 	Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityCooldownPercentage(BMagic, PercentageRemaining);
 }
 
 void ACountess_PlayerController::BeginPlay()
@@ -557,6 +540,12 @@ void ACountess_PlayerController::Populate_BMagicMenu_Widget(UCountess_BMagic_Men
 {
 	BMagic_Menu_Widget->SetCurrentMana(PlayerStateInterface->GetCurrentMana());
 	BMagic_Menu_Widget->SetManaPercentage(PlayerStateInterface->GetCurrentMana()/PlayerStateInterface->GetMaxMana());
+	if(WMagicSlotted != E_WMagic::None && SlottedWMagicAbilityData_WeakPtr.IsValid())
+	{
+		const FString ContextString;
+		BMagic_Menu_Widget->SetSlottedWMagicAbilityImage(WMagicSlotted, SlottedWMagicAbilityData_WeakPtr.Get()->AbilityMenuImage);
+		BMagic_Menu_Widget->SetSlottedWMagicAbilityCost(WMagicSlotted, SlottedWMagicAbilityData_WeakPtr.Get()->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+	}
 
 	//Populate ElectroSpark
 	if(PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::BMagicTag[E_BMagic::ElectroSpark],BlackMagicAbility))
@@ -619,6 +608,13 @@ void ACountess_PlayerController::Populate_WMagicMenu_Widget(UCountess_WMagic_Men
 {
 	WMagic_Menu_Widget->SetCurrentMana(PlayerStateInterface->GetCurrentMana());
 	WMagic_Menu_Widget->SetManaPercentage(PlayerStateInterface->GetCurrentMana()/PlayerStateInterface->GetMaxMana());
+
+	if (BMagicSlotted != E_BMagic::None && SlottedBMagicAbilityData_WeakPtr.IsValid())
+	{
+		const FString ContextString;
+		WMagic_Menu_Widget->SetSlottedBMagicAbilityImage(BMagicSlotted, SlottedBMagicAbilityData_WeakPtr.Get()->AbilityMenuImage);
+		WMagic_Menu_Widget->SetSlottedBMagicAbilityCost(BMagicSlotted, SlottedBMagicAbilityData_WeakPtr.Get()->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
+	}
 
 	//Populate Lens
 	if(PlayerStateInterface->CanActivateAbilityByTagGeneric(CountessTags::WMagicTag[E_WMagic::LensOfTruth],WhiteMagicAbility))
@@ -804,8 +800,10 @@ void ACountess_PlayerController::MenuOp()
 
 			Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SelectedAbility(E_BMagic::FireBall);
 			BMagicSlotted = E_BMagic::FireBall;
+			Countess_HUD->Get_Countess_HUDWidget()->SetBMagicSlotted(BMagicSlotted);
 			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
-			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			SlottedBMagicAbilityData_WeakPtr = AbilityData;
 			if(AbilityData)
 			{
 				Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityImage(AbilityData->AbilityMenuImage);
@@ -821,8 +819,10 @@ void ACountess_PlayerController::MenuOp()
 
 			Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SelectedAbility(E_BMagic::ElectroSpark);
 			BMagicSlotted = E_BMagic::ElectroSpark;
+			Countess_HUD->Get_Countess_HUDWidget()->SetBMagicSlotted(BMagicSlotted);
 			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
-			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			SlottedBMagicAbilityData_WeakPtr = AbilityData;
 			if(AbilityData)
 			{
 				Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityImage(AbilityData->AbilityMenuImage);
@@ -838,8 +838,10 @@ void ACountess_PlayerController::MenuOp()
 
 			Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SelectedAbility(E_BMagic::BloodLust);
 			BMagicSlotted = E_BMagic::BloodLust;
+			Countess_HUD->Get_Countess_HUDWidget()->SetBMagicSlotted(BMagicSlotted);
 			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
-			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			SlottedBMagicAbilityData_WeakPtr = AbilityData;
 			if (AbilityData)
 			{
 				Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityImage(AbilityData->AbilityMenuImage);
@@ -855,8 +857,10 @@ void ACountess_PlayerController::MenuOp()
 
 			Countess_HUD->Get_Countess_BMagic_Menu_Widget()->SelectedAbility(E_BMagic::ArcticBlast);
 			BMagicSlotted = E_BMagic::ArcticBlast;
+			Countess_HUD->Get_Countess_HUDWidget()->SetBMagicSlotted(BMagicSlotted);
 			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(BlackMagicAbility.GetDefaultObject());
-			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			SlottedBMagicAbilityData_WeakPtr = AbilityData;
 			if (AbilityData)
 			{
 				Countess_HUD->Get_Countess_HUDWidget()->SetBMagicAbilityImage(AbilityData->AbilityMenuImage);
@@ -875,8 +879,10 @@ void ACountess_PlayerController::MenuOp()
 
 			Countess_HUD->Get_Countess_WMagic_Menu_Widget()->SelectedAbility(E_WMagic::LensOfTruth);
 			WMagicSlotted = E_WMagic::LensOfTruth;
+			Countess_HUD->Get_Countess_HUDWidget()->SetWMagicSlotted(WMagicSlotted);
 			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
-			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			SlottedWMagicAbilityData_WeakPtr = AbilityData;
 			if(AbilityData)
 			{
 				Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityImage(AbilityData->AbilityMenuImage);
@@ -891,8 +897,10 @@ void ACountess_PlayerController::MenuOp()
 
 			Countess_HUD->Get_Countess_WMagic_Menu_Widget()->SelectedAbility(E_WMagic::Mist);
 			WMagicSlotted = E_WMagic::Mist;
+			Countess_HUD->Get_Countess_HUDWidget()->SetWMagicSlotted(WMagicSlotted);
 			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
-			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			SlottedWMagicAbilityData_WeakPtr = AbilityData;
 			if (AbilityData)
 			{
 				Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityImage(AbilityData->AbilityMenuImage);
@@ -907,8 +915,10 @@ void ACountess_PlayerController::MenuOp()
 
 			Countess_HUD->Get_Countess_WMagic_Menu_Widget()->SelectedAbility(E_WMagic::Shield);
 			WMagicSlotted = E_WMagic::Shield;
+			Countess_HUD->Get_Countess_HUDWidget()->SetWMagicSlotted(WMagicSlotted);
 			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
-			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			SlottedWMagicAbilityData_WeakPtr = AbilityData;
 			if (AbilityData)
 			{
 				Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityImage(AbilityData->AbilityMenuImage);
@@ -923,8 +933,10 @@ void ACountess_PlayerController::MenuOp()
 
 			Countess_HUD->Get_Countess_WMagic_Menu_Widget()->SelectedAbility(E_WMagic::TimeSlow);
 			WMagicSlotted = E_WMagic::TimeSlow;
+			Countess_HUD->Get_Countess_HUDWidget()->SetWMagicSlotted(WMagicSlotted);
 			const UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(WhiteMagicAbility.GetDefaultObject());
-			const UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			UAbilityData* AbilityData = Ability_Base->AbilityData.Get();
+			SlottedWMagicAbilityData_WeakPtr = AbilityData;
 			if (AbilityData)
 			{
 				Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityImage(AbilityData->AbilityMenuImage);

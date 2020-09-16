@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Globals/Project_Countess.h"
 #include "Blueprint/UserWidget.h"
 #include "Countess_HUD_Widget.generated.h"
 
@@ -81,10 +81,10 @@ public:
 	void SetWMagicAbilityCost(float WMagicAbilityCost);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetWMagicAbilityCooldownPercentage(float Percentage);
+	void SetWMagicAbilityCooldownPercentage(E_WMagic WMagicAbility, float Percentage);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetBMagicAbilityCooldownPercentage(float Percentage);
+	void SetBMagicAbilityCooldownPercentage(E_BMagic BMagicAbility, float Percentage);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetBMagicAbilityCost(float BMagicAbilityCost);
@@ -94,4 +94,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void PlayAnimOnWMagicSlotted();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetBMagicSlotted(E_BMagic BMagicSlotted);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetWMagicSlotted(E_WMagic WMagicSlotted);
 };

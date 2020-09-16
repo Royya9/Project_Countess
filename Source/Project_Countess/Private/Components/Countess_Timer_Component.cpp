@@ -52,7 +52,7 @@ void UCountess_Timer_Component::TickComponent(float DeltaTime, ELevelTick TickTy
 	{
 		LerpedValue += LerpStartValue + DeltaTime / (UGameplayStatics::GetGlobalTimeDilation(this));
 		LerpedValue = FMath::Clamp<float>(LerpedValue, LerpStartValue, LerpEndValue);
-		CountessTimerDelegate.Broadcast(LerpStartValue, LerpEndValue, (LerpedValue - LerpStartValue) / (LerpEndValue - LerpStartValue));
+		CountessTimerDelegate.Broadcast((LerpedValue - LerpStartValue) / (LerpEndValue - LerpStartValue));
 		if (LerpedValue == LerpEndValue)
 		{
 			GetWorld()->GetTimerManager().SetTimer(CountessTimerComponentHandle, CountessTimerComponentDestroyDelegate, ComponentDestroyDelay * (UGameplayStatics::GetGlobalTimeDilation(this)), false);
