@@ -29,8 +29,9 @@ void UCountess_GameplayAbility_Regen::ActivateAbility(const FGameplayAbilitySpec
 		if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 		{
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+			return;
 		}
-		CommitAbility(Handle, ActorInfo, ActivationInfo);
+		//CommitAbility(Handle, ActorInfo, ActivationInfo);
 
 		ACountess_Character_Base* Character_Base = Cast<ACountess_Character_Base>(ActorInfo->AvatarActor.Get(false));
 		if(!Character_Base)

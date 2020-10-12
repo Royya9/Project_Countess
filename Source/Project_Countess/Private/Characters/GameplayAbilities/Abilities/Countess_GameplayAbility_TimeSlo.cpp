@@ -115,6 +115,8 @@ void UCountess_GameplayAbility_TimeSlo::ActivateAbility(const FGameplayAbilitySp
 
 			PlayerASC->CountessTimeSlowActivated.Broadcast(TimeDilationAmount, ActualDurationTime, ActualDurationTime); // #TODO Refactor this
 
+			PlayerASC->ScalePeriodOfAllActiveEffects(1 / (TimeDilationAmount));
+
 			if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 			{
 				EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -149,9 +151,11 @@ void UCountess_GameplayAbility_TimeSlo::CancelAbility(const FGameplayAbilitySpec
 		UGameplayStatics::SetGlobalTimeDilation(this, 1.f); // Reset TimeDilation
 	}
 
-	UAbilitySystemComponent* PlayerASC = Cast<UAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+	UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
 	if (PlayerASC)
 		PlayerASC->RemoveLooseGameplayTag(CountessTags::FStatusTags::TimeSlowAbilityOnTag); // Remove the status tag on ability cancel
+
+	PlayerASC->ScalePeriodOfAllActiveEffects(TimeDilationAmount);
 }
 
 void UCountess_GameplayAbility_TimeSlo::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -178,10 +182,11 @@ void UCountess_GameplayAbility_TimeSlo::EndAbility(const FGameplayAbilitySpecHan
 		UGameplayStatics::SetGlobalTimeDilation(this, 1.f); // Reset TimeDilation
 	}
 
-	UAbilitySystemComponent* PlayerASC = Cast<UAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+	UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
 	if (PlayerASC)
 		PlayerASC->RemoveLooseGameplayTag(CountessTags::FStatusTags::TimeSlowAbilityOnTag); // Remove the status tag on ability End
 
+	PlayerASC->ScalePeriodOfAllActiveEffects(TimeDilationAmount);
 // 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 // 	UE_LOG(Countess_Log, Warning, TEXT("From %s. ASC is %s"), TEXT(__FUNCTION__), *ASC->GetFName().ToString());
 

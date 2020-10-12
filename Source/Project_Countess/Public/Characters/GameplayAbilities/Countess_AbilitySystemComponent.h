@@ -32,4 +32,6 @@ public:
 	virtual void OnDamageReceived(UCountess_AbilitySystemComponent* SourceASC, float UnMitigatedDamage, float MitigatedDamage);
 
 	bool SetGameplayEffectDurationHandle(FActiveGameplayEffectHandle Handle, float NewDuration);
+
+	void ScalePeriodOfAllActiveEffects(float NewScale);
 };
