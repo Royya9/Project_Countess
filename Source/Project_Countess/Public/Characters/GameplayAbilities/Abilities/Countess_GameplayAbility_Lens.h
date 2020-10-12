@@ -35,6 +35,9 @@ public:
 
 	UFUNCTION()
 	void OnLensAbilityDurationCompleted();
+	
+	UFUNCTION()
+	void HandleDurationAndCooldownEffectsOnTimeSlow(const float TimeDilationAmount, const float TimeRemaining, const float ActualDurationTime);
 
 private:
 

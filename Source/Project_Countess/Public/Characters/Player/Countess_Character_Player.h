@@ -5,6 +5,7 @@
 #include "Characters/Countess_Character_Base.h"
 #include "Components/TimelineComponent.h"
 #include "Globals/Project_Countess.h"
+#include "Interfaces/Countess_Interface_Inventory.h"
 #include "Countess_Character_Player.generated.h"
 
 /*Forward Declarations*/
@@ -28,7 +29,7 @@ class UAudioComponent;
 class USoundCue;
 
 UCLASS(config=Game)
-class ACountess_Character_Player : public ACountess_Character_Base
+class ACountess_Character_Player : public ACountess_Character_Base, public ICountess_Interface_Inventory
 {
 	GENERATED_BODY()
 
@@ -213,4 +214,11 @@ public:
 	virtual FGenericTeamId GetGenericTeamId() const override;
 
 	virtual int32 GetCharacterLevel() const override;
+
+	/*Inventory Related*/
+	/*Implementation of ICountess_Interface_Actor*/
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Inventory|Interface")
+	bool GiveItemOnOverlap(TSubclassOf<UCountess_Item>& ItemClassToGive, int32& NumberOfItemsToGive);
+	
 };

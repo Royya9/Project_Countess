@@ -4,6 +4,7 @@
 
 #include "Globals/Project_Countess.h"
 #include "GameFramework/PlayerController.h"
+#include "Items/Countess_Item.h"
 #include "Countess_PlayerController.generated.h"
 
 class ACountess_Character_Base;
@@ -18,6 +19,7 @@ class USoundBase;
 class ICountess_Interface_AbilityDetail;
 class UGameplayAbility;
 class UAbilityData;
+class UCountess_Timer_Component;
 
 /**
  *  Player Controller Base Class for Project_Countess Player
@@ -94,12 +96,19 @@ public:
 
 	void ShowDamageNumber(float Damage, ACountess_Character_Base* TargetCharacter);
 
-	void ShowTimerBarWidget(const FText& AbilityText, const float Duration);
+	void ShowTimerBarWidget(const FText& AbilityText, const float Duration, bool bIsAbilityTimeSlow = false, UCountess_Timer_Component* Timer_Component = nullptr);
 
 	//Timers
 
 	FTimerHandle NotifyWidgetDelayHandle;
 
+	// Container for TimerBarWidgetComponents
+	TArray<class UCountess_TimerBar_WidgetComp*> TimerBarWidgetComponents;
+
+	// Function to reposition active TimerBars if any one of them gets destroyed after their duration is over
+	UFUNCTION()
+	void ClearTimerBarId(const int32 Id);
+	
 	//Corresponding functions where necessary logic takes place
 	
 	UFUNCTION()
@@ -202,4 +211,67 @@ private:
 	bool bBlackMagicMenuOpened;
 
 	bool bWhiteMagicMenuOpened;
+
+	/**********************************************************************/
+	/* All Symbols related to Inventory*/
+
+public:
+
+	/** Map of slot, from type/num to item, initialized from ItemSlotsPerType on RPGGameInstanceBase */
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+	//TMap<FCountess_Item_Slot, UCountess_Item*> SlottedItems;
+
+	void ToggleInventory();
+
+	/* Number Of Slots our Inventory should have*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
+	int32 NumberOfSlots;
+
+	/* Max number of items a slot should have*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
+	int32 MaxStackSize;
+
+	/* Our Inventory Slots*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+	TArray<FCountess_Item_Slot> InventorySlots;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+	int32 SlotsPerRow;
+	
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Inventory")
+	bool IsSlotEmpty(int32 AtIndex) const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Inventory")
+	UCountess_Item* GetItemAtIndex(int32 AtIndex, int32& OutCount) const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Inventory")
+	bool GetEmptySlot(int32& OutEmptySlotIndex) const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Inventory")
+	bool GetFreeStackSlotForClass(TSubclassOf<UCountess_Item> ItemClass, int32& OutStackSlotIndex) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	bool AddItemToInventory(TSubclassOf<UCountess_Item>& ItemClassToAdd, int32& CountToAdd);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	bool RemoveItemAtIndex(int32 Index, int32 NumberOfItemsToRemove);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	bool SwapItemsAtIndices(int32 IndexA, int32 IndexB);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void UseItemAtIndex(int32 Index);
+
+	UFUNCTION()
+	void InventoryActionMenuUsePressed(int32 Index);
+
+	UFUNCTION()
+	void InventoryActionMenuDropPressed(int32 Index, int32 Count);
+
+	UFUNCTION()
+	void AddItemFromIndex(const int32 FromIndex, const int32 ToIndex);
+	
+private:
+
+	void SetItemAtInventorySlot(const TSubclassOf<UCountess_Item>& ItemClassToSet, const int32& CountToSet, const int32& IndexToSet);
 };

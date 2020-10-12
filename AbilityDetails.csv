@@ -29,12 +29,12 @@ MistAbilityCost,10,11,12
 MistAbilityCooldown,15,16,17
 MistAbilityDuration,8,9,10
 ShieldAbilityCost,10,11,12
-ShieldAbilityCooldown,15,16,17
+ShieldAbilityCooldown,18,20,22
 ShieldAbilityDuration,8,9,10
 ShieldBonusArmor,100,100,100
 TimeSlowAbilityCost,12,13,14
 TimeSlowAbilityCooldown,10,11,12
-TimeSlowAbilityDuration,10,11,12
+TimeSlowAbilityDuration,5,5.5,6
 StaminaRegenRate,0.1,0.5,1
 HealthRegenRate,0.5,0.75,1
 ManaRegenRate,0.5,0.75,1

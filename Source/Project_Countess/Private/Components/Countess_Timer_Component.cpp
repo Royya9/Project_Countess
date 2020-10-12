@@ -16,6 +16,7 @@ UCountess_Timer_Component::UCountess_Timer_Component()
 	bStartLerp = false;
 	LerpedValue = 0;
 	ComponentDestroyDelay = 1.f;
+	bIsAbilityTimeSlow = false;
 }
 
 
@@ -50,11 +51,14 @@ void UCountess_Timer_Component::TickComponent(float DeltaTime, ELevelTick TickTy
 	// ...
 	if (bStartLerp)
 	{
-		LerpedValue += LerpStartValue + DeltaTime / (UGameplayStatics::GetGlobalTimeDilation(this));
+		//LerpedValue += LerpStartValue + DeltaTime / (UGameplayStatics::GetGlobalTimeDilation(this));
+		LerpedValue +=  LerpStartValue + bIsAbilityTimeSlow? (DeltaTime / (UGameplayStatics::GetGlobalTimeDilation(this))) : (DeltaTime * UGameplayStatics::GetGlobalTimeDilation(this)) ;
 		LerpedValue = FMath::Clamp<float>(LerpedValue, LerpStartValue, LerpEndValue);
 		CountessTimerDelegate.Broadcast((LerpedValue - LerpStartValue) / (LerpEndValue - LerpStartValue));
+		CountessTimerRemainingAbsValueDelegate.Broadcast(LerpEndValue - LerpedValue);
 		if (LerpedValue == LerpEndValue)
 		{
+			CountessTimerCompletedDelegate.Broadcast();
 			GetWorld()->GetTimerManager().SetTimer(CountessTimerComponentHandle, CountessTimerComponentDestroyDelegate, ComponentDestroyDelay * (UGameplayStatics::GetGlobalTimeDilation(this)), false);
 			bStartLerp = false;
 		}

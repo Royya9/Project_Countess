@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayEffectTypes.h"
+#include "GameplayAbilitySet.h"
 #include "Interfaces/Countess_Interface_AbilityDetail.h"
 #include "Countess_PlayerState.generated.h"
 
@@ -79,6 +80,9 @@ public:
 
 	UFUNCTION()
 	void PlayerLevelIncreased(int32 NewLevel);
+
+	UFUNCTION()
+	void RefreshAbilityAfterDelay(FGameplayAbilitySpec& Spec);
 	/*Getters*/
 
 	/*Override from Ability System Interface*/

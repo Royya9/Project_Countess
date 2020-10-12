@@ -31,8 +31,13 @@ public:
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags /* = nullptr */, const FGameplayTagContainer* TargetTags /* = nullptr */, OUT FGameplayTagContainer* OptionalRelevantTags /* = nullptr */) const override;
 
+	//virtual float GetCDTimeRemaining(const UAbilitySystemComponent* ASC) const override;
+	
 	UFUNCTION()
 	void OnBloodLustAbilityDurationCompleted();
+
+	UFUNCTION()
+	void HandleDurationAndCooldownEffectsOnTimeSlow(const float TimeDilationAmount, const float TimeRemaining, const float ActualDurationTime);
 
 private:
 
@@ -41,6 +46,8 @@ private:
 	TSubclassOf<UGameplayEffect> BloodLustOnEffectClass;
 
 	FActiveGameplayEffectHandle BloodLustAbilityOnEffectHandle;
+
+//	mutable FActiveGameplayEffectHandle CooldownHandle;
 
 	FTimerHandle BloodLustAbilityTimerHandle;
 

@@ -10,6 +10,10 @@
 //DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCountessTimerDelegate, float, StartValue, float, EndValue, float, LerpedValue);
 DECLARE_MULTICAST_DELEGATE_OneParam(FCountessTimerDelegate, float);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessTimerRemainingAbsValueDelegate, float, TimeRemaining);
+// Delegate fired when the timer duration is over
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCountessTimerCompletedDelegate);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECT_COUNTESS_API UCountess_Timer_Component : public UActorComponent
 {
@@ -20,6 +24,12 @@ class PROJECT_COUNTESS_API UCountess_Timer_Component : public UActorComponent
     UCountess_Timer_Component();
 
     FCountessTimerDelegate CountessTimerDelegate;
+
+    // Delegate fired when the timer duration is over
+    FCountessTimerCompletedDelegate CountessTimerCompletedDelegate;
+
+	// Delegate which fires continuously giving the cooldown time remaining in absolute values (like 5.4 sec remaining instead of %)
+	FCountessTimerRemainingAbsValueDelegate CountessTimerRemainingAbsValueDelegate;
 
     void StartLerp(const float StartValue, const float EndValue);
 
@@ -33,6 +43,7 @@ class PROJECT_COUNTESS_API UCountess_Timer_Component : public UActorComponent
     // Called every frame
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+    bool bIsAbilityTimeSlow;
 
     private:
 

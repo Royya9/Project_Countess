@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameplayTagContainer.h"
+#include "UObject/PrimaryAssetId.h"
 #include "Countess_AbilityTypes.generated.h"
 
 UENUM(BlueprintType)
@@ -34,13 +35,112 @@ enum class E_Skill : uint8
 	BackDash		UMETA(DisplayName = "BackDash"),
 };
 
+/** Struct representing a slot for an item, shown in the UI */
+/*
+USTRUCT(BlueprintType, Blueprintable)
+struct PROJECT_COUNTESS_API FCountess_Item_Slot
+{
+	GENERATED_BODY()
 
+	FCountess_Item_Slot()
+		: SlotNumber(-1), Count(0)
+	{}
+
+	FCountess_Item_Slot(FPrimaryAssetType& InItemType, int32 InSlotNumber, int32 InCount)
+		: ItemType(InItemType), SlotNumber(InSlotNumber), Count(InCount)
+	{}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	FPrimaryAssetType ItemType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	int32 SlotNumber;
+
+	// Number of Items of the type an inventory slot currently has
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
+	int32 Count;
+
+	bool operator==(const FCountess_Item_Slot& Other) const
+	{
+		return ItemType == Other.ItemType && SlotNumber == Other.SlotNumber;
+	}
+
+	bool operator!=(const FCountess_Item_Slot& Other) const
+	{
+		return !(*this == Other);
+	}
+
+	friend inline uint32 GetTypeHash(FCountess_Item_Slot& Key)
+	{
+		uint32 Hash = 0;
+		Hash = HashCombine(Hash, GetTypeHash(Key.ItemType));
+		Hash = HashCombine(Hash, static_cast<uint32>(Key.SlotNumber));
+		return Hash;
+	}
+
+	bool IsValid() const
+	{
+		return ItemType.IsValid() && SlotNumber >=0 && Count >=1;
+	}
+};
+*/
+/* Extra Information about the item in our inventory*/
+/*
+USTRUCT(BlueprintType)
+struct FCountess_Item_Data
+{
+	GENERATED_BODY()
+
+	FCountess_Item_Data()
+		: ItemCount(1), ItemLevel(1)
+	{}
+
+	FCountess_Item_Data(int32 InItemCount, int32 InItemLevel)
+		: ItemCount(InItemCount), ItemLevel(InItemLevel)
+	{}
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	int32 ItemCount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	int32 ItemLevel;
+
+	bool operator==(const FCountess_Item_Data& Other) const
+	{
+		return ItemCount == Other.ItemCount && ItemLevel == Other.ItemLevel;
+	}
+
+	bool operator!=(const FCountess_Item_Data& Other) const
+	{
+		return !(*this == Other);
+	}
+
+	bool IsValid() const
+	{
+		return ItemCount > 0;
+	}
+
+	void UpdateItemData(FCountess_Item_Data& Other, int32 MaxCount, int32 MaxLevel)
+	{
+		if(MaxCount <= 0)
+			MaxCount = MAX_int32;
+		if(MaxLevel <= 0)
+			MaxLevel = MAX_int32;
+
+		ItemCount = FMath::Clamp(ItemCount + Other.ItemCount, 1, MaxCount);
+		ItemLevel = FMath::Clamp(ItemLevel + Other.ItemLevel, 1, MaxLevel);
+	}
+};
+*/
 /*Delegates*/
+
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAbilityAcquired_Interface_Delegate, TSubclassOf<class UCountess_GameplayAbility_Base>, AcquiredGameplayAbilityClass);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessAttributeChangedDelegate, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessLevelChangedDelegate, int32, PlayerLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FCountessAbilityAcquiredDelegate, TSubclassOf<class UCountess_GameplayAbility_Base>, AcquiredGameplayAbilityClass, FSlateBrush, AbilityIcon, float, Cooldown); //Add float Cooldown, Ability Type (White Magic/Black Magic) etc..
+
+
 
 namespace CountessTags
 {

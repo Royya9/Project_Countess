@@ -14,7 +14,7 @@
 ACountess_PlayerState::ACountess_PlayerState()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UCountess_AbilitySystemComponent>(FName("AbilitySystemComponent"));
-
+	
 	AttributeSet = CreateDefaultSubobject<UCountess_AttributeSet_Base>(FName("AttributeSet"));
 
 	StartupAbilities.Add(UCountess_GameplayAbility_Regen::StaticClass());
@@ -132,7 +132,11 @@ void ACountess_PlayerState::GiveAbilities(const TArray<TSubclassOf<UCountess_Gam
 			{
 				UE_LOG(Countess_Log, Warning, TEXT("Activating Ability From %s"), TEXT(__FUNCTION__));
 				if(StartupAbilities.Contains(Ability))
-					AbilitySystemComponent->TryActivateAbilityByClass(Ability);
+				{
+					UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(Ability.GetDefaultObject());
+					if(Ability_Base && Ability_Base->AbilityType == EAbilityType::Passive)
+						AbilitySystemComponent->TryActivateAbilityByClass(Ability);
+				}
 			}
 		}
 
@@ -161,9 +165,28 @@ TArray<TSubclassOf<UCountess_GameplayAbility_Base>> ACountess_PlayerState::Remov
 		{
 			if (Spec.SourceObject == this && Abilities.Contains(Spec.Ability->GetClass()))
 			{
-				AbilitiesToRemove.Add(Spec.Handle);
-				RemovedAbilities.Add(Spec.Ability->GetClass());
-				AcquiredAbilities.RemoveSingle(Spec.Ability->GetClass());
+				UCountess_GameplayAbility_Base* Ability_Base = Cast<UCountess_GameplayAbility_Base>(Spec.Ability);
+				if(Ability_Base)
+				{
+					const float CooldownRemaining = Ability_Base->GetCDTimeRemaining(Cast<UAbilitySystemComponent>(AbilitySystemComponent));
+					//const float CooldownRemaining = Ability_Base->GetCooldownTimeRemainingFromTimer();
+					if(CooldownRemaining > 0.f)
+					{
+						UE_LOG(Countess_Log, Warning, TEXT("From %s. Cooldown remaining for %s is %f"), TEXT(__FUNCTION__), *Spec.Ability->GetFName().ToString(), CooldownRemaining);
+						//Remove this ability after CD is over and Give refreshed (with level increase) ability
+						FTimerDelegate RefreshAbilityOnDelayDelegate;
+						FTimerHandle RefreshAbilityAfterDelayHandle;
+						RefreshAbilityOnDelayDelegate.BindUFunction(this, FName("RefreshAbilityAfterDelay"), Spec);
+						// #TODO Observe this timer. If necessary replace with countess timer component
+						GetWorldTimerManager().SetTimer(RefreshAbilityAfterDelayHandle, RefreshAbilityOnDelayDelegate, CooldownRemaining * (UGameplayStatics::GetGlobalTimeDilation(this)), false);
+					}
+					else
+					{
+						AbilitiesToRemove.Add(Spec.Handle);
+						RemovedAbilities.Add(Spec.Ability->GetClass());
+						AcquiredAbilities.RemoveSingle(Spec.Ability->GetClass());
+					}
+				}
 			}
 		}
 
@@ -196,6 +219,15 @@ void ACountess_PlayerState::PlayerLevelIncreased(int32 NewLevel)
 		PlayerLevel = NewLevel;
 		GiveAbilities(RemovedAbilities, true);
 	}
+}
+
+void ACountess_PlayerState::RefreshAbilityAfterDelay(FGameplayAbilitySpec& Spec)
+{
+	AbilitySystemComponent->ClearAbility(Spec.Handle);
+	AcquiredAbilities.RemoveSingle(Spec.Ability->GetClass());
+	UE_LOG(Countess_Log, Warning, TEXT("From %s. Refreshed ability %s after cooldown duration is completed"), TEXT(__FUNCTION__), *Spec.Ability->GetFName().ToString());
+
+	AcquireAbilitiy(Spec.Ability->GetClass(), true);
 }
 
 UAbilitySystemComponent* ACountess_PlayerState::GetAbilitySystemComponent() const

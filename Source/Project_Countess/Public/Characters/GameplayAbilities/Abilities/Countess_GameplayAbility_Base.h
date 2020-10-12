@@ -13,7 +13,24 @@ class UAbilityData;
 class USoundCue;
 class UCurveTable;
 class UNiagaraSystem;
+class UCountess_Timer_Component;
 
+UENUM(BlueprintType)
+enum class EAbilityCostType : uint8
+{
+	None  		UMETA(DisplayName = "None"),
+    Mana		UMETA(DisplayName = "Mana"),
+    Stamina		UMETA(DisplayName = "Stamina"),
+    Health		UMETA(DisplayName = "Health")
+};
+
+UENUM(BlueprintType)
+enum class EAbilityType : uint8
+{
+	None		UMETA(DisplayName = "None"),
+    Passive		UMETA(DisplayName = "Passive"),
+    Active		UMETA(DisplayName = "Active")
+};
 /**
  *  Base class for all our Abilities. Holds important details for each ability such as title, description, icon, cost etc.
  */
@@ -37,6 +54,8 @@ public:
 
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
+	virtual float GetCDTimeRemaining(const UAbilitySystemComponent* ASC) const;
+	
 	//virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 
 	/*sound to play when ability is activated*/
@@ -57,15 +76,14 @@ public:
 	/*Niagara particle emitter to spawn when ability is activated*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = VFX)
 	TWeakObjectPtr<UNiagaraSystem> NiagaraSystemToSpawn;
-};
 
-UENUM(BlueprintType)
-enum class EAbilityCostType : uint8
-{
-	None  		UMETA(DisplayName = "None"),
-    Mana		UMETA(DisplayName = "Mana"),
-    Stamina		UMETA(DisplayName = "Stamina"),
-    Health		UMETA(DisplayName = "Health")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AbilityDetails)
+	EAbilityType AbilityType;
+	
+	virtual void HandleAbilityDurationAndCooldownOnTimeSlowActivate(const float TimeDilationAmount, const float TimeRemaining, const float ActualDurationTime,
+		float CurrentRemainingDuration, const FActiveGameplayEffectHandle& DurationHandle, const FGameplayTag& DurationTag);
+
+	mutable FActiveGameplayEffectHandle CooldownHandle;
 };
 
 /*Container for our Ability Details. All Countess_GA_Base subclasses must have this*/

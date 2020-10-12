@@ -7,6 +7,7 @@
 #include "UI/Countess_SkillAcquired_Widget.h"
 #include "UI/Countess_BMagic_Menu_Widget.h"
 #include "UI/Countess_WMagic_Menu_Widget.h"
+#include "UI/Inventory/Countess_Inventory_Container.h"
 
 ACountess_HUD::ACountess_HUD()
 {
@@ -40,6 +41,12 @@ ACountess_HUD::ACountess_HUD()
 	{
 		Countess_WMagic_Menu_Widget_Class = Countess_WMagicMenu_Widget_Class_Getter.Class;
 	}
+
+	static ConstructorHelpers::FClassFinder<UCountess_Inventory_Container> Countess_Inventory_Container_Getter(TEXT("'/Game/MyProjectMain/Widgets/Inventory/WBP_Inventory'"));
+	if(Countess_Inventory_Container_Getter.Succeeded())
+	{
+		Countess_Inventory_Container_Widget_Class = Countess_Inventory_Container_Getter.Class;
+	}
 }
 
 void ACountess_HUD::BeginPlay()
@@ -55,6 +62,7 @@ void ACountess_HUD::CreateWidgets(class APlayerController* PlayerController, ESl
 	HUD_Widget = CreateWidget<UCountess_HUD_Widget>(PlayerController, Countess_HUD_Widget_Class);
 	HUD_Widget->AddToViewport();
 	HUD_Widget->SetVisibility(Visibility);
+	HUD_Widget->InventoryDropDetected.AddDynamic(this, &ACountess_HUD::InventorySlotDropDetected);
 }
 
 bool ACountess_HUD::CreateNotifyWidget(APlayerController* PlayerController, ESlateVisibility Visibility /*= ESlateVisibility::Visible*/)
@@ -100,3 +108,21 @@ bool ACountess_HUD::CreateWMagicMenuWidget(APlayerController* PlayerController, 
 
 	return false;
 }
+
+/*Inventory related*/
+bool ACountess_HUD::CreateInventoryContainerWidget(APlayerController* PlayerController, ESlateVisibility Visibility)
+{
+	if(Inventory_Container)
+		return true;
+	Inventory_Container = CreateWidget<UCountess_Inventory_Container>(PlayerController, Countess_Inventory_Container_Widget_Class);
+	if(Inventory_Container)
+		return true;
+
+	return false;
+}
+
+void ACountess_HUD::InventorySlotDropDetected(const int32 SlotIndex)
+{
+	Inventory_Container->ShowDropMenu(SlotIndex);
+}
+

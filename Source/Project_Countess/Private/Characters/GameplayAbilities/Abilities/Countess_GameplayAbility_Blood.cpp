@@ -8,10 +8,11 @@
 #include "Player/Countess_PlayerController.h"
 #include "Player/Countess_PlayerState.h"
 #include "Characters/Player/Countess_Character_Player.h"
-#include "AbilitySystemComponent.h"
+#include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
+#include "Components/Countess_Timer_Component.h"
 
 
 UCountess_GameplayAbility_Blood::UCountess_GameplayAbility_Blood()
@@ -19,7 +20,7 @@ UCountess_GameplayAbility_Blood::UCountess_GameplayAbility_Blood()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
 	AbilityTags.AddTag(CountessTags::FAbilityTags::BloodLustAbilityTag);
-
+	AbilityType = EAbilityType::Active;
 	/*Find AbilityData from our Content Folder that describe this Ability as Class and get CDO from it*/
 	static ConstructorHelpers::FClassFinder<UAbilityData> AbilityDataObject(TEXT("'/Game/MyProjectMain/Blueprints/Characters/Abilities/BloodLustAbility/BP_AbilityData_BloodLust'"));
 	if (AbilityDataObject.Succeeded())
@@ -30,6 +31,10 @@ UCountess_GameplayAbility_Blood::UCountess_GameplayAbility_Blood()
 	else
 		UE_LOG(Countess_Log, Error, TEXT("Corresponding AbilityData Not found.. in %s"), TEXT(__FUNCTION__));
 
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraSystemHelper(TEXT("NiagaraSystem'/Game/MyProjectMain/Blueprints/Test/Niagara/NS_BloodTrail.NS_BloodTrail'"));
+	if(NiagaraSystemHelper.Succeeded())
+		NiagaraSystemToSpawn = NiagaraSystemHelper.Object;
+	
 	CostGameplayEffectClass = UCountess_GE_BloodLust_Cost::StaticClass();
 	CooldownGameplayEffectClass = UCountess_GE_BloodLust_CoolDown::StaticClass();
 	BloodLustOnEffectClass = UCountess_GE_BloodLust_Bonus::StaticClass();
@@ -42,8 +47,9 @@ void UCountess_GameplayAbility_Blood::ActivateAbility(const FGameplayAbilitySpec
 		if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 		{
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+			return;
 		}
-		CommitAbility(Handle, ActorInfo, ActivationInfo);
+		//CommitAbility(Handle, ActorInfo, ActivationInfo);
 
 		ACountess_PlayerController* Countess_PlayerController = Cast<ACountess_PlayerController>(ActorInfo->PlayerController.Get());
 		ACountess_Character_Player* Countess_PlayerCharacter = Cast<ACountess_Character_Player>(ActorInfo->AvatarActor.Get());
@@ -54,7 +60,7 @@ void UCountess_GameplayAbility_Blood::ActivateAbility(const FGameplayAbilitySpec
 			return;
 		}
 
-		UAbilitySystemComponent* PlayerASC = Cast<UAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+		UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
 
 		//FGameplayEffectSpecHandle BloodLustAbilitySpecHandle = PlayerASC->MakeOutgoingSpec(BloodLustOnEffectClass, Countess_PlayerState->GetPlayerLevel(), PlayerASC->MakeEffectContext());
 		//BloodLustAbilityOnEffectHandle = PlayerASC->ApplyGameplayEffectSpecToSelf(*BloodLustAbilitySpecHandle.Data.Get());
@@ -66,10 +72,20 @@ void UCountess_GameplayAbility_Blood::ActivateAbility(const FGameplayAbilitySpec
 			const FText& AbilityText = AbilityData.Get()->Title;
 			const FString ContextString;
 			const float Duration = AbilityData.Get()->AbilityDurationHandle.Eval(Countess_PlayerState->GetPlayerLevel(), ContextString);
-			Countess_PlayerController->ShowTimerBarWidget(AbilityText, Duration);
+			//Countess_PlayerController->ShowTimerBarWidget(AbilityText, Duration);
 
-			FTimerDelegate BloodLustAbilityTimerDelegate = FTimerDelegate::CreateUObject(this, &UCountess_GameplayAbility_Blood::OnBloodLustAbilityDurationCompleted);
-			GetWorld()->GetTimerManager().SetTimer(BloodLustAbilityTimerHandle, BloodLustAbilityTimerDelegate, Duration * UGameplayStatics::GetGlobalTimeDilation(this), false);
+			//FTimerDelegate BloodLustAbilityTimerDelegate = FTimerDelegate::CreateUObject(this, &UCountess_GameplayAbility_Blood::OnBloodLustAbilityDurationCompleted);
+			//GetWorld()->GetTimerManager().SetTimer(BloodLustAbilityTimerHandle, BloodLustAbilityTimerDelegate, Duration * UGameplayStatics::GetGlobalTimeDilation(this), false);
+
+			UCountess_Timer_Component* TimerComponent_Duration = NewObject<UCountess_Timer_Component>(this, UCountess_Timer_Component::StaticClass());
+			TimerComponent_Duration->RegisterComponent();
+			TimerComponent_Duration->CountessTimerCompletedDelegate.AddDynamic(this, &UCountess_GameplayAbility_Blood::OnBloodLustAbilityDurationCompleted);
+			TimerComponent_Duration->StartLerp(0, Duration);
+
+			Countess_PlayerController->ShowTimerBarWidget(AbilityText, Duration, false, TimerComponent_Duration);
+
+			if(!PlayerASC->CountessTimeSlowActivated.IsAlreadyBound(this, &UCountess_GameplayAbility_Blood::HandleDurationAndCooldownEffectsOnTimeSlow))
+				PlayerASC->CountessTimeSlowActivated.AddDynamic(this, &UCountess_GameplayAbility_Blood::HandleDurationAndCooldownEffectsOnTimeSlow);
 		}
 
 		if (NiagaraSystemToSpawn.Get())
@@ -96,6 +112,7 @@ void UCountess_GameplayAbility_Blood::CancelAbility(const FGameplayAbilitySpecHa
 	UAbilitySystemComponent* PlayerASC = GetAbilitySystemComponentFromActorInfo();
 	if (BloodLustAbilityOnEffectHandle.IsValid())
 		PlayerASC->RemoveActiveGameplayEffect(BloodLustAbilityOnEffectHandle);
+	OnBloodLustAbilityDurationCompleted();
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
@@ -115,7 +132,15 @@ void UCountess_GameplayAbility_Blood::EndAbility(const FGameplayAbilitySpecHandl
 
 void UCountess_GameplayAbility_Blood::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
-	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
+	//Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
+	UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
+	if (CooldownGE)
+	{
+		CooldownHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, CooldownGE, GetAbilityLevel(Handle, ActorInfo));
+
+		UE_LOG(Countess_Log, Warning, TEXT("From %s. Applied Custom Cooldown with handle %s"), TEXT(__FUNCTION__), *CooldownHandle.ToString());
+
+	}
 }
 
 bool UCountess_GameplayAbility_Blood::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags /* = nullptr */, const FGameplayTagContainer* TargetTags /* = nullptr */, OUT FGameplayTagContainer* OptionalRelevantTags /* = nullptr */) const
@@ -133,9 +158,42 @@ bool UCountess_GameplayAbility_Blood::CanActivateAbility(const FGameplayAbilityS
 
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
+/*
+float UCountess_GameplayAbility_Blood::GetCDTimeRemaining(const UAbilitySystemComponent* ASC) const
+{
+	if (ASC)
+	{
+		UCountess_GE_BloodLust_CoolDown* CoolDownGE = Cast<UCountess_GE_BloodLust_CoolDown>(CooldownGameplayEffectClass.GetDefaultObject());
+		if(CoolDownGE)
+		{
+			FGameplayTagContainer CooldownTags = CoolDownGE->InheritableOwnedTagsContainer.CombinedTags;
 
+			FGameplayEffectQuery const Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(CooldownTags);
+			TArray< float > Durations = ASC->GetActiveEffectsTimeRemaining(Query);
+			if (Durations.Num() > 0)
+			{
+				Durations.Sort();
+				return Durations[Durations.Num() - 1];
+			}
+		}
+	}
+	return 0.f;
+}
+*/
 void UCountess_GameplayAbility_Blood::OnBloodLustAbilityDurationCompleted()
 {
-	GetWorld()->GetTimerManager().ClearTimer(BloodLustAbilityTimerHandle);
 	EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), true, false);
 }
+
+void UCountess_GameplayAbility_Blood::HandleDurationAndCooldownEffectsOnTimeSlow(const float TimeDilationAmount, const float TimeRemaining, const float ActualDurationTime)
+{
+
+	Super::HandleAbilityDurationAndCooldownOnTimeSlowActivate(TimeDilationAmount, TimeRemaining, ActualDurationTime,
+		this->GetCooldownTimeRemaining(), BloodLustAbilityOnEffectHandle, CountessTags::FStatusTags::BloodLustAbilityOnTag);
+	
+	UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+	if(PlayerASC)
+		PlayerASC->CountessTimeSlowActivated.RemoveDynamic(this, &UCountess_GameplayAbility_Blood::HandleDurationAndCooldownEffectsOnTimeSlow);
+	
+}
+

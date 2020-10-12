@@ -5,7 +5,7 @@
 #include "Characters/GameplayAbilities/Effects/Countess_GE_ESpark_CoolDown.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_ESpark_Cost.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_ESpark_Damage.h"
-#include "AbilitySystemComponent.h"
+#include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 #include "Characters/GameplayAbilities/AbilityTasks/CT_PlayMontageAndWaitForEvent.h"
 #include "Actors/Countess_Actor_ElectroSpark.h"
 #include "Player/Countess_PlayerState.h"
@@ -18,7 +18,7 @@
 UCountess_GameplayAbility_ESpark::UCountess_GameplayAbility_ESpark()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
+	AbilityType = EAbilityType::Active;
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
 
 	AbilityTags.AddTag(CountessTags::FAbilityTags::ElectroSparkAbilityTag);
@@ -61,12 +61,13 @@ void UCountess_GameplayAbility_ESpark::ActivateAbility(const FGameplayAbilitySpe
 		if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 		{
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+			return;
 		}
-		CommitAbility(Handle, ActorInfo, ActivationInfo);
+		//CommitAbility(Handle, ActorInfo, ActivationInfo);
 
 		ACountess_Character_Player* Player = Cast<ACountess_Character_Player>(ActorInfo->AvatarActor.Get());
-
-		if (!Player)
+		UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+		if (!Player || !PlayerASC)
 		{
 			UE_LOG(Countess_Log, Error, TEXT("CountessPlayerCharacter ie Avatar Actor not found in %s"), TEXT(__FUNCTION__));
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -89,7 +90,8 @@ void UCountess_GameplayAbility_ESpark::ActivateAbility(const FGameplayAbilitySpe
 		PlayMontageAndWaitForEvent->EventReceived.AddDynamic(this, &UCountess_GameplayAbility_ESpark::OnEventReceived);
 		PlayMontageAndWaitForEvent->ReadyForActivation();
 		
-
+		if(!PlayerASC->CountessTimeSlowActivated.IsAlreadyBound(this, &UCountess_GameplayAbility_ESpark::HandleDurationAndCooldownEffectsOnTimeSlow))
+			PlayerASC->CountessTimeSlowActivated.AddDynamic(this, &UCountess_GameplayAbility_ESpark::HandleDurationAndCooldownEffectsOnTimeSlow);
 	}
 }
 
@@ -125,7 +127,15 @@ void UCountess_GameplayAbility_ESpark::EndAbility(const FGameplayAbilitySpecHand
 
 void UCountess_GameplayAbility_ESpark::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
-	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
+	//Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
+	UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
+	if (CooldownGE)
+	{
+		CooldownHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, CooldownGE, GetAbilityLevel(Handle, ActorInfo));
+
+		UE_LOG(Countess_Log, Warning, TEXT("From %s. Applied Custom Cooldown with handle %s"), TEXT(__FUNCTION__), *CooldownHandle.ToString());
+
+	}
 }
 
 bool UCountess_GameplayAbility_ESpark::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -181,4 +191,15 @@ void UCountess_GameplayAbility_ESpark::OnEventReceived(FGameplayTag EventTag, FG
 
 	if (SoundToPlay.IsValid(false))
 		UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay.Get(false), ElectroSparkSpawnTransform.GetLocation());
+}
+
+void UCountess_GameplayAbility_ESpark::HandleDurationAndCooldownEffectsOnTimeSlow(const float TimeDilationAmount,
+	const float TimeRemaining, const float ActualDurationTime)
+{
+	Super::HandleAbilityDurationAndCooldownOnTimeSlowActivate(TimeDilationAmount, TimeRemaining, ActualDurationTime,
+this->GetCooldownTimeRemaining(), FActiveGameplayEffectHandle(), FGameplayTag());
+	
+	UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+	if(PlayerASC)
+		PlayerASC->CountessTimeSlowActivated.RemoveDynamic(this, &UCountess_GameplayAbility_ESpark::HandleDurationAndCooldownEffectsOnTimeSlow);
 }

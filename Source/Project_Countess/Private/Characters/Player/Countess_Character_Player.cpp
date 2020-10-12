@@ -462,3 +462,11 @@ int32 ACountess_Character_Player::GetCharacterLevel() const
 	return Countess_PlayerState->GetPlayerLevel();
 }
 
+/*********************************************/
+/* Inventory Related*/
+bool ACountess_Character_Player::GiveItemOnOverlap_Implementation(TSubclassOf<UCountess_Item>& ItemClassToGive,
+	int32& NumberOfItemsToGive)
+{
+	return Countess_PlayerController->AddItemToInventory(ItemClassToGive, NumberOfItemsToGive);
+}
+

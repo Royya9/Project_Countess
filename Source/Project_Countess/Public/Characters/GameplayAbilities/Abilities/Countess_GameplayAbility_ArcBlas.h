@@ -46,6 +46,9 @@ public:
 
 	TSubclassOf<UGameplayEffect> ArcticBlastDamageEffectClass;
 
+	UFUNCTION()
+	void HandleDurationAndCooldownEffectsOnTimeSlow(const float TimeDilationAmount, const float TimeRemaining, const float ActualDurationTime);
+	
 /*
 	UFUNCTION()
 	void OnArcticBlastAbilityDurationCompleted();

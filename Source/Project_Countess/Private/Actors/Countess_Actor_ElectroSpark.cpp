@@ -12,7 +12,7 @@
 ACountess_Actor_ElectroSpark::ACountess_Actor_ElectroSpark()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	ElectroSparkCollisionComponent = CreateDefaultSubobject<USphereComponent>(FName("Collision Component"));
 	RootComponent = ElectroSparkCollisionComponent;
@@ -88,6 +88,12 @@ void ACountess_Actor_ElectroSpark::BeginPlay()
 {
 	Super::BeginPlay();
 	ElectroSparkCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ACountess_Actor_ElectroSpark::OnOverlap);
+}
+
+void ACountess_Actor_ElectroSpark::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	this->CustomTimeDilation = 1 / UGameplayStatics::GetGlobalTimeDilation(this);
 }
 
 

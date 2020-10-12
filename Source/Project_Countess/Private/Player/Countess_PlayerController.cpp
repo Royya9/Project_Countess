@@ -22,6 +22,8 @@
 #include "Camera/Countess_CameraManager.h"
 #include "Components/Countess_Timer_Component.h"
 #include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
+#include "Items/Countess_Item.h"
+#include "UI/Inventory/Countess_Inventory_Container.h"
 
 
 ACountess_PlayerController::ACountess_PlayerController()
@@ -57,6 +59,12 @@ ACountess_PlayerController::ACountess_PlayerController()
 	}
 
 	this->PlayerCameraManagerClass = ACountess_CameraManager::StaticClass();
+	
+	/* Inventory Related */
+	NumberOfSlots = 20;
+	MaxStackSize = 99;
+	InventorySlots.SetNum(NumberOfSlots);
+	SlotsPerRow = 4;
 }
 
 void ACountess_PlayerController::OnPossess(APawn* aPawn)
@@ -76,6 +84,7 @@ void ACountess_PlayerController::OnPossess(APawn* aPawn)
 			InputComponent->BindAxis("MoveUp", this, &ACountess_PlayerController::MoveUp);
 			InputComponent->BindAction("MenuOps", IE_Pressed, this, &ACountess_PlayerController::MenuOp).bExecuteWhenPaused = true;
 			InputComponent->BindAction("Interact", IE_Pressed, this, &ACountess_PlayerController::Interact);
+			InputComponent->BindAction("Inventory", IE_Pressed, this, &ACountess_PlayerController::ToggleInventory).bExecuteWhenPaused = true;
 			/*InputComponent->BindAction("EndInteract", IE_Pressed, this, &ACountess_PlayerController::EndInteract).bExecuteWhenPaused = true;*/
 			FInputActionBinding& EndInteractBinding = InputComponent->BindAction("EndInteract", IE_Pressed, this, &ACountess_PlayerController::EndInteract);
 			EndInteractBinding.bConsumeInput = false;
@@ -196,6 +205,9 @@ void ACountess_PlayerController::StartCooldownTimer(TSubclassOf<UGameplayAbility
 			if (TimerComponent)
 			{
 				TimerComponent->RegisterComponent();
+				if (Ability_Base->AbilityTags.HasTag(CountessTags::FAbilityTags::TimeSlowAbilityTag))
+					TimerComponent->bIsAbilityTimeSlow = true;
+
 				if(bIsAbilityWMagic)
 				{
 					TimerComponent->CountessTimerDelegate.AddUObject(this, &ACountess_PlayerController::SetWMagicAbilityCooldown, WMagicSlotted);
@@ -301,7 +313,11 @@ void ACountess_PlayerController::BeginPlay()
 	bHandlingAbilityAcquire = false;
 	bBlackMagicMenuOpened = false;
 	bWhiteMagicMenuOpened = false;
-	
+
+	// #TODO This 8 represents number of active abilities at a time. We currently have 8. Replace this with better logic?
+	TimerBarWidgetComponents.Init(nullptr, 8);
+	//Countess_HUD->CreateInventoryContainerWidget(this, ESlateVisibility::Hidden);
+
 }
 
 void ACountess_PlayerController::Interact()
@@ -683,17 +699,56 @@ void ACountess_PlayerController::ShowDamageNumber(float Damage, ACountess_Charac
 	}
 }
 
-void ACountess_PlayerController::ShowTimerBarWidget(const FText& AbilityText, const float Duration)
+void ACountess_PlayerController::ShowTimerBarWidget(const FText& AbilityText, const float Duration, bool bIsAbilityTimeSlow, UCountess_Timer_Component* Timer_Component)
 {
+	// We are storing all the active timerbar_widgetcomponents in this array.
+	// This helps in calculating the relative position of the newly created timerbar
+	int32 Id = -1;
+	for(int32 i = 0; i< TimerBarWidgetComponents.Num(); i++)
+		if(TimerBarWidgetComponents[i] == nullptr)
+		{
+			Id = i;
+			break;
+		}
+
 	UCountess_TimerBar_WidgetComp* TimerBar_WidgetComp = NewObject<UCountess_TimerBar_WidgetComp>(this->GetPawn(), UCountess_TimerBar_WidgetComp::StaticClass());
 	if(TimerBar_WidgetComp)
 	{
 		TimerBar_WidgetComp->RegisterComponent();
 		TimerBar_WidgetComp->AttachToComponent(this->GetPawn()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		TimerBar_WidgetComp->SetRelativeLocation(FVector(0,0,100.f));
-		TimerBar_WidgetComp->SetAbilityTextAndDuration(AbilityText, Duration);
+	
+		// Tell the timerbarcomponent its position
+		TimerBar_WidgetComp->ComponentId = Id;
+		TimerBarWidgetComponents[Id] = TimerBar_WidgetComp;
+		TimerBar_WidgetComp->bIsAbilityTimeSlow = bIsAbilityTimeSlow;
+		// When the timerbarcomp is destroyed, we bind to this delegate, which helps in moving the relative positions of other active timerbars, if any
+		TimerBar_WidgetComp->TimerBarComponentDestroyedDelegate.AddDynamic(this, &ACountess_PlayerController::ClearTimerBarId);
+		TimerBar_WidgetComp->SetRelativeLocation(FVector(0,0,100.f * (0.5f * Id + 1)));
+		TimerBar_WidgetComp->SetAbilityTextAndDuration(AbilityText, Duration, Timer_Component);
 	}
 }
+
+void ACountess_PlayerController::ClearTimerBarId(const int32 Id)
+{
+	// Clear the position of the destroyed timerbarcomp
+	TimerBarWidgetComponents[Id] = nullptr;
+
+	// Go through the array and correct the positions of the next-inline timerbars' positions
+	for(int32 i = Id+1; i < TimerBarWidgetComponents.Num(); i++)
+	{
+		// Stop when we encounter nullptr because all the next comps are also nullptr
+		if(TimerBarWidgetComponents[i] == nullptr)
+			break;
+
+		// Set the position and id of this timerbar to the previous one (which has become vacant)
+		TimerBarWidgetComponents[i-1] = TimerBarWidgetComponents[i];
+		TimerBarWidgetComponents[i-1]->ComponentId = i-1;
+		TimerBarWidgetComponents[i-1]->SetRelativeLocation(FVector(0,0,100.f * (0.5f * (i-1) + 1)));
+		TimerBarWidgetComponents[i] = nullptr;
+
+	}
+}
+
 
 void ACountess_PlayerController::OnHealthChanged(float NewHealthValue)
 {
@@ -944,5 +999,274 @@ void ACountess_PlayerController::MenuOp()
 				Countess_HUD->Get_Countess_HUDWidget()->SetWMagicAbilityCost(AbilityData->CostRowHandle.Eval(PlayerStateInterface->GetPlayerLevel(), ContextString));
 			}
 		}
+	}
+}
+
+/*****************************************************/
+/* Inventory related */
+
+void ACountess_PlayerController::ToggleInventory()
+{
+	if(!Countess_HUD->Get_Countess_Inventory_Container())
+	{
+		Countess_HUD->CreateInventoryContainerWidget(this);
+		for(int32 Index = 0; Index < NumberOfSlots; Index++)
+		{
+			InventorySlots[Index].SlotNumber = Index;
+		}
+	}
+
+	if(Countess_HUD->Get_Countess_Inventory_Container()->IsInViewport())
+	{
+		Countess_HUD->Get_Countess_Inventory_Container()->RemoveFromParent();
+		this->SetPause(false);
+
+		const FInputModeGameOnly GameOnly;
+		this->SetInputMode(GameOnly);
+		this->bShowMouseCursor = false;
+		if(BMagicMenuCloseSound)
+			UGameplayStatics::PlaySound2D(this, BMagicMenuCloseSound);
+	}
+	else
+	{
+		Countess_HUD->Get_Countess_Inventory_Container()->SetRenderTransformPivot(Countess_HUD->Get_Countess_HUDWidget()->RenderTransform.Translation);
+		Countess_HUD->Get_Countess_Inventory_Container()->GenerateSlots(SlotsPerRow, NumberOfSlots, InventorySlots);
+
+
+
+		Countess_HUD->Get_Countess_Inventory_Container()->Countess_Inventory_Use.Clear();
+		Countess_HUD->Get_Countess_Inventory_Container()->Countess_Inventory_Use.AddDynamic(this, &ACountess_PlayerController::InventoryActionMenuUsePressed);
+
+		Countess_HUD->Get_Countess_Inventory_Container()->Countess_Inventory_Drop.Clear();
+		Countess_HUD->Get_Countess_Inventory_Container()->Countess_Inventory_Drop.AddDynamic(this, &ACountess_PlayerController::InventoryActionMenuDropPressed);
+
+		Countess_HUD->Get_Countess_Inventory_Container()->Countess_Inventory_AddItemFromIndex.Clear();
+		Countess_HUD->Get_Countess_Inventory_Container()->Countess_Inventory_AddItemFromIndex.AddDynamic(this, &ACountess_PlayerController::AddItemFromIndex);
+		
+		Countess_HUD->Get_Countess_Inventory_Container()->AddToViewport();
+		this->SetPause(true);
+		FInputModeGameAndUI GameAndUI;
+
+		if(BMagicMenuOpenSound)
+			UGameplayStatics::PlaySound2D(this, BMagicMenuOpenSound);
+	
+		GameAndUI.SetWidgetToFocus(Countess_HUD->Get_Countess_Inventory_Container()->TakeWidget());
+		this->SetInputMode(GameAndUI);
+		this->bShowMouseCursor = true;
+	}
+}
+
+bool ACountess_PlayerController::IsSlotEmpty(int32 AtIndex) const
+{
+	return !(InventorySlots[AtIndex].IsValid());
+}
+
+UCountess_Item* ACountess_PlayerController::GetItemAtIndex(int32 AtIndex, int32& OutCountAtIndex) const
+{
+	UCountess_Item* ItemAtIndex = nullptr;
+	if(InventorySlots[AtIndex].IsValid())
+	{
+		OutCountAtIndex = InventorySlots[AtIndex].Count;
+		ItemAtIndex =  Cast<UCountess_Item>(InventorySlots[AtIndex].SlotItem.GetDefaultObject());
+	}
+	return ItemAtIndex;
+}
+
+bool ACountess_PlayerController::GetEmptySlot(int32& OutEmptySlotIndex) const
+{
+	bool bFoundEmptySlot = false;
+	for(int32 Index = 0; Index< InventorySlots.Num(); Index++)
+	{
+		if(!InventorySlots[Index].IsValid())
+		{
+			OutEmptySlotIndex = Index;
+			bFoundEmptySlot = true;
+			break;
+		}
+	}
+	return bFoundEmptySlot;
+}
+
+bool ACountess_PlayerController::GetFreeStackSlotForClass(TSubclassOf<UCountess_Item> ItemClass, int32& OutStackSlotIndex) const
+{
+	bool bFoundSlotIndex = false;
+	for(int32 Index = 0; Index< InventorySlots.Num(); Index++)
+	{
+		if(InventorySlots[Index].IsValid() && InventorySlots[Index].SlotItem == ItemClass && InventorySlots[Index].Count < MaxStackSize)
+		{
+			OutStackSlotIndex = Index;
+			bFoundSlotIndex = true;
+			break;
+		}
+	}
+	return bFoundSlotIndex;
+}
+
+bool ACountess_PlayerController::AddItemToInventory(TSubclassOf<UCountess_Item>& ItemClassToAdd, int32& CountToAdd)
+{
+	bool bItemAdded = false;
+	int32 FreeIndex = -1;
+	UCountess_Item* ItemToAddCDO = Cast<UCountess_Item>(ItemClassToAdd.GetDefaultObject());
+	if(ItemToAddCDO->bCanBeStacked)
+	{
+		if(GetFreeStackSlotForClass(ItemClassToAdd, FreeIndex))
+		{
+			if(InventorySlots[FreeIndex].Count + CountToAdd <= MaxStackSize)
+			{
+				InventorySlots[FreeIndex].Count+= CountToAdd;
+				CountToAdd =0;
+				bItemAdded = true;
+			}
+			else
+			{
+				CountToAdd = InventorySlots[FreeIndex].Count + CountToAdd - MaxStackSize;
+				InventorySlots[FreeIndex].Count = MaxStackSize;
+				bItemAdded|= AddItemToInventory(ItemClassToAdd, CountToAdd);
+			}
+		}
+		else
+		{
+			const bool bFoundEmptySlot = GetEmptySlot(FreeIndex);
+			if(bFoundEmptySlot && CountToAdd > MaxStackSize)
+			{
+				SetItemAtInventorySlot(ItemClassToAdd, MaxStackSize, FreeIndex);
+				CountToAdd-= MaxStackSize;
+				bItemAdded|= AddItemToInventory(ItemClassToAdd, CountToAdd);
+			}
+			else if(bFoundEmptySlot && CountToAdd <= MaxStackSize)
+			{
+				SetItemAtInventorySlot(ItemClassToAdd, CountToAdd, FreeIndex);
+				CountToAdd = 0;
+				bItemAdded = true;
+			}
+		}
+	}
+	else
+	{
+		if(GetEmptySlot(FreeIndex))
+		{
+			SetItemAtInventorySlot(ItemClassToAdd, 1, FreeIndex); // Count =1 because this item can't be stacked
+			CountToAdd--;
+			bItemAdded = true;
+			if(CountToAdd >= 1) // Add remaining items to next available free slots
+				bItemAdded|= AddItemToInventory(ItemClassToAdd, CountToAdd);
+			
+		}
+	}
+
+	return bItemAdded;
+}
+
+bool ACountess_PlayerController::RemoveItemAtIndex(int32 Index, int32 NumberOfItemsToRemove)
+{
+	if(!IsSlotEmpty(Index) && NumberOfItemsToRemove >0)
+	{
+		int32 NumberOfItemsAtIndex = 0;
+		if(GetItemAtIndex(Index, NumberOfItemsAtIndex))
+		{
+			if(NumberOfItemsAtIndex > NumberOfItemsToRemove)
+			{
+				InventorySlots[Index].Count = NumberOfItemsAtIndex - NumberOfItemsToRemove;
+			}
+			else
+			{
+				SetItemAtInventorySlot(nullptr, 0, Index);
+				//Countess_HUD->Get_Countess_Inventory_Container()->RefreshSlots(InventorySlots);
+			}
+			if(Countess_HUD->Get_Countess_Inventory_Container())
+				Countess_HUD->Get_Countess_Inventory_Container()->UpdateSlotAtIndex(Index, InventorySlots[Index]);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ACountess_PlayerController::SwapItemsAtIndices(int32 IndexA, int32 IndexB)
+{
+	if(IndexA >= InventorySlots.Num() || IndexB >= InventorySlots.Num())
+		return false;
+
+	const int32 Temp = InventorySlots[IndexA].SlotNumber;
+	InventorySlots[IndexA].SlotNumber = InventorySlots[IndexB].SlotNumber;
+	InventorySlots[IndexB].SlotNumber = Temp;
+	InventorySlots.Swap(IndexA, IndexB);
+	//Countess_HUD->Get_Countess_Inventory_Container()->RefreshSlots(InventorySlots);
+	if(Countess_HUD->Get_Countess_Inventory_Container())
+	{
+		Countess_HUD->Get_Countess_Inventory_Container()->UpdateSlotAtIndex(IndexA, InventorySlots[IndexA]);
+		Countess_HUD->Get_Countess_Inventory_Container()->UpdateSlotAtIndex(IndexB, InventorySlots[IndexB]);
+	}
+	return true;
+}
+
+void ACountess_PlayerController::UseItemAtIndex(int32 Index)
+{
+	if(InventorySlots[Index].IsValid())
+	{
+		UCountess_Item* ItemToUse = InventorySlots[Index].SlotItem.GetDefaultObject();
+		if(ItemToUse)
+		{
+			ItemToUse->OnItemUse();
+			InventorySlots[Index].Count--;
+			if(InventorySlots[Index].Count <=0)
+				InventorySlots[Index].SlotItem = nullptr;
+			if(Countess_HUD->Get_Countess_Inventory_Container())
+				Countess_HUD->Get_Countess_Inventory_Container()->UpdateSlotAtIndex(Index, InventorySlots[Index]);
+		}
+	}
+}
+
+void ACountess_PlayerController::InventoryActionMenuUsePressed(int32 Index)
+{
+	UE_LOG(Countess_Log, Warning, TEXT("From %s. ActionMenu Use detected. Index is %d"), TEXT(__FUNCTION__), Index);
+	UseItemAtIndex(Index);
+}
+
+void ACountess_PlayerController::InventoryActionMenuDropPressed(int32 Index, int32 Count)
+{
+	UE_LOG(Countess_Log, Warning, TEXT("From %s. ActionMenu Drop detected. Index is %d and Count is %d"), TEXT(__FUNCTION__), Index, Count);
+	RemoveItemAtIndex(Index, Count);
+}
+
+void ACountess_PlayerController::AddItemFromIndex(const int32 FromIndex, const int32 ToIndex)
+{
+	//
+	if(InventorySlots[FromIndex].IsValid() && InventorySlots[ToIndex].IsValid())
+	{
+		// Items can be stacked. So we can add items to ToIndex
+		if(InventorySlots[FromIndex].SlotItem == InventorySlots[ToIndex].SlotItem && InventorySlots[FromIndex].SlotItem.GetDefaultObject()->bCanBeStacked)
+		{
+			if(InventorySlots[ToIndex].Count + InventorySlots[FromIndex].Count <= MaxStackSize)
+			{
+				// Transfer all items from FromIndex to To Index and invalidate FromIndex
+				SetItemAtInventorySlot(InventorySlots[ToIndex].SlotItem, InventorySlots[ToIndex].Count + InventorySlots[FromIndex].Count, ToIndex);
+				SetItemAtInventorySlot(nullptr, -1, FromIndex);
+			}
+			else
+			{
+				SetItemAtInventorySlot(InventorySlots[FromIndex].SlotItem, InventorySlots[FromIndex].Count - (MaxStackSize - InventorySlots[ToIndex].Count), FromIndex);
+				SetItemAtInventorySlot(InventorySlots[ToIndex].SlotItem, MaxStackSize, ToIndex);
+			}
+		}
+		// Items can't be stacked. Or their classes are different. Only option is to swap them
+		else
+		{
+			SwapItemsAtIndices(FromIndex, ToIndex);
+		}
+	}
+	else if(InventorySlots[FromIndex].IsValid() && !InventorySlots[ToIndex].IsValid())
+	{
+		SwapItemsAtIndices(FromIndex, ToIndex);
+	}
+}
+
+void ACountess_PlayerController::SetItemAtInventorySlot(const TSubclassOf<UCountess_Item>& ItemClassToSet, const int32& CountToSet, const int32& IndexToSet)
+{
+	InventorySlots[IndexToSet].SlotItem = ItemClassToSet;
+	InventorySlots[IndexToSet].Count = CountToSet;
+	InventorySlots[IndexToSet].SlotNumber = IndexToSet;
+	if(Countess_HUD->Get_Countess_Inventory_Container())
+	{
+		Countess_HUD->Get_Countess_Inventory_Container()->UpdateSlotAtIndex(IndexToSet, InventorySlots[IndexToSet]);
 	}
 }

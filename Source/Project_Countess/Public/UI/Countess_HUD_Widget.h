@@ -6,8 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "Countess_HUD_Widget.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCountessHUDInventoryDropDetected, int32, Index);
+
 /**
- * 
+ *  Main HUD Widget
  */
 UCLASS()
 class PROJECT_COUNTESS_API UCountess_HUD_Widget : public UUserWidget
@@ -100,4 +102,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetWMagicSlotted(E_WMagic WMagicSlotted);
+
+	/* Inventory Related*/
+
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
+	FCountessHUDInventoryDropDetected InventoryDropDetected;
 };

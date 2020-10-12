@@ -19,7 +19,7 @@
 ACountess_Actor_ArcBlast::ACountess_Actor_ArcBlast()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	ArcticBlastCollision = CreateDefaultSubobject<USphereComponent>(FName("Collision Component"));
 	ArcticBlastCollision->SetSphereRadius(20.f);
@@ -107,6 +107,7 @@ void ACountess_Actor_ArcBlast::OnOverlap(UPrimitiveComponent* OverlappedComponen
 			if (ASC)
 			{
 				//UE_LOG(Countess_Log, Warning, TEXT("From %s. Hit Actor ASC is %s"), TEXT(__FUNCTION__), *ASC->GetFName().ToString());
+				DamageEffectSpecHandle.Data->Period *= UGameplayStatics::GetGlobalTimeDilation(this);
 				ASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
 				OnArcticBlastImpact(SweepResult.Location);
 			}
@@ -138,6 +139,12 @@ void ACountess_Actor_ArcBlast::BeginPlay()
 	ArcticBlastCollision->OnComponentBeginOverlap.AddDynamic(this, &ACountess_Actor_ArcBlast::OnOverlap);
 	ArcticBlastCollision->OnComponentHit.AddDynamic(this, &ACountess_Actor_ArcBlast::OnHit);
 	SetLifeSpan(Range/ArcticBlastProjectileMovementComponent->InitialSpeed);
+}
+
+void ACountess_Actor_ArcBlast::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	this->CustomTimeDilation = 1 / UGameplayStatics::GetGlobalTimeDilation(this);
 }
 
 

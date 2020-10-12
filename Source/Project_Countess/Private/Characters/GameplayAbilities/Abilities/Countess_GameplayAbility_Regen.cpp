@@ -14,7 +14,7 @@ UCountess_GameplayAbility_Regen::UCountess_GameplayAbility_Regen()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	AbilityTags.AddTag(CountessTags::FAbilityTags::RegenAbilityTag);
-
+	AbilityType = EAbilityType::Passive;
 	Countess_Health_Regen_Effect = UCountess_GE_Health_Regen::StaticClass();
 	Countess_Mana_Regen_Effect = UCountess_GE_Mana_Regen::StaticClass();
 	Countess_Stamina_Regen_Effect = UCountess_GE_Stamina_Regen::StaticClass();

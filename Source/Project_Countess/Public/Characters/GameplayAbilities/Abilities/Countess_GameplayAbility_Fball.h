@@ -42,7 +42,9 @@ public:
 
 	UFUNCTION()
 	void OnEventReceived(FGameplayTag EventTag, FGameplayEventData EventData);
-
+	
+	UFUNCTION()
+    void HandleDurationAndCooldownEffectsOnTimeSlow(const float TimeDilationAmount, const float TimeRemaining, const float ActualDurationTime);
 
 	TSubclassOf<UGameplayEffect> FireballDamageEffectClass;
 };

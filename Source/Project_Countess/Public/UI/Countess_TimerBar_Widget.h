@@ -21,5 +21,11 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetTimerBarDuration(float Duration);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void SetTimerBarPercentage(const float Percentage);
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsAbilityTimeSlow;
 	
 };

@@ -16,7 +16,7 @@
 UCountess_GameplayAbility_DJump::UCountess_GameplayAbility_DJump()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
+	AbilityType = EAbilityType::Active;
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::MistAbilityOnTag);
 

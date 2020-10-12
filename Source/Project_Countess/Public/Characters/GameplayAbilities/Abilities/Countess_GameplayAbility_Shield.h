@@ -34,6 +34,9 @@ public:
  	UFUNCTION()
  	void OnShieldAbilityDurationCompleted();
 
+	UFUNCTION()
+	void HandleDurationAndCooldownEffectsOnTimeSlow(const float TimeDilationAmount, const float TimeRemaining, const float ActualDurationTime);
+
 private:
 
 	/*Effect to be applied when Shield Ability is Active*/
@@ -42,6 +45,8 @@ private:
 
 	FActiveGameplayEffectHandle ShieldAbilityOnEffectHandle;
 
+//	mutable FActiveGameplayEffectHandle CooldownHandle;
+	
 	FTimerHandle ShieldAbilityTimerHandle;
 
 	UNiagaraComponent* ShieldNiagaraComponent;

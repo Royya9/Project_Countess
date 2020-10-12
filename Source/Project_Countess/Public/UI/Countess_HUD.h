@@ -13,6 +13,7 @@ class UCountess_Notify_Widget;
 class UCountess_SkillAcquired_Widget;
 class UCountess_BMagic_Menu_Widget;
 class UCountess_WMagic_Menu_Widget;
+class UCountess_Inventory_Container;
 
 /**
  * 
@@ -80,5 +81,24 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UCountess_WMagic_Menu_Widget> Countess_WMagic_Menu_Widget_Class;
+
+	/* Inventory related*/
+	/****************************************************************/
+public:
+
+	FORCEINLINE UCountess_Inventory_Container* Get_Countess_Inventory_Container() { return Inventory_Container; }
+
+	bool CreateInventoryContainerWidget(APlayerController* PlayerController, ESlateVisibility Visibility = ESlateVisibility::Visible);
+
+	UFUNCTION()
+	void InventorySlotDropDetected(const int32 SlotIndex);
 	
+private:
+
+	UPROPERTY()
+	UCountess_Inventory_Container* Inventory_Container;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UCountess_Inventory_Container> Countess_Inventory_Container_Widget_Class;
+
 };

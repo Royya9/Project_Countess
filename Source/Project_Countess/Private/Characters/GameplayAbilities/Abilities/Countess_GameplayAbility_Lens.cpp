@@ -3,7 +3,7 @@
 
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Lens.h"
 #include "Kismet/GameplayStatics.h"
-#include "AbilitySystemComponent.h"
+#include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 #include "Actors/Countess_LensOfTruth_Platform.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_Lens_Cost.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_Lens_CoolDown.h"
@@ -11,11 +11,12 @@
 #include "Player/Countess_PlayerState.h"
 #include "TimerManager.h"
 #include "Camera/Countess_CameraManager.h"
+#include "Components/Countess_Timer_Component.h"
 
 UCountess_GameplayAbility_Lens::UCountess_GameplayAbility_Lens()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
+    AbilityType = EAbilityType::Active;
     ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
     ActivationBlockedTags.AddTag(CountessTags::FStatusTags::LensAbilityOnTag); // We cannot active this ability again while it is active.
     AbilityTags.AddTag(CountessTags::FAbilityTags::LensOfTruthAbilityTag);
@@ -52,8 +53,9 @@ void UCountess_GameplayAbility_Lens::ActivateAbility(const FGameplayAbilitySpecH
         if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
         {
             EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+            return;
         }
-        CommitAbility(Handle, ActorInfo, ActivationInfo);
+        //CommitAbility(Handle, ActorInfo, ActivationInfo);
 
         ACountess_PlayerState* Countess_PlayerState = Cast<ACountess_PlayerState>(ActorInfo->OwnerActor.Get());
         ACountess_PlayerController* Countess_PlayerController = Cast<ACountess_PlayerController>(ActorInfo->PlayerController.Get());
@@ -63,7 +65,7 @@ void UCountess_GameplayAbility_Lens::ActivateAbility(const FGameplayAbilitySpecH
             return;
         }
 
-        UAbilitySystemComponent* PlayerASC = Cast<UAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+        UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
         PlayerASC->AddLooseGameplayTag(CountessTags::FStatusTags::LensAbilityOnTag); // Add Status GameplayTag which blocks this ability from activating again while being active 
         
         // Play Ability Sound
@@ -79,15 +81,25 @@ void UCountess_GameplayAbility_Lens::ActivateAbility(const FGameplayAbilitySpecH
             const FText& AbilityText = AbilityData.Get()->Title;
             const FString ContextString;
             const float Duration = AbilityData.Get()->AbilityDurationHandle.Eval(Countess_PlayerState->GetPlayerLevel(), ContextString);
-            Countess_PlayerController->ShowTimerBarWidget(AbilityText, Duration);
+            //Countess_PlayerController->ShowTimerBarWidget(AbilityText, Duration);
             ACountess_CameraManager* Countess_CameraManager = Cast<ACountess_CameraManager>(Countess_PlayerController->PlayerCameraManager);
             if(Countess_CameraManager)
             {
                 Countess_CameraManager->SetVignetteAndFOV(VignetteIntensity, FieldOfView);
             }
             
-            FTimerDelegate LensAbilityTimerDelegate = FTimerDelegate::CreateUObject(this, &UCountess_GameplayAbility_Lens::OnLensAbilityDurationCompleted); 
-            GetWorld()->GetTimerManager().SetTimer(LensAbilityTimerHandle, LensAbilityTimerDelegate, Duration, false);
+            //FTimerDelegate LensAbilityTimerDelegate = FTimerDelegate::CreateUObject(this, &UCountess_GameplayAbility_Lens::OnLensAbilityDurationCompleted); 
+            //GetWorld()->GetTimerManager().SetTimer(LensAbilityTimerHandle, LensAbilityTimerDelegate, Duration * UGameplayStatics::GetGlobalTimeDilation(this), false);
+
+            UCountess_Timer_Component* TimerComponent_Duration = NewObject<UCountess_Timer_Component>(this, UCountess_Timer_Component::StaticClass());
+            TimerComponent_Duration->RegisterComponent();
+            TimerComponent_Duration->CountessTimerCompletedDelegate.AddDynamic(this, &UCountess_GameplayAbility_Lens::OnLensAbilityDurationCompleted);
+            TimerComponent_Duration->StartLerp(0, Duration);
+
+            Countess_PlayerController->ShowTimerBarWidget(AbilityText, Duration, false, TimerComponent_Duration);
+
+            if(!PlayerASC->CountessTimeSlowActivated.IsAlreadyBound(this, &UCountess_GameplayAbility_Lens::HandleDurationAndCooldownEffectsOnTimeSlow))
+                PlayerASC->CountessTimeSlowActivated.AddDynamic(this, &UCountess_GameplayAbility_Lens::HandleDurationAndCooldownEffectsOnTimeSlow);
         }
     }
 }
@@ -139,7 +151,15 @@ void UCountess_GameplayAbility_Lens::EndAbility(const FGameplayAbilitySpecHandle
 void UCountess_GameplayAbility_Lens::ApplyCooldown(const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
-    Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
+    //Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
+    UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
+    if (CooldownGE)
+    {
+        CooldownHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, CooldownGE, GetAbilityLevel(Handle, ActorInfo));
+
+        UE_LOG(Countess_Log, Warning, TEXT("From %s. Applied Custom Cooldown with handle %s"), TEXT(__FUNCTION__), *CooldownHandle.ToString());
+
+    }
 }
 
 bool UCountess_GameplayAbility_Lens::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -179,6 +199,17 @@ void UCountess_GameplayAbility_Lens::TogglePlatforms(const bool bAbilityActive, 
 
 void UCountess_GameplayAbility_Lens::OnLensAbilityDurationCompleted()
 {
-    GetWorld()->GetTimerManager().ClearTimer(LensAbilityTimerHandle);
+    //GetWorld()->GetTimerManager().ClearTimer(LensAbilityTimerHandle);
     EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), true, false);
+}
+
+void UCountess_GameplayAbility_Lens::HandleDurationAndCooldownEffectsOnTimeSlow(const float TimeDilationAmount,
+    const float TimeRemaining, const float ActualDurationTime)
+{
+    Super::HandleAbilityDurationAndCooldownOnTimeSlowActivate(TimeDilationAmount, TimeRemaining, ActualDurationTime,
+    this->GetCooldownTimeRemaining(), FActiveGameplayEffectHandle(), CountessTags::FStatusTags::LensAbilityOnTag);
+	
+    UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+    if(PlayerASC)
+        PlayerASC->CountessTimeSlowActivated.RemoveDynamic(this, &UCountess_GameplayAbility_Lens::HandleDurationAndCooldownEffectsOnTimeSlow);
 }

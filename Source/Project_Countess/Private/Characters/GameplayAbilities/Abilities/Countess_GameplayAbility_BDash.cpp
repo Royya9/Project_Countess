@@ -17,7 +17,7 @@
 UCountess_GameplayAbility_BDash::UCountess_GameplayAbility_BDash()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
+	AbilityType = EAbilityType::Active;
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::JumpingTag); // Jumping also blocks this ability
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::MistAbilityOnTag);

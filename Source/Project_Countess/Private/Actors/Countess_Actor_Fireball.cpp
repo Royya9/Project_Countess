@@ -19,7 +19,7 @@
 ACountess_Actor_Fireball::ACountess_Actor_Fireball()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	FireballCollision = CreateDefaultSubobject<USphereComponent>(FName("Collision Component"));
 	FireballCollision->SetSphereRadius(20.f);
@@ -138,6 +138,12 @@ void ACountess_Actor_Fireball::BeginPlay()
 	FireballCollision->OnComponentBeginOverlap.AddDynamic(this, &ACountess_Actor_Fireball::OnOverlap);
 	FireballCollision->OnComponentHit.AddDynamic(this, &ACountess_Actor_Fireball::OnHit);
 	SetLifeSpan(Range / FireballProjectileMovementComponent->InitialSpeed);
+}
+
+void ACountess_Actor_Fireball::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	this->CustomTimeDilation = 1 / UGameplayStatics::GetGlobalTimeDilation(this);
 }
 
 

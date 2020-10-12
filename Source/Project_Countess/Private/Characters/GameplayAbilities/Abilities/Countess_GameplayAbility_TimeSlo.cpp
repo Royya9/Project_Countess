@@ -5,20 +5,22 @@
 #include "Characters/GameplayAbilities/Effects/Countess_GE_TimeSlow_Cost.h"
 #include "Characters/GameplayAbilities/Effects/Countess_GE_TimeSlow_CoolDown.h"
 #include "Kismet/GameplayStatics.h"
-#include "AbilitySystemComponent.h"
+#include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 #include "TimerManager.h"
 #include "Player/Countess_PlayerController.h"
 #include "Player/Countess_PlayerState.h"
 #include "Characters/Player/Countess_Character_Player.h"
 #include "Camera/Countess_CameraManager.h"
+#include "Components/Countess_Timer_Component.h"
 
 UCountess_GameplayAbility_TimeSlo::UCountess_GameplayAbility_TimeSlo()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::TimeSlowAbilityOnTag);
+	ActivationBlockedTags.AddTag(CountessTags::FCooldownTags::TimeSlowAbilityCooldownTag);
 	AbilityTags.AddTag(CountessTags::FAbilityTags::TimeSlowAbilityTag);
-
+	AbilityType = EAbilityType::Active;
 	static ConstructorHelpers::FObjectFinder<USoundWave> SoundToPlayObject(TEXT("SoundWave'/Game/MyProjectMain/Audio/SFX_TimeSlowBegin.SFX_TimeSlowBegin'"));
 	if (SoundToPlayObject.Succeeded())
 		SoundToPlay = SoundToPlayObject.Object;
@@ -51,21 +53,11 @@ void UCountess_GameplayAbility_TimeSlo::ActivateAbility(const FGameplayAbilitySp
 {
 	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
 	{
-		if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-		{
-			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		}
-		//CooldownGameplayEffectClass.GetDefaultObject()->DurationMagnitude.; //Scale cooldown period accordingly
-		CommitAbility(Handle, ActorInfo, ActivationInfo);
 
-		float cooldownduration = this->GetCooldownTimeRemaining(ActorInfo);
+		//CooldownGameplayEffectClass.GetDefaultObject()->DurationMagnitude.; //Scale cooldown period accordingly
+		//CommitAbility(Handle, ActorInfo, ActivationInfo);
 
 		//UE_LOG(Countess_Log, Warning, TEXT("From %s. Cooldown remaining is %f"), TEXT(__FUNCTION__), cooldownduration);
-
-		FTimerDelegate CooldownCompletedTimerDelegate = FTimerDelegate::CreateUObject(this, &UCountess_GameplayAbility_TimeSlo::RemoveCooldownTagOnCooldownCompleted);
-		//Don't forget to SetTimer Duration according to the TimeDilation. Otherwise it will last longer than intended!
-		GetWorld()->GetTimerManager().SetTimer(CooldownCompletedTimerHandle, CooldownCompletedTimerDelegate, cooldownduration / TimeDilationAmount, false);
-		
 
 		ACountess_PlayerController* Countess_PlayerController = Cast<ACountess_PlayerController>(ActorInfo->PlayerController.Get());
 		ACountess_Character_Player* Countess_PlayerCharacter = Cast<ACountess_Character_Player>(ActorInfo->AvatarActor.Get());
@@ -76,8 +68,9 @@ void UCountess_GameplayAbility_TimeSlo::ActivateAbility(const FGameplayAbilitySp
 			return;
 		}
 
-		UAbilitySystemComponent* PlayerASC = Cast<UAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
-		PlayerASC->AddLooseGameplayTag(CountessTags::FStatusTags::TimeSlowAbilityOnTag); // Add Status GameplayTag which blocks this ability from activating again while being active 
+		UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+		PlayerASC->AddLooseGameplayTag(CountessTags::FStatusTags::TimeSlowAbilityOnTag); // Add Status GameplayTag which blocks this ability from activating again while being active
+		//PlayerASC->AddLooseGameplayTag(CountessTags::FCooldownTags::TimeSlowAbilityCooldownTag);
 
 		// Play Ability Sound
 		if (SoundToPlay.Get())
@@ -92,17 +85,40 @@ void UCountess_GameplayAbility_TimeSlo::ActivateAbility(const FGameplayAbilitySp
 
 			const FText& AbilityText = AbilityData.Get()->Title;
 			const FString ContextString;
-			const float Duration = AbilityData.Get()->AbilityDurationHandle.Eval(Countess_PlayerState->GetPlayerLevel(), ContextString);
-			Countess_PlayerController->ShowTimerBarWidget(AbilityText, Duration);
+			ActualDurationTime = AbilityData.Get()->AbilityDurationHandle.Eval(Countess_PlayerState->GetPlayerLevel(), ContextString);
+			ActualCooldownTime = AbilityData.Get()->CoolDownRowHandle.Eval(Countess_PlayerState->GetPlayerLevel(), ContextString);
+
 			ACountess_CameraManager* Countess_CameraManager = Cast<ACountess_CameraManager>(Countess_PlayerController->PlayerCameraManager);
 			if (Countess_CameraManager)
 			{
 				Countess_CameraManager->SetVignetteAndBlur(VignetteIntensity, BlurAmount, 0, 0.15f);
 			}
 
-			FTimerDelegate TimeSlowAbilityTimerDelegate = FTimerDelegate::CreateUObject(this, &UCountess_GameplayAbility_TimeSlo::OnTimeSlowAbilityDurationCompleted);
+			//FTimerDelegate CooldownCompletedTimerDelegate = FTimerDelegate::CreateUObject(this, &UCountess_GameplayAbility_TimeSlo::RemoveCooldownTagOnCooldownCompleted);
 			//Don't forget to SetTimer Duration according to the TimeDilation. Otherwise it will last longer than intended!
-			GetWorld()->GetTimerManager().SetTimer(TimeSlowAbilityTimerHandle, TimeSlowAbilityTimerDelegate, Duration / TimeDilationAmount, false);
+			//GetWorld()->GetTimerManager().SetTimer(CooldownCompletedTimerHandle, CooldownCompletedTimerDelegate, cooldownduration / TimeDilationAmount, false);
+
+			//FTimerDelegate TimeSlowAbilityTimerDelegate = FTimerDelegate::CreateUObject(this, &UCountess_GameplayAbility_TimeSlo::OnTimeSlowAbilityDurationCompleted);
+			//Don't forget to SetTimer Duration according to the TimeDilation. Otherwise it will last longer than intended!
+			//GetWorld()->GetTimerManager().SetTimer(TimeSlowAbilityTimerHandle, TimeSlowAbilityTimerDelegate, Duration / TimeDilationAmount, false);
+
+
+			////////// TESTING REGION
+			UCountess_Timer_Component* TimerComponent_Duration = NewObject<UCountess_Timer_Component>(this, UCountess_Timer_Component::StaticClass());
+			TimerComponent_Duration->RegisterComponent();
+			TimerComponent_Duration->bIsAbilityTimeSlow = true;
+			TimerComponent_Duration->CountessTimerCompletedDelegate.AddDynamic(this, &UCountess_GameplayAbility_TimeSlo::OnTimeSlowAbilityDurationCompleted);
+			TimerComponent_Duration->CountessTimerRemainingAbsValueDelegate.AddDynamic(this, &UCountess_GameplayAbility_TimeSlo::CurrentDurationRemaining);
+			TimerComponent_Duration->StartLerp(0, ActualDurationTime);
+
+			Countess_PlayerController->ShowTimerBarWidget(AbilityText, ActualDurationTime, true, TimerComponent_Duration);
+
+			PlayerASC->CountessTimeSlowActivated.Broadcast(TimeDilationAmount, ActualDurationTime, ActualDurationTime); // #TODO Refactor this
+
+			if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+			{
+				EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+			}
 		}
 	}
 }
@@ -177,11 +193,29 @@ void UCountess_GameplayAbility_TimeSlo::EndAbility(const FGameplayAbilitySpecHan
 void UCountess_GameplayAbility_TimeSlo::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
 	//This is giving interesting numbers. 
-/*	
-	float cooldownduration = this->GetCooldownTimeRemaining(ActorInfo);
+	//Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
 
-	UE_LOG(Countess_Log, Warning, TEXT("From %s. Cooldown remaining is %f"), TEXT(__FUNCTION__), cooldownduration);*/
-	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
+
+
+	
+	float finalCD = 0.f;
+	UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
+//	FActiveGameplayEffectHandle CooldownHandle;
+	if (CooldownGE)
+	{
+		CooldownHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, CooldownGE, GetAbilityLevel(Handle, ActorInfo));
+		float cooldownDurationFromGE = this->GetCooldownTimeRemaining();
+		float DurationActive = ActualDurationTime/TimeDilationAmount;
+		float cooldownAfterTimeSlowIsRemoved = cooldownDurationFromGE - DurationActive;
+		finalCD = DurationActive + cooldownAfterTimeSlowIsRemoved * TimeDilationAmount;
+	}
+
+	UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+	if(PlayerASC)
+		PlayerASC->SetGameplayEffectDurationHandle(CooldownHandle, finalCD);
+	
+	UE_LOG(Countess_Log, Warning, TEXT("From %s. New Cooldown remaining is %f"), TEXT(__FUNCTION__), finalCD);
+
 }
 
 bool UCountess_GameplayAbility_TimeSlo::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags /* = nullptr */, const FGameplayTagContainer* TargetTags /* = nullptr */, OUT FGameplayTagContainer* OptionalRelevantTags /* = nullptr */) const
@@ -202,13 +236,23 @@ bool UCountess_GameplayAbility_TimeSlo::CanActivateAbility(const FGameplayAbilit
 
 void UCountess_GameplayAbility_TimeSlo::OnTimeSlowAbilityDurationCompleted()
 {
-	GetWorld()->GetTimerManager().ClearTimer(TimeSlowAbilityTimerHandle);
+	//GetWorld()->GetTimerManager().ClearTimer(TimeSlowAbilityTimerHandle);
+	GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(CountessTags::FStatusTags::TimeSlowAbilityOnTag);
 	EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), true, false);
 }
 
 void UCountess_GameplayAbility_TimeSlo::RemoveCooldownTagOnCooldownCompleted()
 {
 	UE_LOG(Countess_Log, Warning, TEXT("From %s. CooldownTag is now removed. Can cast ability again"), TEXT(__FUNCTION__));
-	GetWorld()->GetTimerManager().ClearTimer(CooldownCompletedTimerHandle);
+	//GetWorld()->GetTimerManager().ClearTimer(CooldownCompletedTimerHandle);
 	GetAbilitySystemComponentFromActorInfo()->RemoveLooseGameplayTag(CountessTags::FCooldownTags::TimeSlowAbilityCooldownTag);
+	//EndAbility(this->GetCurrentAbilitySpecHandle(), this->GetCurrentActorInfo(), this->GetCurrentActivationInfo(), true, false);
+}
+
+void UCountess_GameplayAbility_TimeSlo::CurrentDurationRemaining(const float DurationRemaining)
+{
+	DurationTimeRemaining = DurationRemaining;
+	UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+
+	PlayerASC->CountessTimeSlowActivated.Broadcast(TimeDilationAmount, DurationRemaining, ActualDurationTime);
 }

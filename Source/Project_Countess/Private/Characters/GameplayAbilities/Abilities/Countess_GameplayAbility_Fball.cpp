@@ -3,7 +3,7 @@
 
 #include "Characters/GameplayAbilities/Abilities/Countess_GameplayAbility_Fball.h"
 #include "GameplayTagContainer.h"
-#include "AbilitySystemComponent.h"
+#include "Characters/GameplayAbilities/Countess_AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Characters/Player/Countess_Character_Player.h"
 #include "Kismet/GameplayStatics.h"
@@ -21,7 +21,7 @@
 UCountess_GameplayAbility_Fball::UCountess_GameplayAbility_Fball()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
+	AbilityType = EAbilityType::Active;
 	ActivationBlockedTags.AddTag(CountessTags::FStatusTags::StunTag);
 
 	AbilityTags.AddTag(CountessTags::FAbilityTags::FireballAbilityTag);
@@ -76,12 +76,13 @@ void UCountess_GameplayAbility_Fball::ActivateAbility(const FGameplayAbilitySpec
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
 	}
-	CommitAbility(Handle, ActorInfo, ActivationInfo);
+	//CommitAbility(Handle, ActorInfo, ActivationInfo);
 
 	ACountess_Character_Player* Player = Cast<ACountess_Character_Player>(ActorInfo->AvatarActor.Get());
-
-	if (!Player)
+	UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
+	if (!Player || !PlayerASC)
 	{
 		UE_LOG(Countess_Log, Error, TEXT("CountessPlayerCharacter ie Avatar Actor not found in %s"), TEXT(__FUNCTION__));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
@@ -97,7 +98,9 @@ void UCountess_GameplayAbility_Fball::ActivateAbility(const FGameplayAbilitySpec
 	PlayMontageAndWaitForEvent->OnCancelled.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnCompleted);
 	PlayMontageAndWaitForEvent->EventReceived.AddDynamic(this, &UCountess_GameplayAbility_Fball::OnEventReceived);
 	PlayMontageAndWaitForEvent->ReadyForActivation();
-
+	
+	if(!PlayerASC->CountessTimeSlowActivated.IsAlreadyBound(this, &UCountess_GameplayAbility_Fball::HandleDurationAndCooldownEffectsOnTimeSlow))
+		PlayerASC->CountessTimeSlowActivated.AddDynamic(this, &UCountess_GameplayAbility_Fball::HandleDurationAndCooldownEffectsOnTimeSlow);
 }
 
 void UCountess_GameplayAbility_Fball::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
@@ -118,7 +121,16 @@ void UCountess_GameplayAbility_Fball::EndAbility(const FGameplayAbilitySpecHandl
 
 void UCountess_GameplayAbility_Fball::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
-	Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
+	//Super::ApplyCooldown(Handle, ActorInfo, ActivationInfo);
+	UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
+	if (CooldownGE)
+	{
+		CooldownHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, CooldownGE, GetAbilityLevel(Handle, ActorInfo));
+
+		UE_LOG(Countess_Log, Warning, TEXT("From %s. Applied Custom Cooldown with handle %s"), TEXT(__FUNCTION__), *CooldownHandle.ToString());
+
+	}
+	
 }
 
 bool UCountess_GameplayAbility_Fball::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags /* = nullptr */, const FGameplayTagContainer* TargetTags /* = nullptr */, OUT FGameplayTagContainer* OptionalRelevantTags /* = nullptr */) const
@@ -180,4 +192,15 @@ void UCountess_GameplayAbility_Fball::OnEventReceived(FGameplayTag EventTag, FGa
 	if (EmitterToSpawn.IsValid(false))
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EmitterToSpawn.Get(false), ProjectileSpawnTransform.GetLocation());
 	
+}
+
+void UCountess_GameplayAbility_Fball::HandleDurationAndCooldownEffectsOnTimeSlow(const float TimeDilationAmount,
+    const float TimeRemaining, const float ActualDurationTime)
+{
+	Super::HandleAbilityDurationAndCooldownOnTimeSlowActivate(TimeDilationAmount, TimeRemaining, ActualDurationTime,
+this->GetCooldownTimeRemaining(), FActiveGameplayEffectHandle(), FGameplayTag());
+	
+	UCountess_AbilitySystemComponent* PlayerASC = Cast<UCountess_AbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+	if(PlayerASC)
+		PlayerASC->CountessTimeSlowActivated.RemoveDynamic(this, &UCountess_GameplayAbility_Fball::HandleDurationAndCooldownEffectsOnTimeSlow);
 }

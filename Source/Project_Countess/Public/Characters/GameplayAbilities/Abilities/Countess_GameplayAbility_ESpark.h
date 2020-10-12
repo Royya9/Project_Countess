@@ -47,5 +47,8 @@ public:
 
 
 	TSubclassOf<UGameplayEffect> ElectroSparkDamageEffectClass;
+
+	UFUNCTION()
+	void HandleDurationAndCooldownEffectsOnTimeSlow(const float TimeDilationAmount, const float TimeRemaining, const float ActualDurationTime);
 	
 };

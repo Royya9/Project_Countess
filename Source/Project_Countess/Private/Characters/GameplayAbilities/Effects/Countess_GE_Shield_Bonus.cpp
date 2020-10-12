@@ -33,12 +33,18 @@ UCountess_GE_Shield_Bonus::UCountess_GE_Shield_Bonus()
 		CurveTableRowHandle_Duration.CurveTable = AbilityDetailsTable;
 		CurveTableRowHandle_Duration.RowName = FName("ShieldAbilityDuration");
 
+		/*
 		ScalableFloat.Curve = CurveTableRowHandle_Duration;
 		FCustomCalculationBasedFloat CustomCalculationBasedFloat;
 		CustomCalculationBasedFloat.CalculationClassMagnitude = UCountess_CooldownModCalculation::StaticClass();
 		CustomCalculationBasedFloat.Coefficient = ScalableFloat;
 		//CustomCalculationBasedFloat.FinalLookupCurve = CurveTableRowHandle;
 		DurationMagnitude = FGameplayEffectModifierMagnitude(CustomCalculationBasedFloat);
+		*/
+
+		FSetByCallerFloat SetByCallerFloat;
+		SetByCallerFloat.DataTag = CountessTags::FStatusTags::ShieldAbilityOnTag;
+		DurationMagnitude = FGameplayEffectModifierMagnitude(SetByCallerFloat);
 	}
 	InheritableOwnedTagsContainer.AddTag(CountessTags::FStatusTags::ShieldAbilityOnTag);
 	InheritableGameplayEffectTags.AddTag(CountessTags::FStatusTags::ShieldAbilityOnTag);

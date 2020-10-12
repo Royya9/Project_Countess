@@ -34,13 +34,13 @@ public:
 	FTimerHandle TimeSlowAbilityTimerHandle;
 
 	FTimerHandle CooldownCompletedTimerHandle;
-
+	
 	UFUNCTION()
 	void OnTimeSlowAbilityDurationCompleted();
 
 	UFUNCTION()
 	void RemoveCooldownTagOnCooldownCompleted();
-
+	
 private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -54,5 +54,16 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float TimeDilationAmount;
-	
+
+	float CooldownTimeRemaining;
+
+	float DurationTimeRemaining;
+
+	float ActualDurationTime;
+
+	float ActualCooldownTime;
+
+	UFUNCTION()
+	void CurrentDurationRemaining(const float DurationRemaining);
+
 };
